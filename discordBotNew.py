@@ -1,6 +1,7 @@
 import discord
 import random
 import sys
+import os
 import math
 import itertools
 import svc.svc as svc
@@ -216,11 +217,4 @@ async def change_status():
     #new_stat = random.choice(status)
     await client.change_presence(activity=discord.Game(next(status)))
 
-parser = ConfigParser()
-
-parser.read("bot.cfg")
-token = parser.get("Credentials", "token")
-
-print(type(token))
-
-client.run(token)
+client.run(os.environ['TOKEN'])

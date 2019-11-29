@@ -2,6 +2,7 @@
 Personal discord.py bot, used on my friend's server. Please don't use this as a guide
 
 Currently, this bot can do a number of things:
+
   Allow you to play Rock Paper Scissors with a another discord user
   
   Be a dollar-store Dad Bot

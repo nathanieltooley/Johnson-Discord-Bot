@@ -217,4 +217,5 @@ async def change_status():
     #new_stat = random.choice(status)
     await client.change_presence(activity=discord.Game(next(status)))
 
-client.run(os.environ['TOKEN'])
+
+client.run(os.environ.get('TOKEN'))

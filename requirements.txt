@@ -36,7 +36,7 @@ python-jsonrpc-server==0.2.0
 python-language-server==0.28.1
 rope==0.14.0
 six==1.12.0
-snowballstemmer==1.9.0
+snowballstemmer==2.0.0
 soupsieve==1.9.2
 typed-ast==1.4.0
 virtualenv==16.7.2

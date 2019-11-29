@@ -3,7 +3,7 @@ import pymongo
 import mongoengine
 import math
 
-from random import randrange
+from random import randrange, choice
 from svc.users import Users
 from svc.servers import Servers
 
@@ -71,3 +71,7 @@ def exp_check(member, min_exp, max_exp):
     else:
         Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         return None
+    
+def pickrps():  # only used for rps command
+    choices = ['rock', 'paper', 'scissors']
+    return choice(choices)

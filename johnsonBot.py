@@ -157,7 +157,7 @@ async def rps(ctx, member1: discord.member.Member, member2: discord.member.Membe
             loser = member1
 
         winnerUser = svc.create_user(winner, ctx.guild) # Create the user if there isn't one
-        loserUser = svc.create_user(loser)
+        loserUser = svc.create_user(loser, ctx.guild)
 
         winnerUser = svc.get_user(winner)
         loserUser = svc.get_user(loser)

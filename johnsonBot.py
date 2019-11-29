@@ -224,7 +224,7 @@ async def gamble(ctx, amount: int):
         svc.income(ctx.author, new_amount)
         print_vbucks = new_amount + user.vbucks
         await ctx.send(f"You got {(new_amount + amount)}. You now have {print_vbucks}.")
-    elif (randselection > .9 and randselection <= 1) and (amount < user.vbucks):
+    elif (randselection >= .9) and (amount < user.vbucks):
         new_amount = (-amount)
         svc.income(ctx.author, new_amount)
         print_vbucks = user.vbucks - amount

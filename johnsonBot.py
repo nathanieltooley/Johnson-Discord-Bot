@@ -187,7 +187,8 @@ async def support(ctx):
                    ".viewgamerstats [id]: View a player's statistics.\n"
                    ".gamble [amount]: Gamble to your hearts content. It's Vegas baby!\n"
                    "I'm also a part-time Dad now as well!(as per Noah's request)\n"
-                   "I'm also now controlled by the ADL")
+                   "I'm also now controlled by the ADL\n"
+                   "Source code available at https://github.com/applememes69420/Johnson-Discord-Bot")
     print(type(ctx))
 
 @client.command(aliases=["viewgamerstats"])

@@ -13,11 +13,6 @@ from svc.mongo_setup import global_init
 
 client = commands.Bot(command_prefix=".")
 
-def pickrps():  # only used for rps command
-    choices = ['rock', 'paper', 'scissors']
-    return random.choice(choices)
-
-
 @client.event
 async def on_ready():
     global_init();
@@ -58,32 +53,32 @@ async def on_message(message):
 
     # ignore this convoluted mess
     if 'im ' in qmessage:
-        imind = qmessage.find("im")  # start index
-        stopind = qmessage.find(".")  # end index
+        imInd = qmessage.find("im")  # start index
+        stopInd = qmessage.find(".")  # end index
 
-        if stopind == -1 or (stopind < imind):
+        if stopInd == -1 or (stopInd < imInd):
             split = qmessage.split('im')
             join = f"Hi{split[1]}, I'm Johnson!"
             print("no period")
             await message.channel.send(join)
         else:
-            dadmessage = qmessage[(imind + 2):stopind]
-            print(stopind)
+            dadmessage = qmessage[(imInd + 2):stopInd]
+            print(stopInd)
             print(dadmessage)
             join = f"Hi{dadmessage}, I'm Johnson!"
             await message.channel.send(join)
     elif "i'm " in qmessage:
-        imind = qmessage.find("i'm")  # start index
-        stopind = qmessage.find(".")  # end index
+        imInd = qmessage.find("i'm")  # start index
+        stopInd = qmessage.find(".")  # end index
 
-        if stopind == -1 or (stopind < imind):
+        if stopInd == -1 or (stopInd < imInd):
             split = qmessage.split("i'm")
             join = f"Hi{split[1]}, I'm Johnson!"
             print("no period")
             await message.channel.send(join)
         else:
-            dadmessage = qmessage[(imind + 2):stopind]
-            print(stopind)
+            dadmessage = qmessage[(imInd + 2):stopInd]
+            print(stopInd)
             print(dadmessage)
             join = f"Hi{dadmessage}, I'm Johnson!"
             await message.channel.send(join)
@@ -125,28 +120,61 @@ async def roll(ctx, sides=6):
 # might be reworked, probably won't
 # could possibly use enums or something
 @client.command()
+@commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
 async def rps(ctx, member1: discord.member.Member, member2: discord.member.Member):
-    rpsmember1 = pickrps()
-    rpsmember2 = pickrps()
-    rpstotal = rpsmember1 + ' ' + rpsmember2
+    rpsMember1 = svc.pickrps()
+    rpsMember2 = svc.pickrps()
+    rpstotal = rpsMember1 + ' ' + rpsMember2
+    
     rpsdict = {
+        "rock scissors": member1,
+        "paper rock": member1,
+        "scissors paper": member1,
+        "scissors rock": member2,
+        "rock paper": member2,
+        "paper scissors": member2
+    }
+    
+    
+    """rpsdict = {
         "rock scissors": f'{member1.nick} wins!',
         "paper rock": f'{member1.nick} wins!',
         "scissors paper": f'{member1.nick} wins!',
         "scissors rock": f'{member2.nick} wins!',
         "rock paper": f'{member2.nick} wins!',
         "paper scissors": f'{member2.nick} wins!'
-    }
+    }"""
 
-    await ctx.send(f'{member1.mention} got {rpsmember1}, and {member2.mention} got {rpsmember2}')
+    await ctx.send(f'{member1.mention} got {rpsMember1}, and {member2.mention} got {rpsMember2}')
 
-    if rpsmember1 != rpsmember2:
-        await ctx.send(f'{rpsdict.get(rpstotal)}')
+    if rpsMember1 != rpsMember2:
+        winner = rpsdict[rpstotal]
+        loser = None
+
+        if winner == member1: # find the loser using the winner
+            loser = member2
+        else:
+            loser = member1
+
+        winnerUser = svc.create_user(winner) # Create the user if there isn't one
+        loserUser = svc.create_user(loser)
+
+        winnerUser = svc.get_user(winner)
+        loserUser = svc.get_user(loser)
+
+        vbuckReward = int(loserUser.vbucks * (random.randrange(0, 1) / 10)) # Get between 0% and 10% of the loser's vbucks
+
+        svc.income(winner, vbuckReward)
+        svc.income(loser, (-vbuckReward))
+        
+        await ctx.send(f"{winner.mention} won and got {vbuckReward} from {loser.mention}")
+        # await ctx.send(f'{rpsdict.get(rpstotal)}')
     else:
         await ctx.send('Its a tie!')
 
 @client.command(aliases=['helpme'])
 async def support(ctx):
+    """Custom help message"""
     await ctx.send('--Made by Nathaniel--\n'
                    'Commands: \n'
                    '.ping: Pong!\n'
@@ -160,8 +188,10 @@ async def support(ctx):
 
 @client.command(aliases=["viewgamerstats"])
 async def gamerViewStats(ctx):
+    """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
+    their experience, and their current level."""
+
     user = svc.get_user(ctx.author)
-    # await ctx.send("{0}'s Stats: {1}".format(ctx.message.author.mention, json.dumps(data['Gamers'][gamer], indent=2)))
 
     embed = discord.Embed(
         title="{0}'s Stats".format(ctx.message.author.nick),
@@ -176,7 +206,7 @@ async def gamerViewStats(ctx):
     embed.set_thumbnail(
         url="https://cdn.discordapp.com/attachments/610520962898853908/610539291701149709/AntiHa.jpg")
     embed.add_field(name="V-Bucks", value=f"{vbucks}")
-    embed.add_field(name="Experience", value=f"{exp}/{int((math.pow((level + 1), 4)))}")
+    embed.add_field(name="Experience", value=f"{exp}/{int((math.pow((level + 1), 4)))}") # Find out how much exp is need for the next level (i.e 6/16)
     embed.add_field(name="Level", value=f"{level}")
 
     await ctx.send(embed=embed)
@@ -194,7 +224,6 @@ async def gamble(ctx, amount: int):
         svc.income(ctx.author, new_amount)
         print_vbucks = new_amount + user.vbucks
         await ctx.send(f"You got {(new_amount + amount)}. You now have {print_vbucks}.")
-
     elif (randselection > 9 and randselection <= 10) and (amount < user.vbucks):
         new_amount = (-amount)
         svc.income(ctx.author, new_amount)

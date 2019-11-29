@@ -162,7 +162,11 @@ async def rps(ctx, member1: discord.member.Member, member2: discord.member.Membe
         winnerUser = svc.get_user(winner)
         loserUser = svc.get_user(loser)
 
-        vbuckReward = int(loserUser.vbucks * (random.randrange(1, 20) / 100)) # Get between 0% and 10% of the loser's vbucks
+        vbuckReward = int(loserUser.vbucks * (random.randrange(1, 10) / 100)) # Get between 0% and 10% of the loser's vbucks
+
+        vbuckLimit = 2000
+        if vbuckReward > vbuckLimit:
+            vbuckReward = vbuckLimit
 
         svc.income(winner, vbuckReward)
         svc.income(loser, (-vbuckReward))

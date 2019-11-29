@@ -36,7 +36,7 @@ async def on_message(message):
 
     for adl in adl_list:
             if adl in qmessage:
-                await message.channel.send("Hey {0}! That's racist, and racism is no good".format(message.author.mention))
+                await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good")
                 await message.delete()
                 break
 
@@ -45,11 +45,11 @@ async def on_message(message):
         
 
     if 'gay' in qmessage:
-        await message.channel.send("No Homo {0}".format(message.author.mention))
+        await message.channel.send(f"No Homo {message.author.mention}")
         
 
     if 'minecraft' in qmessage:
-        await message.channel.send("I prefer Roblox {}".format(message.author.mention))
+        await message.channel.send(f"I prefer Roblox {message.author.mention}")
         
 
     if 'the game' in qmessage:
@@ -63,14 +63,14 @@ async def on_message(message):
 
         if stopind == -1 or (stopind < imind):
             split = qmessage.split('im')
-            join = "Hi{0}, I'm Johnson!".format(split[1])
+            join = f"Hi{split[1]}, I'm Johnson!"
             print("no period")
             await message.channel.send(join)
         else:
             dadmessage = qmessage[(imind + 2):stopind]
             print(stopind)
             print(dadmessage)
-            join = "Hi{0}, I'm Johnson!".format(dadmessage)
+            join = f"Hi{dadmessage}, I'm Johnson!"
             await message.channel.send(join)
     elif "i'm " in qmessage:
         imind = qmessage.find("i'm")  # start index
@@ -78,14 +78,14 @@ async def on_message(message):
 
         if stopind == -1 or (stopind < imind):
             split = qmessage.split("i'm")
-            join = "Hi{0}, I'm Johnson!".format(split[1])
+            join = f"Hi{split[1]}, I'm Johnson!"
             print("no period")
             await message.channel.send(join)
         else:
             dadmessage = qmessage[(imind + 2):stopind]
             print(stopind)
             print(dadmessage)
-            join = "Hi{0}, I'm Johnson!".format(dadmessage)
+            join = f"Hi{dadmessage}, I'm Johnson!"
             await message.channel.send(join)
 
     svc.create_user(message.author, message.guild)
@@ -120,7 +120,7 @@ async def ping(ctx):
 
 @client.command()
 async def roll(ctx, sides=6):
-    await ctx.send('{0} rolled a {1}'.format(ctx.message.author.nick, random.randrange(1, sides)))
+    await ctx.send(f'{ctx.message.author.nick} rolled a {random.randrange(1, sides)}')
 
 # might be reworked, probably won't
 # could possibly use enums or something
@@ -130,18 +130,18 @@ async def rps(ctx, member1: discord.member.Member, member2: discord.member.Membe
     rpsmember2 = pickrps()
     rpstotal = rpsmember1 + ' ' + rpsmember2
     rpsdict = {
-        "rock scissors": '{0} wins!'.format(member1.nick),
-        "paper rock": '{0} wins!'.format(member1.nick),
-        "scissors paper": '{0} wins!'.format(member1.nick),
-        "scissors rock": '{0} wins!'.format(member2.nick),
-        "rock paper": '{0} wins!'.format(member2.nick),
-        "paper scissors": '{0} wins!'.format(member2.nick)
+        "rock scissors": f'{member1.nick} wins!',
+        "paper rock": f'{member1.nick} wins!',
+        "scissors paper": f'{member1.nick} wins!',
+        "scissors rock": f'{member2.nick} wins!',
+        "rock paper": f'{member2.nick} wins!',
+        "paper scissors": f'{member2.nick} wins!'
     }
 
-    await ctx.send('{0} got {1}, and {2} got {3}'.format(member1.mention, rpsmember1, member2.mention, rpsmember2))
+    await ctx.send(f'{member1.mention} got {rpsmember1}, and {member2.mention} got {rpsmember2}')
 
     if rpsmember1 != rpsmember2:
-        await ctx.send('{0}'.format(rpsdict.get(rpstotal)))
+        await ctx.send(f'{rpsdict.get(rpstotal)}')
     else:
         await ctx.send('Its a tie!')
 

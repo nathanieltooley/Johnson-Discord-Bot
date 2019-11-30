@@ -22,7 +22,8 @@ async def reload(ctx, extension):
     
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
-        client.load_extension(f'cogs.{filename[:-3]}') # Cut off .py
+        client.load_extension(f'cogs.{filename[:-3]}')
+        print(f"{filename} loaded") # Cut off .py
 
 
 client.run(os.environ.get("TOKEN"))

@@ -17,7 +17,19 @@ class Test(commands.Cog):
     # Commands
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
+        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms")
+
+    @commands.command()
+    async def shutdown(self, ctx):
+        if ctx.message.author.id == 139374003365216256: #replace OWNERID with your user id
+            print("Shutdown")
+        try:
+            await self.client.logout()
+        except:
+            print("EnvironmentError")
+            self.client.clear()
+        else:
+            await ctx.send("You do not own this bot!")
 
 
 def setup(client):

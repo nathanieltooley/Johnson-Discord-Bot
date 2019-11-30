@@ -134,16 +134,6 @@ async def rps(ctx, member1: discord.member.Member, member2: discord.member.Membe
         "rock paper": member2,
         "paper scissors": member2
     }
-    
-    
-    """rpsdict = {
-        "rock scissors": f'{member1.nick} wins!',
-        "paper rock": f'{member1.nick} wins!',
-        "scissors paper": f'{member1.nick} wins!',
-        "scissors rock": f'{member2.nick} wins!',
-        "rock paper": f'{member2.nick} wins!',
-        "paper scissors": f'{member2.nick} wins!'
-    }"""
 
     await ctx.send(f'{member1.mention} got {rpsMember1}, and {member2.mention} got {rpsMember2}')
 
@@ -159,7 +149,7 @@ async def rps(ctx, member1: discord.member.Member, member2: discord.member.Membe
         winnerUser = svc.create_user(winner, ctx.guild) # Create the user if there isn't one
         loserUser = svc.create_user(loser, ctx.guild)
 
-        winnerUser = svc.get_user(winner)
+        winnerUser = svc.get_user(winner) 
         loserUser = svc.get_user(loser)
 
         vbuckReward = int(loserUser.vbucks * (random.randrange(1, 10) / 100)) # Get between 0% and 10% of the loser's vbucks
@@ -228,12 +218,12 @@ async def gamble(ctx, amount: int):
         int(new_amount)
         svc.income(ctx.author, new_amount)
         print_vbucks = new_amount + user.vbucks
-        await ctx.send(f"You got {(new_amount + amount)}. You now have {print_vbucks}.")
+        await ctx.send(f"You gained {(new_amount)}. You now have {print_vbucks}.")
     elif (randselection >= .9) and (amount < user.vbucks):
         new_amount = (-amount)
         svc.income(ctx.author, new_amount)
         print_vbucks = user.vbucks - amount
-        await ctx.send("You lost {0}. You have {1} left.".format(amount, print_vbucks))
+        await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
     else:
         await ctx.send("You can't gamble for more than you own, I can't program loans")
 

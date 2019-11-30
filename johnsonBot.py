@@ -51,7 +51,7 @@ async def on_message(message):
         await message.channel.send("I lost the Game")
         
 
-    # ignore this convoluted mess
+    # ignore this convoluted mess, just don't touch it
     if 'im ' in qmessage:
         imInd = qmessage.find("im")  # start index
         stopInd = qmessage.find(".")  # end index

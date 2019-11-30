@@ -1,6 +1,7 @@
 import svc.svc as svc
 import discord
 import os
+import random
 
 from discord.ext import commands, tasks
 

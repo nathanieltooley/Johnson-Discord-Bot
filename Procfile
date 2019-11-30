@@ -1,1 +1,1 @@
-worker: python johnsonBot.py 
+worker: python coggers.py 

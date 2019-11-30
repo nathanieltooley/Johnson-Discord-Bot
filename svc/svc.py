@@ -75,3 +75,7 @@ def exp_check(member, min_exp, max_exp):
 def pickrps():  # only used for rps command
     choices = ['rock', 'paper', 'scissors']
     return choice(choices)
+
+def get_leaderboard_results(field):
+    responses = Users.objects[:10]().only("name", f"{field}").order_by(f"-{field}")
+    return responses

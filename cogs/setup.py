@@ -5,7 +5,7 @@ import os
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
 
-class Test(commands.Cog):
+class Setup(commands.Cog):
     
     def __init__(self, client):
         self.client = client
@@ -50,4 +50,4 @@ class Test(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Test(client))
+    client.add_cog(Setup(client))

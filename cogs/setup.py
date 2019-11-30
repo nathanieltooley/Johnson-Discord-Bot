@@ -33,7 +33,7 @@ class Test(commands.Cog):
         else:
             await ctx.send("You do not own this bot!")
 
-    @client.command(aliases=['helpme'])
+    @commands.command(aliases=['helpme'])
     async def support(self, ctx):
         """Custom help message"""
         await ctx.send('--Made by Nathaniel--\n'

@@ -2,6 +2,7 @@ import svc.svc as svc
 import discord
 import os
 
+from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
 
 class Test(commands.Cog):
@@ -12,6 +13,7 @@ class Test(commands.Cog):
     # Events
     @commands.Cog.listener()
     async def on_ready(self):
+        global_init()
         print("Johnson is spittin straight cog!")
         
     # Commands

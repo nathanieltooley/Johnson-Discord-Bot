@@ -236,7 +236,7 @@ status = cycle(["For more info, use .helpme!",
                 "SwowS"])
 
 
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=45)
 async def change_status():
     #new_stat = random.choice(status)
     await client.change_presence(activity=discord.Game(next(status)))

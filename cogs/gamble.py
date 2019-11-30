@@ -63,6 +63,27 @@ class Gamble(commands.Cog):
         else:
             await ctx.send('Its a tie!')
 
+    @commands.command()
+    @commands.cooldown(1, 30, discord.ext.commands.BucketType.member)
+    async def gamble(self, ctx, amount: int):
+        user = svc.get_user(ctx.author)
+
+        randselection = random.random()
+        if (randselection >= .1 and randselection <= .8) and (amount < user.vbucks):
+            new_amount = amount * ((random.randrange(1, 20)) / 10)
+            int(new_amount)
+            svc.income(ctx.author, new_amount)
+            print_vbucks = new_amount + user.vbucks
+            await ctx.send(f"You gained {(new_amount)}. You now have {print_vbucks}.")
+        elif (randselection >= .9) and (amount < user.vbucks):
+            new_amount = (-amount)
+            svc.income(ctx.author, new_amount)
+            print_vbucks = user.vbucks - amount
+            await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
+        else:
+            await ctx.send("You can't gamble for more than you own, I can't program loans")
+
+
 
 def setup(client):
     client.add_cog(Gamble(client))

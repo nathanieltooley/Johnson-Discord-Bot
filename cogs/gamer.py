@@ -78,7 +78,9 @@ class Gamer(commands.Cog):
         transact = svc.transact(ctx.author, reciever, ctx.guild, money)
 
         if not transact:
-            ctx.send("Transaction failed. You attempted to give away more than you own.")
+            await ctx.send("Transaction failed. You attempted to give away more than you own.")
+        elif transact:
+            await ctx.send(f"Transaction of {money} V-Bucks Successful!")
         
         
 

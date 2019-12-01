@@ -27,7 +27,7 @@ class Setup(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         global_init()
-        # print("Johnson is spittin straight cog!")
+        print("Johnson is spittin straight cog!")
         # self.change_status.start()
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         

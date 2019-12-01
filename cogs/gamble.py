@@ -46,8 +46,8 @@ class Gamble(commands.Cog):
             winnerUser = svc.create_user(winner, ctx.guild) # Create the user if there isn't one
             loserUser = svc.create_user(loser, ctx.guild)
 
-            winnerUser = svc.get_user(winner) 
-            loserUser = svc.get_user(loser)
+            winnerUser = svc.get_user(winner, ctx.guild) 
+            loserUser = svc.get_user(loser, ctx.guild)
 
             vbuckReward = int(loserUser.vbucks * (random.randrange(1, 10) / 100)) # Get between 0% and 10% of the loser's vbucks
 
@@ -55,8 +55,8 @@ class Gamble(commands.Cog):
             if vbuckReward > vbuckLimit:
                 vbuckReward = vbuckLimit
 
-            svc.income(winner, vbuckReward)
-            svc.income(loser, (-vbuckReward))
+            svc.income(winner, ctx.guild, vbuckReward)
+            svc.income(loser, ctx.guild, (-vbuckReward))
             
             await ctx.send(f"{winner.mention} won and got {vbuckReward} from {loser.mention}")
             # await ctx.send(f'{rpsdict.get(rpstotal)}')
@@ -66,18 +66,18 @@ class Gamble(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 30, discord.ext.commands.BucketType.member)
     async def gamble(self, ctx, amount: int):
-        user = svc.get_user(ctx.author)
+        user = svc.get_user(ctx.author, ctx.guild)
 
         randselection = random.random()
         if (randselection >= .1 and randselection <= .8) and (amount < user.vbucks):
             new_amount = amount * ((random.randrange(1, 20)) / 10)
             int(new_amount)
-            svc.income(ctx.author, new_amount)
+            svc.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = new_amount + user.vbucks
             await ctx.send(f"You gained {(new_amount)}. You now have {print_vbucks}.")
         elif (randselection >= .9) and (amount < user.vbucks):
             new_amount = (-amount)
-            svc.income(ctx.author, new_amount)
+            svc.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = user.vbucks - amount
             await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
         else:

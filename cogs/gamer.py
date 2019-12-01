@@ -16,7 +16,8 @@ class Gamer(commands.Cog):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
         their experience, and their current level."""
 
-        user = svc.get_user(ctx.author)
+        svc.create_user(ctx.author, ctx.guild)
+        user = svc.get_user(ctx.author, ctx.guild)
 
         embed = discord.Embed(
             title=f"{ctx.message.author.nick}'s Stats",
@@ -50,7 +51,7 @@ class Gamer(commands.Cog):
             await ctx.send(f"ERROR: {field} is not a vaild field")
             return
 
-        results = svc.get_leaderboard_results(field)
+        results = svc.get_leaderboard_results(field, ctx.guild)
         results = enumerate(results, 1)
 
         embed = discord.Embed(

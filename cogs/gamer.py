@@ -38,7 +38,6 @@ class Gamer(commands.Cog):
 
     @commands.command()
     async def view_gamer_boards(self, ctx, field="vbucks"):
-        print(dir(svc.Users))
         embed_title = None
         field = field.lower()
 

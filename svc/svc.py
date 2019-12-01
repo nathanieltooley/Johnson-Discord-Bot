@@ -69,7 +69,7 @@ def exp_check(member, server, min_exp, max_exp):
     if new_level > old_level:
         Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         Users.objects(discord_id=discord_id).update_one(level=new_level)
-        return (f"{member.mention} has leveled up from {old_level} to Level {new_level}!")
+        return (f"{member.mention} has leveled up from Level {old_level} to Level {new_level}!")
     else:
         Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         return None

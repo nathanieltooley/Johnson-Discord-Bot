@@ -81,3 +81,13 @@ def pickrps():  # only used for rps command
 def get_leaderboard_results(field, server):
     responses = Users.objects[:10]().filter(server_id=server.id).order_by(f"-{field}")
     return responses
+
+def transact(giver, receiver, server, money):
+    giver_user = get_user(giver, server)
+
+    if giver_user.vbucks <= money:
+        return False
+    else:
+        income(giver, server, -money)
+        income(receiver, server, money)
+        return True

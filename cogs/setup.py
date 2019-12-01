@@ -1,6 +1,7 @@
 import svc.svc as svc
 import discord
 import os
+import itertools
 
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
@@ -15,6 +16,8 @@ class Setup(commands.Cog):
     async def on_ready(self):
         global_init()
         print("Johnson is spittin straight cog!")
+        change_status.start()
+        await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         
     # Commands
     @commands.command()
@@ -46,6 +49,19 @@ class Setup(commands.Cog):
                     "I'm also a part-time Dad now as well!(as per Noah's request)\n"
                     "I'm also now controlled by the ADL\n"
                     "Source code available at https://github.com/applememes69420/Johnson-Discord-Bot")
+
+    status = itertools.cycle(["For more info, use .helpme!",
+                "Minecraft",
+                "Who uses this bot anyways?",
+                "Made by Nathaniel",
+                "Fortnite",
+                "Vibe Check",
+                "SwowS"])
+    
+    @tasks.loop(seconds=45)
+    async def change_status(self):
+        #new_stat = random.choice(status)
+        await self.client.change_presence(activity=discord.Game(next(status)))
         
 
 

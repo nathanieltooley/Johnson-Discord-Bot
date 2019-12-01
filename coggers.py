@@ -1,6 +1,7 @@
 import svc.svc as svc
 import discord
 import os
+import itertools
 
 from discord.ext import commands, tasks
 

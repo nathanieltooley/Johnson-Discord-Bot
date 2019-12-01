@@ -97,19 +97,5 @@ class Event(commands.Cog):
             print(error)
             await ctx.send(f"Error {type(error)} has occured: {error}")
             #await ctx.send("An error has occurred")
-
-    status = itertools.cycle(["For more info, use .helpme!",
-                "Minecraft",
-                "Who uses this bot anyways?",
-                "Made by Nathaniel",
-                "Fortnite",
-                "Vibe Check",
-                "SwowS"])
-    
-    @tasks.loop(seconds=45)
-    async def change_status(self):
-        #new_stat = random.choice(status)
-        await self.client.change_presence(activity=discord.Game(next(status)))
-
 def setup(client):
     client.add_cog(Event(client))

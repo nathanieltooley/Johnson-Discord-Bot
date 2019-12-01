@@ -68,6 +68,22 @@ class Gamer(commands.Cog):
                 embed.add_field(name=f"{gamer.name}", value=f"Level {gamer.level}: {gamer.exp} EXP", inline=False)
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def give_money(self, ctx, reciever, money):
+        if ctx.author == reciever:
+            await ctx.send("You can't send yourself money")
+            return
+        elif reciever.bot:
+            await ctx.send
+            return
+
+
+        transact = svc.transact(ctx.author, reciever, ctx.guild, money)
+
+        if not transact:
+            ctx.send("Transaction failed. You attempted to give away more than you own.")
+        
+        
 
 def setup(client):
     client.add_cog(Gamer(client))

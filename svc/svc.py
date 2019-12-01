@@ -77,5 +77,5 @@ def pickrps():  # only used for rps command
     return choice(choices)
 
 def get_leaderboard_results(field):
-    responses = Users.objects[:10]().only("name", f"{field}").order_by(f"-{field}")
+    responses = Users.objects[:10]().order_by(f"-{field}")
     return responses

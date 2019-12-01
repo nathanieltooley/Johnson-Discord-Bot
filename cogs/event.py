@@ -73,8 +73,8 @@ class Event(commands.Cog):
                 await message.channel.send(join)
 
         svc.create_user(message.author, message.guild)
-        svc.income(message.author, 5)
-        level_up = svc.exp_check(message.author, 1, 10)
+        svc.income(message.author, message.guild, 5)
+        level_up = svc.exp_check(message.author, message.guild, 1, 10)
 
         if level_up:
             await message.channel.send(level_up)
@@ -95,7 +95,7 @@ class Event(commands.Cog):
             await ctx.send("You seemed to have messed up, try again")
         else:
             print(error)
-            await ctx.send(f"Error {type(error)} has occured: {error}")
+            await ctx.send(f"{error}")
             #await ctx.send("An error has occurred")
 def setup(client):
     client.add_cog(Event(client))

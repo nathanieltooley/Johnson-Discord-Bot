@@ -69,7 +69,7 @@ class Gamer(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def give_money(self, ctx, reciever, money):
+    async def give_money(self, ctx, reciever: discord.Member, money):
         if ctx.author == reciever:
             await ctx.send("You can't send yourself money")
             return

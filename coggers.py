@@ -10,32 +10,20 @@ client = commands.Bot(command_prefix = ".")
 
 @client.command()
 async def load(ctx, extension):
-    try:
-        client.load_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} has been loaded")
-    except:
-        print(Exception)
-        await ctx.send("An error has occured")
+    client.load_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} has been loaded")
 
 @client.command()
 async def unload(ctx, extension):
-    try:
-        client.unload_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} has been unloaded")
-    except:
-        print(Exception)
-        await ctx.send("An error has occured")
+    client.unload_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} has been unloaded")
 
 @client.command()
 async def reload(ctx, extension):
-    try:
-        client.unload_extension(f"cogs.{extension}")
-        client.load_extension(f"cogs.{extension}")
-        await ctx.send(f"{extension} has been reloaded")
-    except:
-        print(Exception)
-        await ctx.send("An error has occured")
-    
+    client.unload_extension(f"cogs.{extension}")
+    client.load_extension(f"cogs.{extension}")
+    await ctx.send(f"{extension} has been reloaded")
+       
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
         client.load_extension(f'cogs.{filename[:-3]}')

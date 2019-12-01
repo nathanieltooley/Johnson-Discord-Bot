@@ -65,8 +65,6 @@ class Setup(commands.Cog):
 
     @tasks.loop(seconds=45)
     async def change_status(self):
-        #new_stat = random.choice(status)
-        
         new_stat = next(status)
         print(new_stat)
         await self.client.change_presence(activity=discord.Game(new_stat))

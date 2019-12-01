@@ -82,7 +82,7 @@ def get_leaderboard_results(field, server):
     responses = Users.objects[:10]().filter(server_id=server.id).order_by(f"-{field}")
     return responses
 
-def transact(giver, receiver, server, money):
+def transact(giver, receiver, server, money: int):
     giver_user = get_user(giver, server)
 
     if giver_user.vbucks <= money:

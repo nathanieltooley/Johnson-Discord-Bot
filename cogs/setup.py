@@ -2,21 +2,33 @@ import svc.svc as svc
 import discord
 import os
 import itertools
+import random
 
+from itertools import cycle
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
+
+status = cycle(["For more info, use .helpme!",
+                    "Minecraft",
+                    "Who uses this bot anyways?",
+                    "Made by Nathaniel",
+                    "Fortnite",
+                    "Vibe Check",
+                    "SwowS"])
+
 
 class Setup(commands.Cog):
     
     def __init__(self, client):
         self.client = client
+        self.change_status.start()
         
     # Events
     @commands.Cog.listener()
     async def on_ready(self):
         global_init()
-        print("Johnson is spittin straight cog!")
-        change_status.start()
+        # print("Johnson is spittin straight cog!")
+        # self.change_status.start()
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         
     # Commands
@@ -45,23 +57,24 @@ class Setup(commands.Cog):
                     '.roll [number of sides]: Rolls a die, accepts a number; default is 6 \n'
                     '.rps [Player 1] [Player 2]: Shoot! There is a monetary reward for those who win\n'
                     ".viewgamerstats [id]: View a player's statistics.\n"
+                    ".view_gamer_boards: View the server's leaderboard.\n"
                     ".gamble [amount]: Gamble to your hearts content. It's Vegas baby!\n"
                     "I'm also a part-time Dad now as well!(as per Noah's request)\n"
                     "I'm also now controlled by the ADL\n"
                     "Source code available at https://github.com/applememes69420/Johnson-Discord-Bot")
 
-    status = itertools.cycle(["For more info, use .helpme!",
-                "Minecraft",
-                "Who uses this bot anyways?",
-                "Made by Nathaniel",
-                "Fortnite",
-                "Vibe Check",
-                "SwowS"])
-    
     @tasks.loop(seconds=45)
     async def change_status(self):
         #new_stat = random.choice(status)
-        await self.client.change_presence(activity=discord.Game(next(status)))
+        
+        new_stat = next(status)
+        print(new_stat)
+        await self.client.change_presence(activity=discord.Game(new_stat))
+
+    @change_status.before_loop
+    async def before_status(self):
+        print("Waiting...")
+        await self.client.wait_until_ready()
         
 
 

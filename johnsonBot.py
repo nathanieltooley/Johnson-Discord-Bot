@@ -242,7 +242,9 @@ status = cycle(["For more info, use .helpme!",
 @tasks.loop(seconds=45)
 async def change_status():
     #new_stat = random.choice(status)
-    await client.change_presence(activity=discord.Game(next(status)))
+    new_stat = next(status)
+    print(new_stat)
+    await client.change_presence(activity=discord.Game(new_stat))
 
 
 client.run(os.environ.get('TOKEN'))

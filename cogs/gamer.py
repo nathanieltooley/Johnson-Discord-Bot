@@ -73,9 +73,6 @@ class Gamer(commands.Cog):
         if ctx.author == reciever:
             await ctx.send("You can't send yourself money")
             return
-        elif reciever.bot:
-            await ctx.send
-            return
 
 
         transact = svc.transact(ctx.author, reciever, ctx.guild, money)

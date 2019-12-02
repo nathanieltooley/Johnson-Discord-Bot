@@ -8,7 +8,7 @@ def main():
 
     name = input("Enter Name: ")
     value = input("Enter Value: ")
-    rarity = input("Enter Rarity (0-3): ")
+    rarity = input("Enter Rarity (Common, Uncommon, Rare): ")
 
     description = input("(OPTIONAL) Enter Description: ")
 

@@ -134,9 +134,6 @@ def transact(giver, receiver, server, money):
         return True
 
 def create_base_item(name, value: int, rarity, description=None):
-    item = BaseItem(name=name, value=value, rarity=rarity)
-
-    if not description:
-        item.description = description
+    item = BaseItem(name=name, value=value, rarity=rarity, description=description)
     
     item.save()

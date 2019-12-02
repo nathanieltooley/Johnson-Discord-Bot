@@ -8,11 +8,13 @@ class Admin(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.has_permissions(administrator=True)
     @commands.command()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
         svc.update_vbucks(member, ctx.guild, money)
         await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
 
+    @commands.has_permissions(administrator=True)
     @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = svc.update_exp(member, ctx.guild, exp)

@@ -7,17 +7,19 @@ from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix = ".")
 
-
+@commands.has_permissions(administrator=True)
 @client.command()
 async def load(ctx, extension):
     client.load_extension(f"cogs.{extension}")
     await ctx.send(f"{extension} has been loaded")
 
+@commands.has_permissions(administrator=True)
 @client.command()
 async def unload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")
     await ctx.send(f"{extension} has been unloaded")
 
+@commands.has_permissions(administrator=True)
 @client.command()
 async def reload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")

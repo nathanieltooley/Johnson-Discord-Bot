@@ -101,7 +101,7 @@ def update_vbucks(member, server, money: int):
     user = get_user(member, server)
     user.switch_collection(f"{server.id}")
     user.vbucks = money
-    user.save
+    user.save()
 
 def update_exp(member, server, exp):
     user = get_user(member, server)

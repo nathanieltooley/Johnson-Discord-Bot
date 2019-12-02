@@ -103,6 +103,21 @@ def update_vbucks(member, server, money: int):
     user.vbucks = money
     user.save
 
+def update_exp(member, server, exp):
+    user = get_user(member, server)
+    user.switch_collection(f"{server.id}")
+
+    old_level = user.level
+
+    new_level = int(math.pow(exp, 1/4))
+    user.exp = exp
+
+    if old_level == new_level:
+        user.save()
+    else:
+        user.level = new_level
+        user.save()
+
 def transact(giver, receiver, server, money):
     giver_user = get_user(giver, server)
 

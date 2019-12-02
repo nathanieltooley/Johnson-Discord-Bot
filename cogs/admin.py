@@ -11,15 +11,15 @@ class Admin(commands.Cog):
     @commands.command()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
         svc.update_vbucks(member, ctx.guild, money)
-        ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
+        await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
 
     @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = svc.update_exp(member, ctx.guild, exp)
         if check == None:
-            ctx.send(f"{member.mention}'s XP has been set to {exp}")
+            await ctx.send(f"{member.mention}'s XP has been set to {exp}")
         else:
-            ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
+            await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
 
 def setup(client):
     client.add_cog(Admin(client))

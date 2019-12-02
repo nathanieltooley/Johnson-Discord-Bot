@@ -92,7 +92,9 @@ def pickrps():  # only used for rps command
     return choice(choices)
 
 def get_leaderboard_results(field, server):
-    responses = Users.objects[:10]().filter(server_id=server.id).order_by(f"-{field}")
+    server_group = Users.switch_collection(Users(), f"{server.id}")
+    server_objects = QuerySet(Users, server_group._get_collection())
+    responses = server_objects[:10]().order_by(f"-{field}")
     return responses
 
 def transact(giver, receiver, server, money):

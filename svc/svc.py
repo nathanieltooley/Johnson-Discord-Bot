@@ -3,12 +3,17 @@ import pymongo
 import mongoengine
 import math
 
+from mongoengine.context_managers import *
+from mongoengine.queryset import QuerySet
+from mongoengine import connection
 from random import randrange, choice
 from svc.users import Users
 from svc.servers import Servers
 
 def get_user(user, server):
-    response = Users.objects().filter(discord_id=user.id, server_id=server.id).first()
+    server_group = Users.switch_collection(Users(), f"{server.id}")
+    server_objects = QuerySet(Users, server_group._get_collection())
+    response = server_objects.filter(discord_id=user.id).first()
     return response
 
 def get_server(server):
@@ -27,21 +32,16 @@ def create_server(guild: discord.Guild):
 
 def create_user(discord_user: discord.Member, server):
     user = Users()
+    
     user.name = discord_user.name
     user.discord_id = discord_user.id
-    user.server_name = server.name
-    user.server_id = server.id
+
+    user.switch_collection(f"{server.id}")
 
     if not get_server(server):
         create_server(server)
 
     if not get_user(discord_user, server):
-        server_append = get_server(server)
-
-        id_list = server_append.user_ids 
-        id_list.append(discord_user.id)
-
-        server_append.save()
         user.save()
         return True
     else:
@@ -54,7 +54,11 @@ def income(member, server, money):
 
     new_money = old_money + money
 
-    Users.objects(discord_id=discord_id, server_id=server.id).update_one(vbucks=new_money)
+    user.switch_collection(f"{server.id}")
+    user.vbucks = new_money
+    user.save()
+
+    # Users.objects(discord_id=discord_id, server_id=server.id).update_one(vbucks=new_money)
 
 def exp_check(member, server, min_exp, max_exp):
     discord_id = member.id
@@ -63,15 +67,24 @@ def exp_check(member, server, min_exp, max_exp):
     old_exp = user.exp
     old_level = user.level
 
+    user.switch_collection(f"{server.id}")
+
     new_exp = old_exp + (randrange(min_exp, max_exp))
     new_level = int(math.pow(new_exp, 1/4))
 
     if new_level > old_level:
-        Users.objects(discord_id=discord_id).update_one(exp=new_exp)
-        Users.objects(discord_id=discord_id).update_one(level=new_level)
+        user.exp = new_exp
+        user.level = new_level
+        user.save()
+
+        # Users.objects(discord_id=discord_id).update_one(exp=new_exp)
+        # Users.objects(discord_id=discord_id).update_one(level=new_level)
+
         return (f"{member.mention} has leveled up from Level {old_level} to Level {new_level}!")
     else:
-        Users.objects(discord_id=discord_id).update_one(exp=new_exp)
+        user.exp = new_exp
+        user.save()
+        # Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         return None
     
 def pickrps():  # only used for rps command

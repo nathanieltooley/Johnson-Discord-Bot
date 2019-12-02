@@ -114,9 +114,11 @@ def update_exp(member, server, exp):
 
     if old_level == new_level:
         user.save()
+        return None
     else:
         user.level = new_level
         user.save()
+        return new_level
 
 def transact(giver, receiver, server, money):
     giver_user = get_user(giver, server)

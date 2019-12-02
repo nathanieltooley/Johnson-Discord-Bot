@@ -97,6 +97,12 @@ def get_leaderboard_results(field, server):
     responses = server_objects[:10]().order_by(f"-{field}")
     return responses
 
+def update_vbucks(member, server, money: int):
+    user = get_user(member, server)
+    user.switch_collection(f"{server.id}")
+    user.vbucks = money
+    user.save
+
 def transact(giver, receiver, server, money):
     giver_user = get_user(giver, server)
 

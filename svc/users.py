@@ -14,5 +14,5 @@ class Users(mongoengine.DynamicDocument):
     inventory = mongoengine.EmbeddedDocumentListField(Item)
     
     meta = {
-        "db_alias": "core"
+        "db_alias": "default"
     }

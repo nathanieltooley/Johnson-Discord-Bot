@@ -11,8 +11,7 @@ class BaseItem(mongoengine.Document):
     rarity = mongoengine.StringField(default="Common", choices=choices)
 
     meta: {
-        "allow_inheritance": True,
-        "db_alias": "core",
+        "db_alias": "default",
         "collection": "Items"
     }
 

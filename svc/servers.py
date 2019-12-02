@@ -7,6 +7,6 @@ class Servers(mongoengine.DynamicDocument):
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
 
     meta = {
-        "db_alias": "core",
+        "db_alias": "default",
         "collection": "Servers"
     }

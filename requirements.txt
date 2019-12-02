@@ -45,4 +45,4 @@ websockets==6.0
 wrapt==1.11.2
 yapf==0.28.0
 yarl==1.4.1
-zipp==0.5.2
+zipp==0.6.0

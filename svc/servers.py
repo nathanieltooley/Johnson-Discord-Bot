@@ -1,10 +1,9 @@
 import mongoengine
 import datetime
 
-class Servers(mongoengine.Document):
+class Servers(mongoengine.DynamicDocument):
     name = mongoengine.StringField(required=True)
     discord_id = mongoengine.LongField(required=True)
-    user_ids = mongoengine.ListField(default=[])
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
 
     meta = {

@@ -9,6 +9,7 @@ from mongoengine import connection
 from random import randrange, choice
 from svc.users import Users
 from svc.servers import Servers
+from svc.items import Item, BaseItem
 
 def get_user(user, server):
     server_group = Users.switch_collection(Users(), f"{server.id}")
@@ -131,3 +132,11 @@ def transact(giver, receiver, server, money):
         income(giver, server, -money)
         income(receiver, server, money)
         return True
+
+def create_base_item(name, value: int, rarity, description=None):
+    item = BaseItem(name=name, value=value, rarity=rarity)
+
+    if not description:
+        item.description = description
+    
+    item.save()

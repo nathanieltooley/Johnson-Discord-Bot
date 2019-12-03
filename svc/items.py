@@ -16,7 +16,7 @@ class BaseItem(mongoengine.Document):
     }
 
 class Item(mongoengine.EmbeddedDocument):
-    ref_id = mongoengine.UUIDField(required=True)
+    ref_id = mongoengine.StringField(required=True)
     last_owner = mongoengine.LongField()
     owner = mongoengine.LongField(required=True)
 

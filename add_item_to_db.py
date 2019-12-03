@@ -20,7 +20,7 @@ def main():
         return
 
     
-    svc.create_base_item(name=name, value=value, rarity=rarity, description=description)
+    svc.create_base_item(item_id=_id, name=name, value=value, rarity=rarity, description=description)
     
 
 

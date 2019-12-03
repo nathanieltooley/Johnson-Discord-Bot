@@ -7,6 +7,7 @@ global_init()
 def main():
 
     name = input("Enter Name: ")
+    _id = input("Enter ID: ")
     value = input("Enter Value: ")
     rarity = input("Enter Rarity (Common, Uncommon, Rare): ")
 

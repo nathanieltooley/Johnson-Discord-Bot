@@ -141,3 +141,7 @@ def create_base_item(name, value: int, rarity, description=None):
 def create_item_instance(item_id, owner: discord.Member, last_owner=None):
     item = Item(ref_id=item_id, owner=owner, last_owner=last_owner)
     return item
+
+def get_base_item(ref_id):
+    query = BaseItem().objects(_id=ref_id).first()
+    return query

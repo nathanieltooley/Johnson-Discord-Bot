@@ -133,15 +133,28 @@ def transact(giver, receiver, server, money):
         income(receiver, server, money)
         return True
 
-def create_base_item(name, value: int, rarity, description=None):
-    item = BaseItem(name=name, value=value, rarity=rarity, description=description)
+def create_base_item(item_id, name, value: int, rarity, description=None):
+    item = BaseItem(item_id=item_id, name=name, value=value, rarity=rarity, description=description)
     
-    item.save()
+    try:
+        item.save()
+        return True
+    except mongoengine.errors.NotUniqueError:
+        print("Duplicate ID Error")
+        return None
 
 def create_item_instance(item_id, owner: discord.Member, last_owner=None):
     item = Item(ref_id=item_id, owner=owner, last_owner=last_owner)
     return item
 
 def get_base_item(ref_id):
-    query = BaseItem().objects(_id=ref_id).first()
+    query = BaseItem().objects(item_id=ref_id).first()
     return query
+
+def give_item_to_user(member: discord.Member, item_id, server):
+    item = create_item_instance(item_id, member.id)
+    baseitem = BaseItem().objects(item_id=item_id).first()
+    user = get_user(member, server)
+    user.inventory.append(item)
+    
+    return baseitem.name

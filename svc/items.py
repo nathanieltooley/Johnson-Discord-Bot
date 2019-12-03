@@ -4,7 +4,7 @@ import uuid
 choices = ("Common", "Rare", "Epic")
 
 class BaseItem(mongoengine.Document):
-    _id = mongoengine.UUIDField(default=uuid.uuid4())
+    _id = mongoengine.StringField(required=True, unique=True)
     name = mongoengine.StringField(required=True)
     description = mongoengine.StringField()
     value = mongoengine.IntField(required=True)

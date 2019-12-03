@@ -137,3 +137,7 @@ def create_base_item(name, value: int, rarity, description=None):
     item = BaseItem(name=name, value=value, rarity=rarity, description=description)
     
     item.save()
+
+def create_item_instance(item_id, owner: discord.Member, last_owner=None):
+    item = Item(ref_id=item_id, owner=owner, last_owner=last_owner)
+    return item

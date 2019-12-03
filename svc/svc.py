@@ -144,17 +144,21 @@ def create_base_item(item_id, name, value: int, rarity, description=None):
         return None
 
 def create_item_instance(item_id, owner: discord.Member, last_owner=None):
-    item = Item(ref_id=item_id, owner=owner, last_owner=last_owner)
+    item = Item(ref_id=item_id, owner=owner.id, last_owner=last_owner)
+    # item = {"ref_id": item_id, "owner": owner.id, "last_owner": last_owner}
     return item
 
 def get_base_item(ref_id):
-    query = BaseItem().objects(item_id=ref_id).first()
+    query = BaseItem.objects(item_id=ref_id).first()
     return query
 
 def give_item_to_user(member: discord.Member, item_id, server):
-    item = create_item_instance(item_id, member.id)
-    baseitem = BaseItem().objects(item_id=item_id).first()
+    item = create_item_instance(item_id, member)
+    baseitem = BaseItem.objects(item_id=item_id).first()
     user = get_user(member, server)
-    user.inventory.append(item)
+
+    server_group = Users.switch_collection(Users(), f"{server.id}")
+    server_objects = QuerySet(Users, server_group._get_collection()) # Convert to QuerySet in order to user .update
+    server_objects(discord_id=member.id).update(push__inventory=item)
     
-    return baseitem.name
+    return baseitem.name, baseitem.value

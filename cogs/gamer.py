@@ -81,7 +81,12 @@ class Gamer(commands.Cog):
             await ctx.send("Transaction failed. You attempted to give away more than you own.")
         elif transact:
             await ctx.send(f"Transaction of {money} V-Bucks Successful!")
-        
+
+
+
+    @commands.command()
+    async def give_item(self, ctx, reciever: discord.Member):
+        pass
         
 
 def setup(client):

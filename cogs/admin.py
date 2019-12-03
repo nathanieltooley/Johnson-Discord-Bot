@@ -23,5 +23,11 @@ class Admin(commands.Cog):
         else:
             await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
 
+    @commands.has_permissions(administrator=True)
+    @commands.command()
+    async def spawn_item(self, ctx, member: discord.Member, ref_id):
+        pass
+
+
 def setup(client):
     client.add_cog(Admin(client))

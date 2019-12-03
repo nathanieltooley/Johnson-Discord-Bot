@@ -26,7 +26,8 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def spawn_item(self, ctx, member: discord.Member, ref_id):
-        pass
+        item, value = svc.give_item_to_user(member, ref_id, ctx.guild)
+        await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")
 
 
 def setup(client):

@@ -1,7 +1,7 @@
 import mongoengine
 import uuid
 
-choices = ("Common", "Rare", "Epic")
+choices = ("Common", "Uncommon", "Rare", "Epic")
 
 class BaseItem(mongoengine.Document):
     item_id = mongoengine.StringField(required=True, unique=True)

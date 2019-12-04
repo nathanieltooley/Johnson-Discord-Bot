@@ -11,10 +11,13 @@ from svc.users import Users
 from svc.servers import Servers
 from svc.items import Item, BaseItem
 
-def get_user(user, server):
+def get_user(user, server, opp=None):
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
-    response = server_objects.filter(discord_id=user.id).first()
+    if opp is None:
+        response = server_objects.filter(discord_id=user.id).first()
+    if opp == "q":
+        response = server_objects
     return response
 
 def get_server(server):
@@ -162,3 +165,21 @@ def give_item_to_user(member: discord.Member, item_id, server):
     server_objects(discord_id=member.id).update(push__inventory=item)
     
     return baseitem.name, baseitem.value
+
+def get_user_inventory(member, server):
+    user = get_user(member, server)
+    _id = user.inventory.filter(owner=member.id)
+
+    print(_id, type(_id))
+
+    id_list = []
+
+    if _id.count() > 1:
+        for ref in _id:
+            item = get_base_item(ref.ref_id)
+            id_list.append(item)
+        return id_list
+    else:
+        item = get_base_item(_id[0].ref_id)
+        id_list.append(item)
+        return id_list

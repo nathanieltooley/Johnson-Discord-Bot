@@ -82,11 +82,50 @@ class Gamer(commands.Cog):
         elif transact:
             await ctx.send(f"Transaction of {money} V-Bucks Successful!")
 
+    @commands.command()
+    async def give_gift(self, ctx, reciever: discord.Member, item_id):
+        if ctx.author == reciever:
+            await ctx.send("You can't gift yourself this item!")
+            return
 
+        if not svc.get_item_from_inventory(member=ctx.author, server=ctx.guild, item_id=item_id):
+            await ctx.send("You do not have this item.")
+            return
+
+        svc.delete_item(ctx.author, ctx.guild, item_id)
+        last_owner = ctx.author
+        item = svc.give_item_to_user(member=reciever, item_id=item_id, server=ctx.guild, last_owner=ctx.author)
+
+        await ctx.send(f"{item[0]} was given to {reciever.display_name}!")
 
     @commands.command()
-    async def give_item(self, ctx, reciever: discord.Member):
-        pass
+    async def get_user_inventory(self, ctx, member: discord.Member = None):
+        if member is None:
+            item = svc.get_user_inventory(ctx.author, ctx.guild)
+            name = ctx.author.nick
+        else:
+            item = svc.get_user_inventory(member, ctx.guild)
+            if member.bot:
+                name = member.name
+            else:
+                name = member.nick
+
+        count = len(item)
+
+        embed = discord.Embed(
+            title=f"{name}'s Inventory",
+            description=f"The inventory of {name}. Total Item Count {count}",
+            color=discord.Colour.dark_purple()
+        )
+
+        if isinstance(item, list):
+            item = enumerate(item, 1)
+            for count, i in item:
+                embed.add_field(name=f"{i.name}", value=f"{i.value} V-Bucks", inline=False)
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(item)
         
 
 def setup(client):

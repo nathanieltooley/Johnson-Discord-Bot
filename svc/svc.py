@@ -156,13 +156,14 @@ def get_base_item(ref_id):
     return query
 
 def give_item_to_user(member: discord.Member, item_id, server):
-    item = create_item_instance(item_id, member)
     baseitem = BaseItem.objects(item_id=item_id).first()
     user = get_user(member, server)
 
-    server_group = Users.switch_collection(Users(), f"{server.id}")
-    server_objects = QuerySet(Users, server_group._get_collection()) # Convert to QuerySet in order to user .update
-    server_objects(discord_id=member.id).update(push__inventory=item)
+    user.switch_collection(f"{server.id}")
+
+    user.inventory.create(ref_id=item_id, owner=member.id)
+
+    user.save()
     
     return baseitem.name, baseitem.value
 
@@ -183,3 +184,15 @@ def get_user_inventory(member, server):
         item = get_base_item(_id[0].ref_id)
         id_list.append(item)
         return id_list
+
+def delete_item(member, server, item_id):
+    user = get_user(member, server)
+    user.switch_collection(collection_name=f"{server.id}")
+    _id = user.inventory.filter(ref_id=item_id).delete()
+
+    print(user)
+
+    user.inventory.save()
+    user.save()
+    print(_id)
+

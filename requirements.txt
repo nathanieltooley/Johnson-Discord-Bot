@@ -43,6 +43,6 @@ virtualenv==16.7.8
 virtualenv-clone==0.5.3
 websockets==6.0
 wrapt==1.11.2
-yapf==0.28.0
+yapf==0.29.0
 yarl==1.4.1
 zipp==0.5.2

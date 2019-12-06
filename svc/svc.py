@@ -155,13 +155,18 @@ def get_base_item(ref_id):
     query = BaseItem.objects(item_id=ref_id).first()
     return query
 
-def give_item_to_user(member: discord.Member, item_id, server):
+def give_item_to_user(member: discord.Member, item_id, server, last_owner: discord.Member = None):
     baseitem = BaseItem.objects(item_id=item_id).first()
     user = get_user(member, server)
 
     user.switch_collection(f"{server.id}")
 
-    user.inventory.create(ref_id=item_id, owner=member.id)
+    if last_owner is None:
+        db_last_owner = None
+    else:
+        db_last_owner = last_owner.id
+
+    user.inventory.create(ref_id=item_id, owner=member.id, last_owner=db_last_owner)
 
     user.save()
     
@@ -190,9 +195,18 @@ def delete_item(member, server, item_id):
     user.switch_collection(collection_name=f"{server.id}")
     _id = user.inventory.filter(ref_id=item_id).delete()
 
-    print(user)
-
     user.inventory.save()
     user.save()
-    print(_id)
+
+def get_item_from_inventory(member, server, item_id):
+    user = get_user(member, server)
+    user.switch_collection(f"{server.id}")
+
+    item = user.inventory.filter(ref_id=item_id).first()
+
+    if not item:
+        return False
+    else:
+        return item
+
 

@@ -40,7 +40,7 @@ snowballstemmer==2.0.0
 soupsieve==1.9.2
 typed-ast==1.4.0
 virtualenv==16.7.2
-virtualenv-clone==0.5.1
+virtualenv-clone==0.5.3
 websockets==6.0
 wrapt==1.11.2
 yapf==0.28.0

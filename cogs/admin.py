@@ -29,6 +29,7 @@ class Admin(commands.Cog):
         item, value = svc.give_item_to_user(member, ref_id, ctx.guild)
         await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")
 
+    @commands.has_permissions(administrator=True)
     @commands.command()
     async def get_user_inventory(self, ctx, member: discord.Member = None):
         if member is None:
@@ -41,8 +42,6 @@ class Admin(commands.Cog):
             else:
                 name = member.nick
 
-
-        print(item, type(item))
         count = len(item)
 
         embed = discord.Embed(
@@ -59,6 +58,7 @@ class Admin(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(item)
+    
 
 def setup(client):
     client.add_cog(Admin(client))

@@ -1,6 +1,7 @@
 import svc.svc as svc
 import discord
 import math
+import asyncio
 
 from random import randrange
 from discord.ext import commands, tasks
@@ -126,7 +127,24 @@ class Gamer(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(item)
-        
+
+    @commands.command()
+    async def trade(self, ctx, member: discord.Member):
+        # use wait_for thingy a lot, gonna have to accept a lot user input babeyyuyyyyy
+        await ctx.send("wait_for Test: Reply with 'test'")
+
+        def check(message):
+            return ctx.author == message.author and message.content == "test"
+
+        try:
+            msg = await self.client.wait_for("message", timeout=30.0, check=check)
+        except asyncio.TimeoutError:
+            await ctx.send("Check failed.")
+            return
+        else:
+            await ctx.send("Check Passed!")
+
+
 
 def setup(client):
     client.add_cog(Gamer(client))

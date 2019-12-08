@@ -28,6 +28,13 @@ class Admin(commands.Cog):
     async def spawn_item(self, ctx, member: discord.Member, ref_id):
         item, value = svc.give_item_to_user(member, ref_id, ctx.guild)
         await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command()
+    async def create_account(self, ctx, member: discord.Member):
+        svc.create_user(member, ctx.guild)
+        await ctx.send(f"{member.display_name}'s account was created.")
+        
     
 
 def setup(client):

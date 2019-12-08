@@ -3,6 +3,7 @@ import discord
 import os
 import itertools
 
+
 from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix = ".")

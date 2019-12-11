@@ -21,7 +21,7 @@ jedi==0.15.1
 lazy-object-proxy==1.4.3
 mccabe==0.6.1
 mongoengine==0.18.2
-multidict==4.5.2
+multidict==4.7.0
 parso==0.5.1
 pipenv==2018.11.26
 pluggy==0.13.1

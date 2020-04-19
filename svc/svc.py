@@ -176,8 +176,6 @@ def get_user_inventory(member, server):
     user = get_user(member, server)
     _id = user.inventory.filter(owner=member.id)
 
-    print(_id, type(_id))
-
     id_list = []
 
     if _id.count() > 1:

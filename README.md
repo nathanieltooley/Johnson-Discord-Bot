@@ -20,7 +20,3 @@ Currently, this bot can do a number of things:
   
   * Maybe more, idk
   
-All of the user info -- exp, level, vbucks -- is all stored on a MongoDB database cluster. If you were to use this bot, you'd have to setup your own database. 
-
-Just make your own bot, for your own sake.
-  

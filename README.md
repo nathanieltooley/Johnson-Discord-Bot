@@ -1,5 +1,5 @@
 # Johnson-Discord-Bot
-Personal discord.py bot, used on my friend's server. Please don't use this as a guide
+Personal discord.py bot, used on my friend's server. not really set up for external use
 
 ## Functions
 Currently, this bot can do a number of things:

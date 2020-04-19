@@ -5,6 +5,7 @@ import random
 
 from discord.ext import commands, tasks
 
+
 class Gamble(commands.Cog):
     
     def __init__(self, client):

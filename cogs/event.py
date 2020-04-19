@@ -5,6 +5,7 @@ import itertools
 
 from discord.ext import commands, tasks
 
+
 class Event(commands.Cog):
     
     def __init__(self, client):
@@ -12,65 +13,37 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        lmessage = message.content
-        qmessage = lmessage.lower()
-        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard'] # Open for expansion
-        if message.author == self.client.user or message.author.bot: # bot check
+        l_message = message.content
+        q_message = l_message.lower()
+        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard']  # Open for expansion
+        if message.author == self.client.user or message.author.bot:  # bot check
             return
 
         for adl in adl_list:
-                if adl in qmessage:
-                    await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good")
-                    await message.delete()
-                    break
+            if adl in q_message:
+                await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
+                await message.delete()
+                break
 
-        if 'fortnite' in qmessage:
+        if 'fortnite' in q_message:
             await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
-            
 
-        if 'gay' in qmessage:
+        if 'gay' in q_message:
             await message.channel.send(f"No Homo {message.author.mention}")
-            
 
-        if 'minecraft' in qmessage:
+        if 'minecraft' in q_message:
             await message.channel.send(f"I prefer Roblox {message.author.mention}")
-            
 
-        if 'the game' in qmessage:
+        if 'the game' in q_message:
             await message.channel.send("I lost the Game")
-            
 
         # ignore this convoluted mess, just don't touch it
-        if 'im ' in qmessage:
-            imInd = qmessage.find("im")  # start index
-            stopInd = qmessage.find(".")  # end index
 
-            if stopInd == -1 or (stopInd < imInd):
-                split = qmessage.split('im')
-                join = f"Hi{split[1]}, I'm Johnson!"
-                print("no period")
-                await message.channel.send(join)
-            else:
-                dadmessage = qmessage[(imInd + 2):stopInd]
-                print(stopInd)
-                print(dadmessage)
-                join = f"Hi{dadmessage}, I'm Johnson!"
-                await message.channel.send(join)
-        elif "i'm " in qmessage:
-            imInd = qmessage.find("i'm")  # start index
-            stopInd = qmessage.find(".")  # end index
+        if 'im ' in q_message:
+            await self.im_check(message, "im ")
 
-            if stopInd == -1 or (stopInd < imInd):
-                split = qmessage.split("i'm")
-                join = f"Hi{split[1]}, I'm Johnson!"
-                print("no period")
-                await message.channel.send(join)
-            else:
-                dadmessage = qmessage[(imInd + 2):stopInd]
-                print(stopInd)
-                print(dadmessage)
-                join = f"Hi{dadmessage}, I'm Johnson!"
-                await message.channel.send(join)
+        if "i'm " in q_message:
+            await self.im_check(message, "i'm ")
 
         svc.create_user(message.author, message.guild)
         svc.income(message.author, message.guild, 5)
@@ -96,6 +69,30 @@ class Event(commands.Cog):
         else:
             print(error)
             await ctx.send(f"{error}")
-            #await ctx.send("An error has occurred")
+            # await ctx.send("An error has occurred")
+
+    @staticmethod
+    async def im_check(message, check):
+
+        q_message = message.content.lower()
+
+        im_index = q_message.find(check)
+        pre_im_index = im_index - 1
+
+        period_index = q_message.find(".")
+
+        if period_index < im_index:
+            period_index = -1
+
+        if period_index > 0:
+            dad_message = q_message[(im_index + 2):period_index]
+            join = f"Hi{dad_message}, I'm Johnson!"
+            await message.channel.send(join)
+        elif pre_im_index < 0 or q_message[pre_im_index].isspace():
+            split = q_message.split(check, 1)
+            join = f"Hi {split[1]}, I'm Johnson!"
+            await message.channel.send(join)
+
+
 def setup(client):
     client.add_cog(Event(client))

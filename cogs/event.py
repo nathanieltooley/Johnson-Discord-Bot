@@ -37,8 +37,6 @@ class Event(commands.Cog):
         if 'the game' in q_message:
             await message.channel.send("I lost the Game")
 
-        # ignore this convoluted mess, just don't touch it
-
         if 'im ' in q_message:
             await self.im_check(message, "im ")
 
@@ -51,10 +49,6 @@ class Event(commands.Cog):
 
         if level_up:
             await message.channel.send(level_up)
-
-        # await check_level(message.author)
-
-        # await self.client.process_commands(message)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

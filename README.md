@@ -1,5 +1,5 @@
 # Johnson-Discord-Bot
-Personal discord.py bot, used on my friend's server. Please don't use this as a guide
+Personal discord.py bot, used on my friend's server. not really set up for external use
 
 ## Functions
 Currently, this bot can do a number of things:
@@ -19,8 +19,4 @@ Currently, this bot can do a number of things:
   * Gamble, but without the risk
   
   * Maybe more, idk
-  
-All of the user info -- exp, level, vbucks -- is all stored on a MongoDB database cluster. If you were to use this bot, you'd have to setup your own database. 
-
-Just make your own bot, for your own sake.
   

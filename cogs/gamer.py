@@ -6,11 +6,74 @@ import asyncio
 from random import randrange
 from discord.ext import commands, tasks
 
+
+"""class Transaction:
+    items = []
+    trade_money = {}
+
+    def __init__(self, members: tuple):
+        self.member1 = members[0]
+        self.member2 = members[1]
+
+    def add_item(self, item):
+        self.items.append(item)
+
+    def remove_item(self, item):
+        self.items.remove(item)
+
+    def add_money(self, money, owner):
+
+        money = abs(money)
+
+        if not (self.trade_money.has_key(f"{owner.id}")):
+            values = {f"{owner.id}": money}
+            self.trade_money.update(values)
+        else:
+            current_money = self.trade_money.get(f"{owner.id}")
+            values = {f"{owner.id}": (money + current_money)}
+            self.trade_money.popitem(f"{owner.id}")
+            self.trade_money.update(values)
+
+    def remove_money(self, money, owner):
+
+        money = abs(money)
+
+        if not (self.trade_money.has_key(f"{owner.id}")):
+            values = {f"{owner.id}": money}
+            self.trade_money.update(values)
+        else:
+            current_money = self.trade_money.get(f"{owner.id}")
+            values = {f"{owner.id}": (current_money - money)}
+            self.trade_money.popitem(f"{owner.id}")
+            self.trade_money.update(values)
+
+    def clear_trade_money(self, user):
+        x = None  # anonymous variable
+
+        try:
+            x = self.trade_money.popitem(f"{user.id}")
+        except KeyError:
+            return None
+        else:
+            return x
+
+    def return_item_embed(self):
+        embed = discord.Embed(title="Current Trade Details",
+                              description="The current trade details between",
+                              color=discord.Color.magenta)
+
+        for i in self.items:
+            name: discord.Member = i.owner
+            embed.add_field(name=name, value=svc.get_base_item(i.ref_id))
+
+        return embed
+"""
+
 class Gamer(commands.Cog):
-    
+
     def __init__(self, client):
         self.client = client
-    
+        # self.transactions = {}
 
     @commands.command(aliases=["viewgamerstats"])
     async def view_gamer_stats(self, ctx):
@@ -33,7 +96,8 @@ class Gamer(commands.Cog):
         embed.set_thumbnail(
             url="https://cdn.discordapp.com/attachments/610520962898853908/610539291701149709/AntiHa.jpg")
         embed.add_field(name="V-Bucks", value=f"{vbucks}")
-        embed.add_field(name="Experience", value=f"{exp}/{int((math.pow((level + 1), 4)))}") # Find out how much exp is need for the next level (i.e 6/16)
+        embed.add_field(name="Experience",
+                        value=f"{exp}/{int((math.pow((level + 1), 4)))}")
         embed.add_field(name="Level", value=f"{level}")
 
         await ctx.send(embed=embed)
@@ -74,7 +138,6 @@ class Gamer(commands.Cog):
         if ctx.author == reciever:
             await ctx.send("You can't send yourself money")
             return
-
 
         transact = svc.transact(ctx.author, reciever, ctx.guild, money)
 
@@ -133,7 +196,8 @@ class Gamer(commands.Cog):
         # use wait_for thingy a lot, gonna have to accept a lot user input babeyyuyyyyy
         await ctx.send("wait_for Test: Reply with 'test'")
 
-        def check(message):
+
+        """def check(message):
             return ctx.author == message.author and message.content == "test"
 
         try:
@@ -142,8 +206,15 @@ class Gamer(commands.Cog):
             await ctx.send("Check failed.")
             return
         else:
-            await ctx.send("Check Passed!")
 
+            await ctx.send("Check Passed!")
+            trans_id = ctx.author.id + member.id
+            # trans_instance = Transaction(members=(ctx.author, member))
+
+            # t_update = {f"{trans_id}": trans_instance}
+            # transaction = self.transactions.update(t_update)
+
+            # print(self.transactions)"""
 
 
 def setup(client):

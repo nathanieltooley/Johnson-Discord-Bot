@@ -1,6 +1,7 @@
 import mongoengine
 import datetime
 
+
 class Servers(mongoengine.DynamicDocument):
     name = mongoengine.StringField(required=True)
     discord_id = mongoengine.LongField(required=True)

@@ -3,6 +3,7 @@ import uuid
 
 choices = ("Common", "Uncommon", "Rare", "Epic")
 
+
 class BaseItem(mongoengine.Document):
     item_id = mongoengine.StringField(required=True, unique=True)
     name = mongoengine.StringField(required=True)
@@ -15,9 +16,9 @@ class BaseItem(mongoengine.Document):
         "collection": "Items"
     }
 
+
 class Item(mongoengine.EmbeddedDocument):
     ref_id = mongoengine.StringField(required=True)
     last_owner = mongoengine.LongField()
     owner = mongoengine.LongField(required=True)
 
-    

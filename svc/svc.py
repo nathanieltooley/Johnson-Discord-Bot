@@ -11,6 +11,7 @@ from svc.users import Users
 from svc.servers import Servers
 from svc.items import Item, BaseItem
 
+
 def get_user(user, server, opp=None):
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
@@ -20,9 +21,11 @@ def get_user(user, server, opp=None):
         response = server_objects
     return response
 
+
 def get_server(server):
     response = Servers.objects().filter(discord_id=server.id).first()
     return response
+
 
 def create_server(guild: discord.Guild):
     server = Servers()
@@ -33,6 +36,7 @@ def create_server(guild: discord.Guild):
         server.save()
     else:
         return False
+
 
 def create_user(discord_user: discord.Member, server):
     user = Users()
@@ -51,6 +55,7 @@ def create_user(discord_user: discord.Member, server):
     else:
         return False
 
+
 def income(member, server, money):
     discord_id = member.id
     user = get_user(member, server)
@@ -63,6 +68,7 @@ def income(member, server, money):
     user.save()
 
     # Users.objects(discord_id=discord_id, server_id=server.id).update_one(vbucks=new_money)
+
 
 def exp_check(member, server, min_exp, max_exp):
     discord_id = member.id
@@ -84,16 +90,18 @@ def exp_check(member, server, min_exp, max_exp):
         # Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         # Users.objects(discord_id=discord_id).update_one(level=new_level)
 
-        return (f"{member.mention} has leveled up from Level {old_level} to Level {new_level}!")
+        return f"{member.mention} has leveled up from Level {old_level} to Level {new_level}!"
     else:
         user.exp = new_exp
         user.save()
         # Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         return None
-    
+
+
 def pickrps():  # only used for rps command
     choices = ['rock', 'paper', 'scissors']
     return choice(choices)
+
 
 def get_leaderboard_results(field, server):
     server_group = Users.switch_collection(Users(), f"{server.id}")
@@ -101,11 +109,13 @@ def get_leaderboard_results(field, server):
     responses = server_objects[:10]().order_by(f"-{field}")
     return responses
 
+
 def update_vbucks(member, server, money: int):
     user = get_user(member, server)
     user.switch_collection(f"{server.id}")
     user.vbucks = money
     user.save()
+
 
 def update_exp(member, server, exp):
     user = get_user(member, server)
@@ -124,6 +134,7 @@ def update_exp(member, server, exp):
         user.save()
         return new_level
 
+
 def transact(giver, receiver, server, money):
     giver_user = get_user(giver, server)
 
@@ -136,6 +147,7 @@ def transact(giver, receiver, server, money):
         income(receiver, server, money)
         return True
 
+
 def create_base_item(item_id, name, value: int, rarity, description=None):
     item = BaseItem(item_id=item_id, name=name, value=value, rarity=rarity, description=description)
     
@@ -146,14 +158,17 @@ def create_base_item(item_id, name, value: int, rarity, description=None):
         print("Duplicate ID Error")
         return None
 
+
 def create_item_instance(item_id, owner: discord.Member, last_owner=None):
     item = Item(ref_id=item_id, owner=owner.id, last_owner=last_owner)
     # item = {"ref_id": item_id, "owner": owner.id, "last_owner": last_owner}
     return item
 
+
 def get_base_item(ref_id):
     query = BaseItem.objects(item_id=ref_id).first()
     return query
+
 
 def give_item_to_user(member: discord.Member, item_id, server, last_owner: discord.Member = None):
     baseitem = BaseItem.objects(item_id=item_id).first()
@@ -172,6 +187,7 @@ def give_item_to_user(member: discord.Member, item_id, server, last_owner: disco
     
     return baseitem.name, baseitem.value
 
+
 def get_user_inventory(member, server):
     user = get_user(member, server)
     _id = user.inventory.filter(owner=member.id)
@@ -188,6 +204,7 @@ def get_user_inventory(member, server):
         id_list.append(item)
         return id_list
 
+
 def delete_item(member, server, item_id):
     user = get_user(member, server)
     user.switch_collection(collection_name=f"{server.id}")
@@ -195,6 +212,7 @@ def delete_item(member, server, item_id):
 
     user.inventory.save()
     user.save()
+
 
 def get_item_from_inventory(member, server, item_id):
     user = get_user(member, server)

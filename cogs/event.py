@@ -15,33 +15,39 @@ class Event(commands.Cog):
     async def on_message(self, message):
         l_message = message.content
         q_message = l_message.lower()
+        
+        obsc_check = False
+
         adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard']  # Open for expansion
         if message.author == self.client.user or message.author.bot:  # bot check
             return
 
         for adl in adl_list:
             if adl in q_message:
+                obsc_check = True
                 await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
                 await message.delete()
                 break
 
-        if 'fortnite' in q_message:
-            await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
+        if not obsc_check:
 
-        if 'gay' in q_message:
-            await message.channel.send(f"No Homo {message.author.mention}")
+            if 'fortnite' in q_message:
+                await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
 
-        if 'minecraft' in q_message:
-            await message.channel.send(f"I prefer Roblox {message.author.mention}")
+            if 'gay' in q_message:
+                await message.channel.send(f"No Homo {message.author.mention}")
 
-        if 'the game' in q_message:
-            await message.channel.send("I lost the Game")
+            if 'minecraft' in q_message:
+                await message.channel.send(f"I prefer Roblox {message.author.mention}")
 
-        if 'im ' in q_message:
-            await self.im_check(message, "im ")
+            if 'the game' in q_message:
+                await message.channel.send("I lost the Game")
 
-        if "i'm " in q_message:
-            await self.im_check(message, "i'm ")
+            if 'im ' in q_message:
+                await self.im_check(message, "im")
+
+            if "i'm " in q_message:
+                await self.im_check(message, "i'm ")
 
         svc.create_user(message.author, message.guild)
         svc.income(message.author, message.guild, 5)

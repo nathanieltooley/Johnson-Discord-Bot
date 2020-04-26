@@ -125,3 +125,5 @@ dmypy.json
 
 # Visual Studio stuff
 .vscode/
+/.idea/vcs.xml
+/.idea/

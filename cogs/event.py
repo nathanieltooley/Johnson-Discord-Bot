@@ -44,7 +44,7 @@ class Event(commands.Cog):
                 await message.channel.send("I lost the Game")
 
             if 'im ' in q_message:
-                await self.im_check(message, "im")
+                await self.im_check(message, "im ")
 
             if "i'm " in q_message:
                 await self.im_check(message, "i'm ")

@@ -2,10 +2,12 @@ import svc.svc as svc
 import discord
 import math
 import asyncio
+from enums import bot_enums
 
 from random import randrange
 from discord.ext import commands, tasks
 
+# Cancelled indefinitely
 
 """class Transaction:
     items = []
@@ -69,6 +71,7 @@ from discord.ext import commands, tasks
         return embed
 """
 
+
 class Gamer(commands.Cog):
 
     def __init__(self, client):
@@ -94,7 +97,7 @@ class Gamer(commands.Cog):
         level = user.level
 
         embed.set_thumbnail(
-            url="https://cdn.discordapp.com/attachments/610520962898853908/610539291701149709/AntiHa.jpg")
+            url=bot_enums.Bot.BOT_AVATAR_URL.value)
         embed.add_field(name="V-Bucks", value=f"{vbucks}")
         embed.add_field(name="Experience",
                         value=f"{exp}/{int((math.pow((level + 1), 4)))}")
@@ -196,6 +199,7 @@ class Gamer(commands.Cog):
         # use wait_for thingy a lot, gonna have to accept a lot user input babeyyuyyyyy
         await ctx.send("wait_for Test: Reply with 'test'")
 
+        # Cancelled indefinitely
 
         """def check(message):
             return ctx.author == message.author and message.content == "test"

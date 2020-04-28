@@ -20,9 +20,9 @@ class Gamble(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
     async def rps(self, ctx, member1: discord.member.Member, member2: discord.member.Member):
-        rpsMember1 = svc.pickrps()
-        rpsMember2 = svc.pickrps()
-        rpstotal = rpsMember1 + ' ' + rpsMember2
+        rps_member1 = svc.pickrps()
+        rps_member2 = svc.pickrps()
+        rpstotal = rps_member1 + ' ' + rps_member2
         
         rpsdict = {
             "rock scissors": member1,
@@ -33,34 +33,33 @@ class Gamble(commands.Cog):
             "paper scissors": member2
         }
 
-        await ctx.send(f'{member1.mention} got {rpsMember1}, and {member2.mention} got {rpsMember2}')
+        await ctx.send(f'{member1.mention} got {rps_member1}, and {member2.mention} got {rps_member2}')
 
-        if rpsMember1 != rpsMember2:
+        if rps_member1 != rps_member2:
             winner = rpsdict[rpstotal]
             loser = None
 
-            if winner == member1: # find the loser using the winner
+            if winner == member1:  # find the loser using the winner
                 loser = member2
             else:
                 loser = member1
 
-            winnerUser = svc.create_user(winner, ctx.guild) # Create the user if there isn't one
-            loserUser = svc.create_user(loser, ctx.guild)
+            winner_user = svc.create_user(winner, ctx.guild)  # Create the user if there isn't one
+            loser_user = svc.create_user(loser, ctx.guild)
 
-            winnerUser = svc.get_user(winner, ctx.guild) 
-            loserUser = svc.get_user(loser, ctx.guild)
+            winner_user = svc.get_user(winner, ctx.guild)
+            loser_user = svc.get_user(loser, ctx.guild)
 
-            vbuckReward = int(loserUser.vbucks * (random.randrange(1, 10) / 100)) # Get between 0% and 10% of the loser's vbucks
+            vbuck_reward = int(loser_user.vbucks * (random.randrange(1, 10) / 100))  # Get between 0% and 10% of the loser's vbucks
 
-            vbuckLimit = 1500
-            if vbuckReward > vbuckLimit:
-                vbuckReward = vbuckLimit
+            vbuck_limit = 1500
+            if vbuck_reward > vbuck_limit:
+                vbuck_reward = vbuck_limit
 
-            svc.income(winner, ctx.guild, vbuckReward)
-            svc.income(loser, ctx.guild, (-vbuckReward))
+            svc.income(winner, ctx.guild, vbuck_reward)
+            svc.income(loser, ctx.guild, (-vbuck_reward))
             
-            await ctx.send(f"{winner.mention} won and got {vbuckReward} from {loser.mention}")
-            # await ctx.send(f'{rpsdict.get(rpstotal)}')
+            await ctx.send(f"{winner.mention} won and got {vbuck_reward} from {loser.mention}")
         else:
             await ctx.send('Its a tie!')
 
@@ -69,21 +68,20 @@ class Gamble(commands.Cog):
     async def gamble(self, ctx, amount: int):
         user = svc.get_user(ctx.author, ctx.guild)
 
-        randselection = random.random()
-        if (randselection >= .1 and randselection <= .7) and (amount < user.vbucks):
+        rand_selection = random.random()
+        if (.1 <= rand_selection <= .7) and (amount < user.vbucks):
             new_amount = amount * ((random.randrange(1, 20)) / 10)
             int(new_amount)
             svc.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = new_amount + user.vbucks
-            await ctx.send(f"You gained {(new_amount)}. You now have {print_vbucks}.")
-        elif (randselection >= .7) and (amount < user.vbucks):
+            await ctx.send(f"You gained {new_amount}. You now have {print_vbucks}.")
+        elif (rand_selection >= .7) and (amount < user.vbucks):
             new_amount = (-amount)
             svc.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = user.vbucks - amount
             await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
         else:
             await ctx.send("You can't gamble for more than you own, I can't program loans")
-
 
 
 def setup(client):

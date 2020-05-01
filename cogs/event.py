@@ -28,7 +28,7 @@ class Event(commands.Cog):
                 obsc_check = True
                 await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
                 await message.delete()
-                svc.add_to_slur_count(message.author, message.guild, 1)
+                svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
                 break
 
         if not obsc_check:
@@ -51,9 +51,9 @@ class Event(commands.Cog):
             if "i'm " in q_message:
                 await self.im_check(message, "i'm ")
 
-        svc.create_user(message.author, message.guild)
-        svc.income(message.author, message.guild, 5)
-        level_up = svc.exp_check(message.author, message.guild, 1, 10)
+        svc.Mongo.create_user(message.author, message.guild)
+        svc.Mongo.income(message.author, message.guild, 5)
+        level_up = svc.Mongo.exp_check(message.author, message.guild, 1, 10)
 
         if level_up:
             await message.channel.send(level_up)
@@ -90,7 +90,7 @@ class Event(commands.Cog):
 
         if spotify.artist == "The Strokes":
 
-            svc.add_to_stroke_count(member, member.guild, 1)
+            svc.Mongo.add_to_stroke_count(member, member.guild, 1)
 
             """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",
                                      description=f"{spotify.title} - {spotify.album}",

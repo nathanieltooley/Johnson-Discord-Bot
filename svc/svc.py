@@ -249,3 +249,16 @@ class Mongo:
             return item
 
 
+class Games:
+
+    @staticmethod
+    def pickrps():  # only used for rps command
+        choices = ['rock', 'paper', 'scissors']
+        return choice(choices)
+
+
+class Color:
+
+    @staticmethod
+    def random_color():
+        return discord.Color.from_rgb(randrange(1, 256), randrange(randrange(1, 256)), randrange(1, 256))

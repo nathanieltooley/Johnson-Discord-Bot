@@ -2,6 +2,7 @@ import mongoengine
 import datetime
 from svc.items import *
 
+
 class Users(mongoengine.DynamicDocument):
     name = mongoengine.StringField(required=True)
     discord_id = mongoengine.LongField(required=True)
@@ -10,6 +11,8 @@ class Users(mongoengine.DynamicDocument):
     vbucks = mongoengine.IntField(default=1000)
     exp = mongoengine.IntField(default=1)
     level = mongoengine.IntField(default=1)
+    slur_count = mongoengine.IntField(default=0)
+    stroke_count = mongoengine.IntField(default=0)
 
     inventory = mongoengine.EmbeddedDocumentListField(Item)
     

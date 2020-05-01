@@ -2,6 +2,7 @@ import svc.svc as svc
 import discord
 import os
 import itertools
+from enums import bot_enums
 
 from discord.ext import commands, tasks
 
@@ -27,6 +28,7 @@ class Event(commands.Cog):
                 obsc_check = True
                 await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
                 await message.delete()
+                svc.add_to_slur_count(message.author, message.guild, 1)
                 break
 
         if not obsc_check:
@@ -70,6 +72,34 @@ class Event(commands.Cog):
             print(error)
             await ctx.send(f"{error}")
             # await ctx.send("An error has occurred")
+
+    @commands.Cog.listener()
+    async def on_member_update(self, ctx, member):
+
+        if member.bot:
+            return
+
+        spotify = None
+
+        for act in member.activities:
+            if act.name == "Spotify":
+                spotify = act
+
+        if spotify is None:
+            return
+
+        if spotify.artist == "The Strokes":
+
+            svc.add_to_stroke_count(member, member.guild, 1)
+
+            """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",
+                                     description=f"{spotify.title} - {spotify.album}",
+                                     color=discord.Color.gold())
+
+            dm_embed.set_thumbnail(url=bot_enums.BotString.BOT_AVATAR_URL.value)
+            dm_embed.set_image(url=spotify.album_cover_url)
+
+            await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
 
     @staticmethod
     async def im_check(message, check):

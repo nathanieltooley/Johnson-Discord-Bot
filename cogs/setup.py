@@ -59,7 +59,7 @@ class Setup(commands.Cog):
                     ".viewgamerstats [id]: View a player's statistics.\n"
                     ".view_gamer_boards: View the server's leaderboard.\n"
                     ".gamble [amount]: Gamble to your hearts content. It's Vegas baby!\n"
-                    "I'm also a part-time Dad now as well!(as per Noah's request)\n"
+                    "I'm also a part-time Dad now as well! (as per Noah's request)\n"
                     "I'm also now controlled by the ADL\n"
                     "Source code available at https://github.com/applememes69420/Johnson-Discord-Bot")
 

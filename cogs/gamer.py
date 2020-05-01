@@ -19,8 +19,8 @@ class Gamer(commands.Cog):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
         their experience, and their current level."""
 
-        svc.create_user(ctx.author, ctx.guild)
-        user = svc.get_user(ctx.author, ctx.guild)
+        svc.Mongo.create_user(ctx.author, ctx.guild)
+        user = svc.Mongo.get_user(ctx.author, ctx.guild)
 
         embed = discord.Embed(
             title=f"{ctx.message.author.nick}'s Stats",
@@ -42,6 +42,22 @@ class Gamer(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    async def slur_check(self, ctx, member: discord.Member):
+        user = svc.Mongo.get_user(member, member.guild)
+        if not user.slur_count:
+            await ctx.send("This person is clean!")
+            return
+
+        embed = discord.Embed(title=f"{member.nick}'s Slur Count",
+                              description=f"How racist is {member.nick}",
+                              color=svc.Color.random_color())
+
+        for k, v in user.slur_count.items():
+            embed.add_field(name=k, value=v, inline=False)
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
     async def view_gamer_boards(self, ctx, field="vbucks"):
         embed_title = None
         field = field.lower()
@@ -55,7 +71,7 @@ class Gamer(commands.Cog):
             await ctx.send(f"ERROR: {field} is not a vaild field")
             return
 
-        results = svc.get_leaderboard_results(field, ctx.guild)
+        results = svc.Mongo.get_leaderboard_results(field, ctx.guild)
         results = enumerate(results, 1)
 
         embed = discord.Embed(
@@ -78,7 +94,7 @@ class Gamer(commands.Cog):
             await ctx.send("You can't send yourself money")
             return
 
-        transact = svc.transact(ctx.author, reciever, ctx.guild, money)
+        transact = svc.Mongo.transact(ctx.author, reciever, ctx.guild, money)
 
         if not transact:
             await ctx.send("Transaction failed. You attempted to give away more than you own.")
@@ -91,23 +107,23 @@ class Gamer(commands.Cog):
             await ctx.send("You can't gift yourself this item!")
             return
 
-        if not svc.get_item_from_inventory(member=ctx.author, server=ctx.guild, item_id=item_id):
+        if not svc.Mongo.get_item_from_inventory(member=ctx.author, server=ctx.guild, item_id=item_id):
             await ctx.send("You do not have this item.")
             return
 
-        svc.delete_item(ctx.author, ctx.guild, item_id)
+        svc.Mongo.delete_item(ctx.author, ctx.guild, item_id)
         last_owner = ctx.author
-        item = svc.give_item_to_user(member=reciever, item_id=item_id, server=ctx.guild, last_owner=ctx.author)
+        item = svc.Mongo.give_item_to_user(member=reciever, item_id=item_id, server=ctx.guild, last_owner=ctx.author)
 
         await ctx.send(f"{item[0]} was given to {reciever.display_name}!")
 
     @commands.command()
     async def get_user_inventory(self, ctx, member: discord.Member = None):
         if member is None:
-            item = svc.get_user_inventory(ctx.author, ctx.guild)
+            item = svc.Mongo.get_user_inventory(ctx.author, ctx.guild)
             name = ctx.author.nick
         else:
-            item = svc.get_user_inventory(member, ctx.guild)
+            item = svc.Mongo.get_user_inventory(member, ctx.guild)
             if member.bot:
                 name = member.name
             else:

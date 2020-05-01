@@ -12,11 +12,12 @@ from svc.servers import Servers
 from svc.items import Item, BaseItem
 
 
-def get_user(user, server, opp=None):
+def get_user(member: discord.Member, server: discord.Guild, opp=None):
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
+    response = None
     if opp is None:
-        response = server_objects.filter(discord_id=user.id).first()
+        response = server_objects.filter(discord_id=member.id).first()
     if opp == "q":
         response = server_objects
     return response
@@ -133,6 +134,22 @@ def update_exp(member, server, exp):
         user.level = new_level
         user.save()
         return new_level
+
+
+def add_to_slur_count(member, server, number):
+    user = get_user(member, server)
+    user.switch_collection(f"{server.id}")
+    old_count = user.slur_count
+    user.slur_count = old_count + number
+    user.save()
+
+
+def add_to_stroke_count(member, server, number):
+    user = get_user(member, server)
+    user.switch_collection(f"{server.id}")
+    old_count = user.stroke_count
+    user.stroke_count = old_count + number
+    user.save()
 
 
 def transact(giver, receiver, server, money):

@@ -74,6 +74,5 @@ class Setup(commands.Cog):
         await self.client.wait_until_ready()
         
 
-
 def setup(client):
     client.add_cog(Setup(client))

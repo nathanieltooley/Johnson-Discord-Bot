@@ -2,6 +2,7 @@ import svc.svc as svc
 import discord
 import os
 import itertools
+import pymongo
 
 
 from discord.ext import commands, tasks
@@ -37,3 +38,4 @@ for filename in os.listdir("./cogs"):
 
 
 client.run(os.environ.get("TOKEN"))
+

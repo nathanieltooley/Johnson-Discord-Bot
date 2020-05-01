@@ -3,6 +3,7 @@ import svc.svc as svc
 
 from discord.ext import commands, tasks
 
+
 class Admin(commands.Cog):
 
     def __init__(self, client):
@@ -18,7 +19,7 @@ class Admin(commands.Cog):
     @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = svc.update_exp(member, ctx.guild, exp)
-        if check == None:
+        if check is None:
             await ctx.send(f"{member.mention}'s XP has been set to {exp}")
         else:
             await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")

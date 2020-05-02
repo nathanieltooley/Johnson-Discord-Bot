@@ -8,7 +8,7 @@ from discord.ext import commands, tasks
 
 
 class Event(commands.Cog):
-    
+
     def __init__(self, client):
         self.client = client
 
@@ -16,20 +16,23 @@ class Event(commands.Cog):
     async def on_message(self, message):
         l_message = message.content
         q_message = l_message.lower()
-        
+
         obsc_check = False
 
-        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike', 'faggot']  # Open for expansion
+        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
+                    'faggot']  # Open for expansion
         if message.author == self.client.user or message.author.bot:  # bot check
             return
 
         for adl in adl_list:
             if adl in q_message:
                 obsc_check = True
-                await message.channel.send(f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
-                await message.delete()
                 svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
-                break
+
+        if obsc_check:
+            await message.channel.send(
+                f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
+            await message.delete()
 
         if not obsc_check:
 
@@ -92,7 +95,6 @@ class Event(commands.Cog):
             return
 
         if spotify.artist == "The Strokes":
-
             svc.Mongo.add_to_stroke_count(member, member.guild, 1)
 
             """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",

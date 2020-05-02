@@ -1,9 +1,4 @@
-import svc.svc as svc
-import discord
 import os
-import itertools
-import pymongo
-
 
 from discord.ext import commands, tasks
 

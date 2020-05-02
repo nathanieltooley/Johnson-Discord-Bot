@@ -48,7 +48,7 @@ class Gamer(commands.Cog):
             await ctx.send("This person is clean!")
             return
 
-        embed = discord.Embed(title=f"{member.nick}'s Slur Count",
+        embed = discord.Embed(title=f"{member.nick}'s Racist Resume",
                               description=f"How racist is {member.nick}",
                               color=svc.Color.random_color())
 

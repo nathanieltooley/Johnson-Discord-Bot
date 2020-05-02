@@ -19,7 +19,7 @@ class Event(commands.Cog):
         
         obsc_check = False
 
-        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard']  # Open for expansion
+        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike', 'faggot']  # Open for expansion
         if message.author == self.client.user or message.author.bot:  # bot check
             return
 
@@ -44,6 +44,9 @@ class Event(commands.Cog):
 
             if 'the game' in q_message:
                 await message.channel.send("I lost the Game")
+
+            if 'based' in q_message:
+                await message.channel.send("Based on what?")
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")

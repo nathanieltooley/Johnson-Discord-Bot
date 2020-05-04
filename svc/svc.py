@@ -2,6 +2,8 @@ import discord
 import pymongo
 import mongoengine
 import math
+import datetime
+import colorama
 
 from mongoengine.context_managers import *
 from mongoengine.queryset import QuerySet
@@ -10,6 +12,8 @@ from random import randrange, choice
 from svc.users import Users
 from svc.servers import Servers
 from svc.items import Item, BaseItem
+
+colorama.init()
 
 
 class Mongo:
@@ -262,3 +266,23 @@ class Color:
     @staticmethod
     def random_color():
         return discord.Color.from_rgb(randrange(1, 256), randrange(randrange(1, 256)), randrange(1, 256))
+
+
+class Logging:
+
+    @staticmethod
+    def log(name, log):
+        print(colorama.Style.RESET_ALL + colorama.Fore.BLUE + f"{name}" + colorama.Fore.MAGENTA + f":{log}")
+
+    @staticmethod
+    def time_log(name, log):
+        print(colorama.Style.RESET_ALL + colorama.Fore.BLUE + f"{name}" + colorama.Fore.GREEN +
+              f"{datetime.datetime.now()}" + colorama.Fore.MAGENTA + f":{log}")
+
+    @staticmethod
+    def error(name, log):
+        print(colorama.Fore.RED + f"ERROR:{name}:{log}")
+
+    @staticmethod
+    def warning(name, log):
+        print(colorama.Fore.YELLOW + f"WARNING:{name}:{log}")

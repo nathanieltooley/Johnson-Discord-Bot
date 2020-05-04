@@ -1,6 +1,7 @@
 import mongoengine
 import os
 import pymongo
+import svc.svc as svc
 
 host = os.environ.get('HOST')
 
@@ -8,7 +9,7 @@ host = os.environ.get('HOST')
 def global_init():
     try:
         mongoengine.register_connection(alias="default", name="Johnson", host=host)
-        print("Connected!")
+        svc.Logging.log(__name__, "Connected!")
     except pymongo.errors.ConfigurationError or pymongo.errors.ConnectionFailure:
-        print("Could not connect; Retrying...")
+        svc.Logging.warning("global_init", "Could not connect; Retrying...")
         global_init()

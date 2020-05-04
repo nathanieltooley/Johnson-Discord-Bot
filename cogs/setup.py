@@ -27,7 +27,7 @@ class Setup(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         global_init()
-        print("Johnson is spittin straight cog!")
+        svc.Logging.log(__name__, "Johnson is spittin straight cog!")
         # self.change_status.start()
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         
@@ -70,7 +70,7 @@ class Setup(commands.Cog):
 
     @change_status.before_loop
     async def before_status(self):
-        print("Waiting...")
+        svc.Logging.log(__name__, "Waiting...")
         await self.client.wait_until_ready()
         
 

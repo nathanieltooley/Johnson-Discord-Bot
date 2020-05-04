@@ -28,11 +28,13 @@ class Event(commands.Cog):
             if adl in q_message:
                 obsc_check = True
                 svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
+                svc.Logging.log(__name__, f"{message.author.name} said slur: {adl}")
 
         if obsc_check:
             await message.channel.send(
                 f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
             await message.delete()
+            svc.Logging.log(__name__, f"Message deleted, from f{message.author.name}:{message.content}")
 
         if not obsc_check:
 
@@ -75,9 +77,8 @@ class Event(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             await ctx.send("You seemed to have messed up, try again")
         else:
-            print(error)
+            svc.Logging.error("command_error", error)
             await ctx.send(f"{error}")
-            # await ctx.send("An error has occurred")
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):

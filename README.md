@@ -1,5 +1,6 @@
 # Johnson-Discord-Bot
 Personal discord.py bot, used on my friend's server. not really set up for external use
+Honestly, this is just setup for heroku auto-deploy but feel free to look at the code
 
 ## Functions
 Currently, this bot can do a number of things:

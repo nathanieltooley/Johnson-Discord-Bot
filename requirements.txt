@@ -39,7 +39,7 @@ pathlib==1.0.1
 pip-review==1.1.0
 pipenv==2018.11.26
 pluggy==0.13.1
-pycodestyle==2.5.0
+pycodestyle==2.6.0
 pycparser==2.20
 pydocstyle==5.0.2
 pyflakes==2.2.0

@@ -56,7 +56,7 @@ requests==2.23.0
 rope==0.17.0
 six==1.14.0
 snowballstemmer==2.0.0
-soupsieve==2.0
+soupsieve==2.0.1
 spotdl==1.2.6
 spotipy==2.12.0
 titlecase==0.12.0

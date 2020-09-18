@@ -14,7 +14,10 @@ status = cycle(["For more info, use .helpme!",
                     "Made by Nathaniel",
                     "Fortnite",
                     "Vibe Check",
-                    "SwowS"])
+                    "SwowS",
+                    "Pussy had me dead",
+                    "Might call Tupac over",
+                    "Back Online!"])
 
 
 class Setup(commands.Cog):

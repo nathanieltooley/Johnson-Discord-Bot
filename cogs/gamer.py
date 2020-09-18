@@ -12,7 +12,6 @@ class Gamer(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        # self.transactions = {}
 
     @commands.command(aliases=["viewgamerstats"])
     async def view_gamer_stats(self, ctx):
@@ -103,7 +102,10 @@ class Gamer(commands.Cog):
 
     @commands.command()
     async def give_gift(self, ctx, reciever: discord.Member, item_id):
-        if ctx.author == reciever:
+        ctx.send("Not Implemented")
+        return
+
+        """if ctx.author == reciever:
             await ctx.send("You can't gift yourself this item!")
             return
 
@@ -115,7 +117,7 @@ class Gamer(commands.Cog):
         last_owner = ctx.author
         item = svc.Mongo.give_item_to_user(member=reciever, item_id=item_id, server=ctx.guild, last_owner=ctx.author)
 
-        await ctx.send(f"{item[0]} was given to {reciever.display_name}!")
+        await ctx.send(f"{item[0]} was given to {reciever.display_name}!")"""
 
     @commands.command()
     async def get_user_inventory(self, ctx, member: discord.Member = None):

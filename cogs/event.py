@@ -25,7 +25,7 @@ class Event(commands.Cog):
             return
 
         for adl in adl_list:
-            if adl in q_message:
+            if adl in q_message and not q_message.startswith("https://tenor.com/"):  # Ignore gif links
                 obsc_check = True
                 svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
                 svc.Logging.log(__name__, f"{message.author.name} said slur: {adl}")

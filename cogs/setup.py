@@ -13,10 +13,8 @@ status = cycle(["For more info, use .helpme!",
                     "Who uses this bot anyways?",
                     "Made by Nathaniel",
                     "Fortnite",
-                    "Vibe Check",
                     "SwowS",
-                    "Pussy had me dead",
-                    "Might call Tupac over",
+                    "Team Fortress 2",
                     "Back Online!"])
 
 

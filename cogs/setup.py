@@ -1,4 +1,4 @@
-import svc.svc as svc
+import svc.utils as svc
 import discord
 import os
 import itertools

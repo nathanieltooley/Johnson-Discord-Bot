@@ -1,5 +1,5 @@
 import discord
-import svc.svc as svc
+import svc.utils as svc
 
 from discord.ext import commands, tasks
 

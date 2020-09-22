@@ -1,6 +1,5 @@
-import mongoengine
 import datetime
-from svc.items import *
+from data_models.items import *
 
 
 class Users(mongoengine.DynamicDocument):

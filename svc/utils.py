@@ -1,17 +1,14 @@
 import discord
-import pymongo
 import mongoengine
 import math
 import datetime
 import colorama
 
-from mongoengine.context_managers import *
 from mongoengine.queryset import QuerySet
-from mongoengine import connection
 from random import randrange, choice
-from svc.users import Users
-from svc.servers import Servers
-from svc.items import Item, BaseItem
+from data_models.users import Users
+from data_models.servers import Servers
+from data_models.items import Item, BaseItem
 
 colorama.init()
 
@@ -22,6 +19,7 @@ class Mongo:
     def get_user(member: discord.Member, server: discord.Guild, opp=None):
         server_group = Users.switch_collection(Users(), f"{server.id}")
         server_objects = QuerySet(Users, server_group._get_collection())
+
         response = None
         if opp is None:
             response = server_objects.filter(discord_id=member.id).first()

@@ -1,7 +1,7 @@
 import mongoengine
 import os
 import pymongo
-import svc.svc as svc
+import svc.utils as svc
 
 host = os.environ.get('HOST')
 

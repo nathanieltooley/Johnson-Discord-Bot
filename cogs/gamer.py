@@ -1,11 +1,10 @@
 import svc.svc as svc
 import discord
 import math
-import asyncio
 from enums import bot_enums
 
 from random import randrange
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 
 class Gamer(commands.Cog):

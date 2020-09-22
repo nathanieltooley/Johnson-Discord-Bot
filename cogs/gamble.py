@@ -81,7 +81,7 @@ class Gamble(commands.Cog):
             print_vbucks = user.vbucks - amount
             await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
         else:
-            await ctx.send("You can't gamble for more than you own, I can't program loans")
+            await ctx.send("You can't gamble for more than you own, I can't program loans. Not yet at least.")
 
 
 def setup(client):

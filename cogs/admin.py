@@ -38,7 +38,8 @@ class Admin(commands.Cog):
 
     @commands.has_permissions(administrator=True)
     @commands.command()
-    async def talk(self, ctx, message, channel: discord.TextChannel):
+    async def talk(self, ctx, message):
+        channel = discord.utils.find(lambda x: x.id == 649780790468542516, ctx.guild.text_channels)
         await channel.send(message)
         
     

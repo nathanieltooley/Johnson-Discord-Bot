@@ -11,7 +11,8 @@ class Moderation(commands.Cog):
     @commands.command()
     async def test_mod(self, ctx):
         # Test
-        # Testy tset
+        # More Filler test shit
+        # mmmm yummy test
         await ctx.send("Yep it works")
 
 def setup(client):

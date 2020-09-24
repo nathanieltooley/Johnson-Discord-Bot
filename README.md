@@ -5,7 +5,7 @@ Honestly, this is just setup for heroku auto-deploy but feel free to look at the
 ## Functions
 Currently, this bot can do a number of things:
 
-  * Allow you to play Rock Paper Scissors with a another discord user
+  * Allow you to play Rock Paper Scissors with an another discord user
   
   * Be a dollar-store Dad Bot
   

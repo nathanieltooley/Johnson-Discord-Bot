@@ -35,6 +35,11 @@ class Admin(commands.Cog):
     async def create_account(self, ctx, member: discord.Member):
         svc.create_user(member, ctx.guild)
         await ctx.send(f"{member.display_name}'s account was created.")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command()
+    async def talk(self, ctx, message, channel: discord.TextChannel):
+        await channel.send(message)
         
     
 

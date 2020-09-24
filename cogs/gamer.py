@@ -31,7 +31,7 @@ class Gamer(commands.Cog):
         level = user.level
 
         embed.set_thumbnail(
-            url=bot_enums.BotString.BOT_AVATAR_URL.value)
+            url=bot_enums.Enums.BOT_AVATAR_URL.value)
         embed.add_field(name="V-Bucks", value=f"{vbucks}")
         embed.add_field(name="Experience",
                         value=f"{exp}/{int((math.pow((level + 1), 4)))}")

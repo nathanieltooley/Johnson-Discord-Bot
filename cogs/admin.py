@@ -1,5 +1,6 @@
 import discord
 import svc.utils as svc
+import enums.bot_enums as enums
 
 from discord.ext import commands, tasks
 
@@ -39,12 +40,20 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def talk(self, ctx, message):
+        if ctx.author.id != enums.Enums.OWNER_ID.value:
+            await ctx.send("nope")
+            return
+
         channel = discord.utils.find(lambda x: x.id == 649780790468542516, ctx.guild.text_channels)
         await channel.send(message)
 
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def talk_ch(self, ctx, message, channel_name: str):
+        if ctx.author.id != enums.Enums.OWNER_ID.value:
+            await ctx.send("nope")
+            return
+
         channel = discord.utils.find(lambda x: channel_name.lower() in x.name.lower(), ctx.guild.text_channels)
         await channel.send(message)
         

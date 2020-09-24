@@ -7,9 +7,9 @@ Currently, this bot can do a number of things:
 
   * Allow you to play Rock Paper Scissors with an another discord user
   
-  * Be a dollar-store Dad Bot
+  * Be a better dad bot
   
-  * Be the ADL
+  * Defeat the CEO of Racism
   
   * Keep track of a server currency, "V-Bucks," as well as sever experience and your Level
   
@@ -17,7 +17,9 @@ Currently, this bot can do a number of things:
   
   * Roll any number die
   
-  * Gamble, but without the risk
+  * Gamble, but without the risk or the reward
+  
+  * Basic Moderation
   
   * Maybe more, idk
   

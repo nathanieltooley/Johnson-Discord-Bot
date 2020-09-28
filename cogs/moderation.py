@@ -1,7 +1,7 @@
 import discord
 from asyncio import sleep
 
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 import svc.utils as utils
 

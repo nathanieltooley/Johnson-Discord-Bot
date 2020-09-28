@@ -4,7 +4,7 @@ astroid==2.4.1
 async-timeout==3.0.1
 attrs==19.3.0
 autopep8==1.5.2
-beautifulsoup4==4.9.0
+beautifulsoup4==4.9.2
 certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4

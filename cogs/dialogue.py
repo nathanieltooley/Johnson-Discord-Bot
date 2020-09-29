@@ -1,11 +1,12 @@
 import discord
 import asyncio
 import enums.bot_enums as enums
+import svc.utils as utils
 
-from pathlib import Path
 from discord.ext import commands
 
-import json
+from dialogue.dialogue_handler import DialogueHandler
+
 
 
 class DialogueTree:
@@ -14,11 +15,10 @@ class DialogueTree:
         self.start_node = start_node
 
     @classmethod
-    def from_json(cls, path):
+    def from_json(cls, name):
         nodes = []
 
-        with open(path, "r", encoding="utf-8") as f:
-            json_file = json.load(f)
+        json_file = DialogueHandler.get_json_dict(name)
 
         for k, v in json_file.items():
             # print(k, v)
@@ -28,11 +28,13 @@ class DialogueTree:
 
         return DialogueTree(nodes, "start")
 
-    def start_tree(self):
-        pointer = self.perform_node(self.grab_node(self.start_node))
+    async def start_tree(self, ctx, client):
+        pointer = await self.perform_node(self.grab_node(self.start_node), ctx=ctx, client=client)
 
         while not (pointer is None):
-            pointer = self.perform_node(self.grab_node(pointer))
+            pointer = await self.perform_node(self.grab_node(pointer), ctx=ctx, client=client)
+
+        await ctx.send("~fin~")
 
     async def perform_node(self, node, ctx, client):
         embed = self.create_dialogue_embed("test", node.dialogue, node.options)
@@ -41,11 +43,10 @@ class DialogueTree:
         # response = input()
 
         if node.options is None:
-            await ctx.send("~fin~")
             return None
 
         try:
-            response = client.wait_for("message", timeout=25.0,
+            response = await client.wait_for("message", timeout=25.0,
                                        check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
 
         except asyncio.TimeoutError:
@@ -55,19 +56,19 @@ class DialogueTree:
         options_list = enumerate(node.options, 1)
 
         for i, option in options_list:
-            if i == response:
+            if str(i) == response.content:
                 return option["pointer"]
 
         return None
 
     def create_dialogue_embed(self, title, dialogue, options):
         embed = discord.Embed(
-            title={title},
+            title=title,
             description=dialogue,
             color=discord.Color.purple()
         )
 
-        embed.set_thumbnail(enums.Enums.BOT_AVATAR_URL)
+        embed.set_thumbnail(url=enums.Enums.BOT_AVATAR_URL.value)
 
         if options is None:
             return embed
@@ -75,7 +76,8 @@ class DialogueTree:
         options_list = enumerate(options, 1)
 
         for i, option in options_list:
-            embed.add_field(name=i, value=options)
+            trigger = option["trigger"]
+            embed.add_field(name=i, value=trigger)
 
         return embed
 
@@ -102,21 +104,56 @@ class DialogueNode:
 
 class Dialogue(commands.Cog):
 
+    dialogues = DialogueHandler.get_json_files()
+
     def __init__(self, client):
         self.client = client
 
     @commands.has_permissions(administrator=True)
     @commands.command()
-    async def test_response(self, ctx):
-        # message = await ctx.send("Respond please, im lonely")
+    async def start_dialogue(self, ctx):
 
-        path = Path("../dialogue/test.json")
+        DialogueHandler.get_json_files()
 
-        tree = DialogueTree.from_json(path.absolute())
-        tree.start_tree()
+        embed = discord.Embed(title="Dialogue Start!",
+                              description="What would you like to talk about?",
+                              color=utils.Color.random_color())
 
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
+        d_list = enumerate(self.dialogues, 1)
+
+
+        for i, d in d_list:
+            embed.add_field(name=i, value=d)
+
+        await ctx.send(embed=embed)
+
+        try:
+            response = await self.client.wait_for("message", timeout=25.0,
+                                                  check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        except asyncio.TimeoutError:
+            await ctx.send("Oh, nevermind then. Guess i'll go play fortnite.")
+            return
+
+        final_answer = None
+
+        print(response.content)
+
+        # refresh
+        d_list = enumerate(self.dialogues, 1)
+
+        for i, d in d_list:
+            if str(i) == response.content:
+                final_answer = d
+
+        if final_answer is None:
+            await ctx.send("Could not process answer")
+            return
+
+        tree = DialogueTree.from_json(final_answer)
+
+        await tree.start_tree(ctx=ctx, client=self.client)
+
+
 
         """try:
             msg = await self.client.wait_for("message", timeout=10.0, check=check)

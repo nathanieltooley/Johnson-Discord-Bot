@@ -1,4 +1,6 @@
 import svc.utils as svc
+import sys
+import traceback
 import discord
 import os
 import itertools

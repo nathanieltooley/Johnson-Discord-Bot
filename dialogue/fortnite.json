@@ -1,1 +1,34 @@
-{}
+{
+  "start": {
+    "dialogue": "Dude, I love playing Fortnite! I've been playing since day 1, even got the skull trooper skin!",
+    "options": [
+      {
+        "trigger": "I don't really play Fortnite . . .",
+        "pointer": "dont_fortnite"
+      },
+      {
+        "trigger": "Yeah me too!",
+        "pointer": "me_too_fortnite"
+      },
+      {
+        "trigger": "Skull Trooper, more like Dull Trooper. Am I right?",
+        "pointer": "dull_trooper"
+      }
+    ]
+  },
+
+  "dont_fortnite": {
+    "dialogue": "Man, you totally should! I know Reddit says it's lame but don't listen to them, they don't know what true epicness is.",
+    "options": [
+      {
+        "trigger": "No, I don't think I will",
+        "pointer": "nomeggies"
+      },
+      {
+        "trigger": "I guess I could give it a shot.",
+        "pointer": "fortnite_ending"
+      }
+    ]
+  },
+  
+}

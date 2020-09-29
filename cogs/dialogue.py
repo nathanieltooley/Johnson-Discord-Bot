@@ -37,7 +37,7 @@ class DialogueTree:
         await ctx.send("~fin~")
 
     async def perform_node(self, node, ctx, client):
-        embed = self.create_dialogue_embed("test", node.dialogue, node.options)
+        embed = self.create_dialogue_embed("*Epic Dialogue*", node.dialogue, node.options)
 
         await ctx.send(embed=embed)
 

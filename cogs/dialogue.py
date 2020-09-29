@@ -40,7 +40,6 @@ class DialogueTree:
         embed = self.create_dialogue_embed("test", node.dialogue, node.options)
 
         await ctx.send(embed=embed)
-        # response = input()
 
         if node.options is None:
             return None
@@ -121,7 +120,6 @@ class Dialogue(commands.Cog):
 
         d_list = enumerate(self.dialogues, 1)
 
-
         for i, d in d_list:
             embed.add_field(name=i, value=d)
 
@@ -135,8 +133,6 @@ class Dialogue(commands.Cog):
             return
 
         final_answer = None
-
-        print(response.content)
 
         # refresh
         d_list = enumerate(self.dialogues, 1)

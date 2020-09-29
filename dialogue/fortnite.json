@@ -30,5 +30,51 @@
       }
     ]
   },
+
+  "me_too_fortnite": {
+    "dialogue": "Dude, let's play some right fricken now",
+    "options": [
+      {
+        "trigger": "Sure, I'm down",
+        "pointer": "fortnite_ending"
+      },
+      {
+        "trigger": "I'm not in the mood",
+        "pointer": "thats_ok"
+      }
+    ]
+  },
+
+  "dull_trooper": {
+    "dialogue": "Man, that's fricked up and actually just objectively wrong. See, for instance, Skulls are pretty based. Now troopers are a bit cringe, but it still is a net based rating. So apply that to the skin, volia:  Based Skin",
+    "options": null
+  },
+
+  "fortnite_ending": {
+    "dialogue": "Ok, i'll go get us some drinks. Oh, by the way, my Mom's making some grilled cheese, want some?",
+    "options": null
+  },
+
+  "thats_ok": {
+    "dialogue": "That's ok, what else do you wanna play?",
+    "options": [
+      {
+        "trigger": "Minecraft",
+        "pointer": "minecraft_ending"
+      },
+      {
+        "trigger": "Among Us",
+        "pointer": "among_us_ending"
+      },
+      {
+        "trigger": "Fall Guys",
+        "pointer": "fall_guys_ending"
+      },
+      {
+        "trigger": "Literally Anything Else",
+        "pointer": "*_ending"
+      }
+    ]
+  }
   
 }

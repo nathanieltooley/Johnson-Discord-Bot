@@ -47,6 +47,44 @@
 
   "dull_trooper": {
     "dialogue": "Man, that's fricked up and actually just objectively wrong. See, for instance, Skulls are pretty based. Now troopers are a bit cringe, but it still is a net based rating. So apply that to the skin, volia:  Based Skin",
+    "options": [
+      {
+        "trigger": "I ain't reading that shit",
+        "pointer": "tl:dr"
+      },
+      {
+        "trigger": "*Leave Mid-Sentence*",
+        "pointer": "mid_sentence_ending"
+      }
+    ]
+  },
+
+  "tl:dr": {
+    "dialogue": "Basically, I'm based and epic, and your'e cringe.\nSo sugma. . .",
+    "options": [
+      {
+        "trigger": "What's sugma?",
+        "pointer": "whats_sugma_ending"
+      },
+      {
+        "trigger": "No you.",
+        "pointer": "no_u_ending"
+      }
+    ]
+  },
+
+  "mid_sentence_ending": {
+    "dialogue": "*You get up and leave*\nWait! Where are you going?! Hello?! I know you can hear me . . .",
+    "options": null
+  },
+
+  "whats_sugma_ending": {
+    "dialogue": "Ha ha ha. You've activated my trap card!\n*You just fucking explode. The last thing you hear is 'Sugma nuts.'*",
+    "options": null
+  },
+
+  "no_u_ending": {
+    "dialogue": "No, wait! That's im-impossible!! Argh! If it wern't for you meddling ki-\n*You shoot him in the head before he finishes his sentence.*",
     "options": null
   },
 
@@ -75,6 +113,31 @@
         "pointer": "*_ending"
       }
     ]
+  },
+
+  "nomeggies": {
+    "dialogue": "Oh, yeah? Well, see if I care, cause I don't. Yes, on god, I don't. Whatever I don't need you, I'll go play by self . . .",
+    "options": null
+  },
+
+  "minecraft_ending": {
+    "dialogue": "Oh, that reminds me. I just set up a Minecraft server. Here i'll give you the IP. You brought your laptop right? . . .",
+    "options": null
+  },
+
+  "fall_guys_ending": {
+    "dialogue": "Here, I got it on my PS4, I'll go grab the second controller from my brother . . .",
+    "options": null
+  },
+
+  "*_ending": {
+    "dialogue": "I got this new game called Undertale. I think we should give it a go, but it is a singleplayer game. Here, how about this: I voice all the male characters, and you voice all the girl characters. Get it, cause you're a girl. Wait you are a girl, right? Wait wait, no, WAIT . . .",
+    "options": null
+  },
+
+  "among_us_ending": {
+    "dialogue": "Nah, fuck that . . . \n*You were ejected*",
+    "options": null
   }
   
 }

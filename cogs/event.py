@@ -38,20 +38,24 @@ class Event(commands.Cog):
 
         if not obsc_check:
 
-            if 'fortnite' in q_message:
+            if self.message_check(message, 'fortnite'):
                 await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
 
-            if 'gay' in q_message:
+            if self.message_check(message, 'gay'):
                 await message.channel.send(f"No Homo {message.author.mention}")
 
-            if 'minecraft' in q_message:
+            if self.message_check(message, 'minecraft'):
                 await message.channel.send(f"I prefer Roblox {message.author.mention}")
 
-            if 'the game' in q_message:
+            if self.message_check(message, 'the game'):
                 await message.channel.send("I lost the Game")
 
-            if 'based' in q_message:
+            if self.message_check(message, 'based'):
                 await message.channel.send("Based on what?")
+
+            if self.message_check(message, "poggers"):
+                await message.channel.send(
+                    f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")
@@ -128,6 +132,34 @@ class Event(commands.Cog):
             split = q_message.split(check, 1)
             join = f"Hi {split[1]}, I'm Johnson!"
             await message.channel.send(join)
+
+    @staticmethod
+    def message_check(message, check):
+        q_message = message.content.lower()
+
+        check_index = q_message.find(check)
+        pre_check_index = check_index - 1
+
+        before_space = q_message[pre_check_index].isspace()
+        is_beginning = pre_check_index < 0
+        nothing_after = False
+        after_space = False
+
+        # Not Found
+        if check_index < 0:
+            return False
+
+        # See if there is anything after the word
+        try:
+            q_message[check_index + len(check)]
+            after_space = q_message[check_index + len(check)].isspace()
+        except IndexError:
+            nothing_after = True
+
+        if (before_space or is_beginning) and (nothing_after or after_space):
+            return True
+        else:
+            return False
 
 
 def setup(client):

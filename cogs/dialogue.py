@@ -39,13 +39,13 @@ class DialogueTree:
     async def perform_node(self, node, ctx, client):
         embed = self.create_dialogue_embed("*Epic Dialogue*", node.dialogue, node.options)
 
-        await ctx.send(embed=embed)
+        await ctx.send(f"{ctx.author.mention}", embed=embed)
 
         if node.options is None:
             return None
 
         try:
-            response = await client.wait_for("message", timeout=25.0,
+            response = await client.wait_for("message", timeout=60.0,
                                        check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
 
         except asyncio.TimeoutError:

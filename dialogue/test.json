@@ -1,0 +1,88 @@
+{
+  "start": {
+    "dialogue": "Hello, do you play fortnite?",
+    "options": [
+      {
+        "trigger": "Yes",
+        "pointer": "me_too"
+      },
+      {
+        "trigger": "No",
+        "pointer": "what_games"
+      }
+    ]
+  },
+
+  "me_too": {
+    "dialogue": "Awesome dude! Me too!",
+    "options": null
+  },
+
+  "what_games": {
+    "dialogue": "Oh, that's ok. What games do you like to play?",
+    "options": [
+      {
+        "trigger": "Minecraft",
+        "pointer": "wholesome 100"
+      },
+      {
+        "trigger": "Among Us",
+        "pointer": "among_sus"
+      }
+    ]
+  },
+
+  "wholesome 100": {
+    "dialogue": "Yeah Minecraft is pretty wholesome 100. I bet Keanu Reeves plays that.",
+    "options": [
+      {
+        "trigger": "That's pretty cringe",
+        "pointer": "pretty_cringe"
+      }
+    ]
+  },
+
+  "among_sus": {
+    "dialogue": "Haha, I love that game. 'You acting kinda sus.' Lol.",
+    "options": [
+      {
+        "trigger": "That's pretty cringe",
+        "pointer": "pretty_cringe"
+      }
+    ]
+  },
+
+  "pretty_cringe": {
+    "dialogue": "What!? N-no it isn't. Actually, I am pretty based and redpilled; look at all of my Reddit Karma!",
+    "options": [
+      {
+        "trigger": "No, i'll show you what based and redpilled really is!",
+        "pointer": "pick_your_poison"
+      }
+    ]
+  },
+
+  "pick_your_poison": {
+    "dialogue": "Wait, what are you doing! No. NO! You won't DARE!",
+    "options": [
+      {
+        "trigger": "Now watch me whip! Now watch me nae-",
+        "pointer": "violent_ending"
+      },
+      {
+        "trigger": "Yeah you're right, wanna play some among us?",
+        "pointer": "pacifist_ending"
+      }
+    ]
+  },
+
+  "violent_ending": {
+    "dialogue": "*You both fucking explode from the sheer magnitude of your whip and nae nae*",
+    "options": null
+  },
+
+  "pacifist_ending": {
+    "dialogue": "I thought you'd never ask . . .",
+    "options": null
+  }
+}

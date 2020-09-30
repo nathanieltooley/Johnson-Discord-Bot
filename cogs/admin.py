@@ -44,6 +44,7 @@ class Admin(commands.Cog):
             await ctx.send("nope")
             return
 
+        # Hard Coded, use talk_ch other wise
         channel = discord.utils.find(lambda x: x.id == 649780790468542516, ctx.guild.text_channels)
         await channel.send(message)
 

@@ -50,7 +50,7 @@ PyQt5==5.14.2
 PyQt5-sip==12.7.2
 python-dotenv==0.13.0
 python-jsonrpc-server==0.3.4
-python-language-server==0.31.10
+python-language-server==0.36.0
 PyYAML==5.3.1
 requests==2.23.0
 rope==0.17.0

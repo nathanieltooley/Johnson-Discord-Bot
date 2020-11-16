@@ -30,7 +30,7 @@ lyricwikia==0.1.11
 MarkupSafe==1.1.1
 mccabe==0.6.1
 mongoengine==0.20.0
-multidict==4.7.5
+multidict==5.0.2
 mutagen==1.44.0
 packaging==20.3
 pafy==0.5.5

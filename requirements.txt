@@ -32,7 +32,7 @@ mccabe==0.6.1
 mongoengine==0.20.0
 multidict==4.7.5
 mutagen==1.44.0
-packaging==20.3
+packaging==20.7
 pafy==0.5.5
 parso==0.7.0
 pathlib==1.0.1

@@ -22,7 +22,7 @@ class Event(commands.Cog):
         obsc_check = False
 
         adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
-                    'faggot']  # Open for expansion
+                    'faggot', 'beaner']  # Open for expansion
         if message.author == self.client.user or message.author.bot:  # bot check
             return
 
@@ -58,6 +58,10 @@ class Event(commands.Cog):
             if self.message_check(message, "poggers"):
                 await message.channel.send(
                     f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
+
+            if self.message_check(message, "smile"):
+                # insert image if wyatt ever does it
+                pass
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")

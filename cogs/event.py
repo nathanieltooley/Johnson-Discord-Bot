@@ -158,7 +158,6 @@ class Event(commands.Cog):
 
         # See if there is anything after the word
         try:
-            q_message[check_index + len(check)]
             after_space = q_message[check_index + len(check)].isspace()
         except IndexError:
             nothing_after = True

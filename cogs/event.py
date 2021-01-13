@@ -60,8 +60,9 @@ class Event(commands.Cog):
                     f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
 
             if self.message_check(message, "smile"):
-                # insert image if wyatt ever does it
-                pass
+                await message.channel.send(
+                    "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
+                )
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")

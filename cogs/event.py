@@ -178,6 +178,10 @@ class Event(commands.Cog):
 
 
 def code_red_check(message):
+    svc.Logging.log(__name__, message.author.id)
+    svc.Logging.log(__name__, AdminGlobal.code_red_victim)
+    svc.Logging.log(__name__, type(message.author.id))
+    svc.Logging.log(__name__, type(AdminGlobal.code_red_victim))
     if (message.author.id == AdminGlobal.code_red_victim) and AdminGlobal.code_red_status:
         return True
     else:

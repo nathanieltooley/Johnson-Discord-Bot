@@ -19,6 +19,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if code_red_check(message):
+            print("test")
             await message.delete()
             hal_message = await message.channel.send(content=f"Sorry {message.author.mention}, I can't let you do that", tts=True)
             await hal_message.delete(delay=5.0)

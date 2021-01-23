@@ -15,13 +15,13 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
-        svc.update_vbucks(member, ctx.guild, money)
+        svc.Mongo.update_vbucks(member, ctx.guild, money)
         await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
 
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
-        check = svc.update_exp(member, ctx.guild, exp)
+        check = svc.Mongo.update_exp(member, ctx.guild, exp)
         if check is None:
             await ctx.send(f"{member.mention}'s XP has been set to {exp}")
         else:
@@ -30,13 +30,13 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def spawn_item(self, ctx, member: discord.Member, ref_id):
-        item, value = svc.give_item_to_user(member, ref_id, ctx.guild)
+        item, value = svc.Mongo.give_item_to_user(member, ref_id, ctx.guild)
         await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")
 
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def create_account(self, ctx, member: discord.Member):
-        svc.create_user(member, ctx.guild)
+        svc.Mongo.create_user(member, ctx.guild)
         await ctx.send(f"{member.display_name}'s account was created.")
 
     @commands.has_permissions(administrator=True)

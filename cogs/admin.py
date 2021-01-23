@@ -4,6 +4,8 @@ import enums.bot_enums as enums
 
 from discord.ext import commands, tasks
 
+from cogs.event import Event
+
 
 class Admin(commands.Cog):
 
@@ -57,29 +59,6 @@ class Admin(commands.Cog):
 
         channel = discord.utils.find(lambda x: channel_name.lower() in x.name.lower(), ctx.guild.text_channels)
         await channel.send(message)
-
-    @commands.has_permissions(administrator=True)
-    @commands.command()
-    async def code_red(self, ctx, victim_id, state):
-        victim_id = int(victim_id)
-
-        if ctx.author.id != enums.Enums.OWNER_ID.value:
-            await ctx.send("nope")
-            return
-
-        if state == "on":
-            AdminGlobal.code_red_status = True
-            AdminGlobal.code_red_victim = victim_id
-            await ctx.send("Code Red Status: Initialized")
-        elif state == "off":
-            AdminGlobal.code_red_status = False
-            AdminGlobal.code_red_victim = None
-            await ctx.send("Code Red Status: Disengaged")
-
-
-class AdminGlobal:
-    code_red_status = False
-    code_red_victim = None
 
 
 def setup(client):

@@ -1,3 +1,4 @@
+import enums
 import svc.utils as svc
 import sys
 import traceback
@@ -5,8 +6,7 @@ import discord
 import os
 import itertools
 
-from cogs.admin import AdminGlobal
-from enums import bot_enums
+import enums.bot_enums as enums
 
 from discord.ext import commands, tasks
 
@@ -15,15 +15,11 @@ class Event(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.code_red_status = False
+        self.code_red_victim = None
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if code_red_check(message):
-            await message.delete()
-            hal_message = await message.channel.send(content=f"Sorry {message.author.mention}, I can't let you do that", tts=True)
-            await hal_message.delete(delay=5.0)
-            return
-
         l_message = message.content
         q_message = l_message.lower()
 
@@ -174,13 +170,6 @@ class Event(commands.Cog):
             return True
         else:
             return False
-
-
-def code_red_check(message):
-    if (message.author.id == AdminGlobal.code_red_victim) and AdminGlobal.code_red_status:
-        return True
-    else:
-        return False
 
 
 def setup(client):

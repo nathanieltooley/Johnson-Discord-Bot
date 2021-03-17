@@ -55,7 +55,7 @@ rope==0.17.0
 six==1.14.0
 snowballstemmer==2.0.0
 soupsieve==2.0
-spotdl==1.2.6
+spotdl==3.4.0
 titlecase==0.12.0
 typed-ast==1.4.1
 unicode-slugify==0.1.3

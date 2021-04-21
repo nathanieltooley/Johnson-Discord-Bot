@@ -3,7 +3,7 @@ import os
 import pymongo
 import svc.utils as svc
 
-host = os.environ.get('HOST')
+host = os.environ.get('DISCORD_HOST')
 
 
 def global_init():

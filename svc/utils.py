@@ -9,6 +9,7 @@ from random import randrange, choice
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
+from enums.bot_enums import Enums as bot_enums
 
 colorama.init()
 
@@ -253,11 +254,67 @@ class Mongo:
 
 class Games:
 
+    card_names = {
+        1: "Ace",
+        2: "Two",
+        3: "Three",
+        4: "Four",
+        5: "Five",
+        6: "Six",
+        7: "Seven",
+        8: "Eight",
+        9: "Nine",
+        10: "Ten",
+        11: "Jack",
+        12: "Queen",
+        13: "King"
+    }
+
+    card_suits = {
+        1: "Hearts",
+        2: "Spades",
+        3: "Clubs",
+        4: "Diamonds"
+    }
+
     @staticmethod
     def pickrps():  # only used for rps command
         choices = ['rock', 'paper', 'scissors']
         return choice(choices)
 
+    @staticmethod
+    def create_card_view(member, cards: list, color: discord.Color):
+
+        name = ""
+
+        if type(member) == discord.Member:
+            name = member.nick
+        elif type(member) == discord.ClientUser:
+            name = member.name
+
+        title = f"{name}'s Cards"
+        description = f"The Cards of {name}"
+        image = bot_enums.BOT_AVATAR_URL
+
+        card_embed = discord.Embed(title=title, description=description, image=image, color=color)
+
+        for card in cards:
+            card_embed.add_field(name=Games.card_names.get(card[0]), value=Games.card_suits.get(card[1]))
+
+        return card_embed
+
+    @staticmethod
+    def send_blackjack_option(member: discord.Member):
+        title = f"Blackjack"
+        description = f"Time to Choose {member.mention}!"
+        image = bot_enums.BOT_AVATAR_URL
+
+        bj_embed = discord.Embed(title=title, description=description, image=image, color=discord.Color.blue())
+
+        bj_embed.add_field(name="1", value="Hit")
+        bj_embed.add_field(name="2", value="Stand")
+
+        return bj_embed
 
 class Color:
 

@@ -147,6 +147,24 @@ class Gamer(commands.Cog):
         else:
             await ctx.send(item)
 
+    @commands.command()
+    async def exp_exchange(self, ctx, vbuck_payment: int):
+        conversion_ratio = .1
+
+        user = svc.Mongo.get_user(ctx.author, ctx.guild)
+        current_vbucks = user.vbucks
+
+        if vbuck_payment > current_vbucks:
+            await ctx.send("You do not have enough vbucks")
+            return
+
+        added_exp = vbuck_payment * conversion_ratio
+        new_exp = user.exp + added_exp
+
+        svc.Mongo.income(ctx.author, ctx.guild, -vbuck_payment)
+        svc.Mongo.update_exp(ctx.author, ctx.guild, new_exp)
+
+        await ctx.send(f"{ctx.author.mention} You gained {added_exp} XP. You have {new_exp}")
 
 def setup(client):
     client.add_cog(Gamer(client))

@@ -119,14 +119,14 @@ class Event(commands.Cog):
         check_index = q_message.find(check)
         pre_check_index = check_index - 1
 
+        # Not Found
+        if check_index < 0:
+            return False
+
         before_space = q_message[pre_check_index].isspace()
         is_beginning = pre_check_index < 0
         nothing_after = False
         after_space = False
-
-        # Not Found
-        if check_index < 0:
-            return False
 
         # See if there is anything after the word
         try:

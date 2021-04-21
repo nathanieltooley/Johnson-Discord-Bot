@@ -1,12 +1,4 @@
-import enums
 import svc.utils as svc
-import sys
-import traceback
-import discord
-import os
-import itertools
-
-import enums.bot_enums as enums
 
 from discord.ext import commands, tasks
 
@@ -15,8 +7,6 @@ class Event(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.code_red_status = False
-        self.code_red_victim = None
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -44,29 +34,7 @@ class Event(commands.Cog):
 
         if not obsc_check:
 
-            if self.message_check(message, 'fortnite'):
-                await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
-
-            if self.message_check(message, 'gay'):
-                await message.channel.send(f"No Homo {message.author.mention}")
-
-            if self.message_check(message, 'minecraft'):
-                await message.channel.send(f"I prefer Roblox {message.author.mention}")
-
-            if self.message_check(message, 'the game'):
-                await message.channel.send("I lost the Game")
-
-            if self.message_check(message, 'based'):
-                await message.channel.send("Based on what?")
-
-            if self.message_check(message, "poggers"):
-                await message.channel.send(
-                    f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
-
-            if self.message_check(message, "smile"):
-                await message.channel.send(
-                    "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
-                )
+            self.keyword_responses(message)
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")
@@ -170,6 +138,31 @@ class Event(commands.Cog):
             return True
         else:
             return False
+
+    def keyword_responses(self, message):
+        if self.message_check(message, 'fortnite'):
+            await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
+
+        if self.message_check(message, 'gay'):
+            await message.channel.send(f"No Homo {message.author.mention}")
+
+        if self.message_check(message, 'minecraft'):
+            await message.channel.send(f"I prefer Roblox {message.author.mention}")
+
+        if self.message_check(message, 'the game'):
+            await message.channel.send("I lost the Game")
+
+        if self.message_check(message, 'based'):
+            await message.channel.send("Based on what?")
+
+        if self.message_check(message, "poggers"):
+            await message.channel.send(
+                f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
+
+        if self.message_check(message, "smile"):
+            await message.channel.send(
+                "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
+            )
 
 
 def setup(client):

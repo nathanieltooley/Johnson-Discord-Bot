@@ -143,15 +143,6 @@ class Event(commands.Cog):
         if self.message_check(message, 'fortnite'):
             await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
 
-        if self.message_check(message, 'gay'):
-            await message.channel.send(f"No Homo {message.author.mention}")
-
-        if self.message_check(message, 'minecraft'):
-            await message.channel.send(f"I prefer Roblox {message.author.mention}")
-
-        if self.message_check(message, 'the game'):
-            await message.channel.send("I lost the Game")
-
         if self.message_check(message, 'based'):
             await message.channel.send("Based on what?")
 

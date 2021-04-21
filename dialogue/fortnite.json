@@ -46,7 +46,7 @@
   },
 
   "dull_trooper": {
-    "dialogue": "Man, that's fricked up and actually just objectively wrong. See, for instance, Skulls are pretty based. Now troopers are a bit cringe, but it still is a net based rating. So apply that to the skin, volia:  Based Skin",
+    "dialogue": "Dude, not cool. How would you like it if I made fun of your hobbies, huh? You think that would feel nice? No, it fucking wouldn't. Why can't you just let people enjoy things? You know, you're what's wrong with society these day. Fucking cringe this, cringe that, I thought cringe culture died 4 years ago! This is just fucking ridiculous. My biggest hobby, my favorite game; is this just a joke to you? You think I'm fucking laughing, huh?",
     "options": [
       {
         "trigger": "I ain't reading that shit",
@@ -60,31 +60,31 @@
   },
 
   "tl:dr": {
-    "dialogue": "Basically, I'm based and epic, and your'e cringe.\nSo sugma. . .",
+    "dialogue": "What! I- I-, you- you know what? Fine have it your way. Gonna be a shame when the police have to come to your house and explain to your parent that you died in a ligma accident",
     "options": [
       {
-        "trigger": "What's sugma?",
-        "pointer": "whats_sugma_ending"
+        "trigger": "Who the hell is Steve Jobs?",
+        "pointer": "steve_jobs_ending"
       },
       {
-        "trigger": "No you.",
-        "pointer": "no_u_ending"
+        "trigger": "What's ligma?",
+        "pointer": "free_choice_is_a_lie_ending"
       }
     ]
   },
 
   "mid_sentence_ending": {
-    "dialogue": "*You get up and leave*\nWait! Where are you going?! Hello?! I know you can hear me . . .",
+    "dialogue": "*You get up and leave*\nYeah that right, you're speechless. You're running away from your shortcomings. You know, I'm not the greatest man out there. Honestly, I'm kinda cringe. But at least I admit my follies. You don't think of yourself as anything other than perfect. 'Oh look at me, I have no flaws,' MAN FUCK YOU. THAT'S RIGHT: FUCK. YOU. YEAH, GO. CRY TO YOUR MOMMY, YOU'RE GONNA BE REAL SAD WHEN I PUT YOU AND YOUR WHOLE FAMILY INTO THE FUCKING DIRT, WHERE YOU BELONG. YOU HERE ME? *You walk away, feeling mildly uncomfortable. You imagine Monday at the lunch table will be awkward.*",
     "options": null
   },
 
-  "whats_sugma_ending": {
-    "dialogue": "Ha ha ha. You've activated my trap card!\n*You just fucking explode. The last thing you hear is 'Sugma nuts.'*",
+  "steve_jobs_ending": {
+    "dialogue": "Ligma Balls \n*You just fucking explode.*",
     "options": null
   },
 
-  "no_u_ending": {
-    "dialogue": "No, wait! That's im-impossible!! Argh! If it wern't for you meddling ki-\n*You shoot him in the head before he finishes his sentence.*",
+  "free_choice_is_a_lie_ending": {
+    "dialogue": "Ligma Balls \n*You still explode*",
     "options": null
   },
 
@@ -116,22 +116,22 @@
   },
 
   "nomeggies": {
-    "dialogue": "Oh, yeah? Well, see if I care, cause I don't. Yes, on god, I don't. Whatever I don't need you, I'll go play by myself . . .",
+    "dialogue": "Oh, yeah? Well, see if I care, cause I don't. Yes, I don't. Whatever I don't need you, I'll go . . . play by myself, I guess . . .",
     "options": null
   },
 
   "minecraft_ending": {
-    "dialogue": "Oh, that reminds me. I just set up a Minecraft server. Here i'll give you the IP. You brought your laptop right? . . .",
+    "dialogue": "Oh, that reminds me. I just set up a Minecraft server. Here i'll give you the IP. You brought your laptop right? No? Here I got it on Xbox, we can just play split-screen . . .",
     "options": null
   },
 
   "fall_guys_ending": {
-    "dialogue": "Here, I got it on my PS4, I'll go grab the second controller from my brother . . .",
+    "dialogue": "Fuck Fall Guys bro, I'd rather play Overwatch. Get yo stupid ass out of my house! . . .",
     "options": null
   },
 
   "*_ending": {
-    "dialogue": "I got this new game called Undertale. I think we should give it a go, but it is a singleplayer game. Here, how about this: I voice all the male characters, and you voice all the girl characters. Get it, cause you're a girl. Wait you are a girl, right? Wait wait, no, WAIT . . .",
+    "dialogue": "I got this new game called Undertale. I think we should give it a go, but it is a singleplayer game. Here, how about this: I voice all the male characters, and you voice all the girl characters. Yes, we have to voice the characters, I'm gonna be uploading this let's play to Youtube! . . .",
     "options": null
   },
 

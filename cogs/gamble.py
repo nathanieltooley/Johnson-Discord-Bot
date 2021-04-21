@@ -220,8 +220,6 @@ class Gamble(commands.Cog):
         else:
             dealer_compare_value = dealer_max
 
-        print(dealer_compare_value, player_compare_value)
-
         if dealer_compare_value > player_compare_value:
             await ctx.send(f"{ctx.author.mention} You Lost! You lose {amount}!")
             svc.Mongo.income(ctx.author, ctx.guild, -amount)

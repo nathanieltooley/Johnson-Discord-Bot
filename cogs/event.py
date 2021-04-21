@@ -30,11 +30,11 @@ class Event(commands.Cog):
             await message.channel.send(
                 f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
             await message.delete()
-            svc.Logging.log(__name__, f"Message deleted, from f{message.author.name}:{message.content}")
+            svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
 
         if not obsc_check:
 
-            self.keyword_responses(message)
+            await self.keyword_responses(message)
 
             if 'im ' in q_message:
                 await self.im_check(message, "im ")
@@ -139,7 +139,7 @@ class Event(commands.Cog):
         else:
             return False
 
-    def keyword_responses(self, message):
+    async def keyword_responses(self, message):
         if self.message_check(message, 'fortnite'):
             await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
 

@@ -86,7 +86,7 @@ class Mongo:
 
         user.switch_collection(f"{server.id}")
 
-        new_exp = old_exp + (randrange(min_exp, max_exp))
+        new_exp = old_exp + (randrange(min_exp, max_exp) + pow(old_level, 2))
         new_level = int(math.pow(new_exp, 1 / 4))
 
         if new_level > old_level:

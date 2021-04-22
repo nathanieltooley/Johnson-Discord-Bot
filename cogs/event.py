@@ -43,7 +43,7 @@ class Event(commands.Cog):
                 await self.im_check(message, "i'm ")
 
         svc.Mongo.create_user(message.author, message.guild)
-        svc.Mongo.income(message.author, message.guild, 5)
+        svc.Mongo.income(message.author, message.guild, 50)
         level_up = svc.Mongo.exp_check(message.author, message.guild, 1, 10)
 
         if level_up:

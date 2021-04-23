@@ -341,8 +341,8 @@ class Games:
             thumbnail=thumbnail,
             color=Color.random_color())
 
-        fight_embed.add_field(name=f"{starter.nick}", value=f"Health: {int(starter_health)}")
-        fight_embed.add_field(name=f"{enemy.nick}", value=f"Health: {int(enemy_health)}")
+        fight_embed.add_field(name=f"{starter_name}", value=f"Health: {int(starter_health)}")
+        fight_embed.add_field(name=f"{enemy_name}", value=f"Health: {int(enemy_health)}")
 
         return fight_embed
 

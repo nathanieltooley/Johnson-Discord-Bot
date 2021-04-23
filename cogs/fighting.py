@@ -9,7 +9,6 @@ from svc import utils as svc
 
 
 class Fighting(commands.Cog):
-
     base_health = 100
     base_attack = 25
     base_defense = 20
@@ -21,6 +20,8 @@ class Fighting(commands.Cog):
     base_crit_chance = .15
 
     max_damage_variation = 5
+    max_reward_variation = 25
+    max_level_impact_variation = 2
 
     def __init__(self, client):
         self.client = client
@@ -35,8 +36,6 @@ class Fighting(commands.Cog):
     @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
     @commands.command()
     async def fight(self, ctx, enemy: discord.Member):
-        exp_reward = 100
-        vbuck_reward = 100
 
         starter_user = svc.Mongo.get_user(ctx.author, ctx.guild)
         enemy_user = svc.Mongo.get_user(enemy, ctx.guild)
@@ -54,6 +53,7 @@ class Fighting(commands.Cog):
         damage_to_starter = round(enemy_attack * (min(enemy_attack / starter_defense, 1)), 4)
 
         winner = None
+        loser_user = None
         winner_user = None
 
         while True:
@@ -79,6 +79,7 @@ class Fighting(commands.Cog):
 
                 if starter_health <= 0:
                     winner = enemy
+                    loser_user = starter_user
                     winner_user = enemy_user
                     break
             else:
@@ -100,12 +101,18 @@ class Fighting(commands.Cog):
 
                 if enemy_health <= 0:
                     winner = ctx.author
+                    loser_user = enemy_user
                     winner_user = starter_user
                     break
             else:
                 await ctx.send(f"{ctx.author.mention} missed!")
 
             await asyncio.sleep(2)
+
+        exp_reward = int((100 + random.randint(0, self.max_reward_variation)) *
+                         (loser_user.level * random.uniform(0, self.max_level_impact_variation)))
+        vbuck_reward = int((1000 + random.randint(0, self.max_reward_variation)) *
+                           (loser_user.level * random.uniform(0, self.max_level_impact_variation)))
 
         await ctx.send(f"{winner.mention} has won! They gained {exp_reward} EXP and {vbuck_reward} V-Bucks!")
 

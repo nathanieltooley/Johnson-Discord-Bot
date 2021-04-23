@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 import discord
@@ -16,7 +17,10 @@ class Fighting(commands.Cog):
     attack_scale_factor = 2
     defense_scale_factor = 2.5
 
-    base_hit_chance = .50
+    base_hit_chance = .7
+    base_crit_chance = .15
+
+    max_damage_variation = 5
 
     def __init__(self, client):
         self.client = client
@@ -24,6 +28,8 @@ class Fighting(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def fight_test(self, ctx):
+        await ctx.send(f"Wait!")
+        await asyncio.sleep(10)
         await ctx.send(f"Yep, it works")
 
     @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
@@ -44,10 +50,8 @@ class Fighting(commands.Cog):
         enemy_attack = self.base_attack + (enemy_user.level * self.attack_scale_factor)
         enemy_defense = self.base_defense + (enemy_user.level * self.defense_scale_factor)
 
-        damage_to_enemy = starter_attack * (min(starter_attack / enemy_defense, 1))
-        damage_to_starter = enemy_attack * (min(enemy_attack / starter_defense, 1))
-
-
+        damage_to_enemy = round(starter_attack * (min(starter_attack / enemy_defense, 1)), 4)
+        damage_to_starter = round(enemy_attack * (min(enemy_attack / starter_defense, 1)), 4)
 
         winner = None
         winner_user = None
@@ -56,20 +60,52 @@ class Fighting(commands.Cog):
             chance_to_damage_enemy = random.random()
             chance_to_damage_starter = random.random()
 
+            await ctx.send("", embed=svc.Games.create_fight_view(starter_health, enemy_health, ctx.author, enemy))
+
+            await asyncio.sleep(3)
             # defender advantage
-            if chance_to_damage_starter > self.base_hit_chance:
-                starter_health -= damage_to_starter
+            if chance_to_damage_starter <= self.base_hit_chance:
+                damage_variation = damage_to_starter + random.randint(0, self.max_damage_variation)
+
+                chance_to_crit = random.random()
+
+                if chance_to_crit <= self.base_crit_chance:
+                    starter_health -= damage_variation * 2
+                    await ctx.send(
+                        f"{enemy.mention} hit a Crit {ctx.author.mention} for {damage_variation * 2} damage!")
+                else:
+                    starter_health -= damage_variation
+                    await ctx.send(f"{enemy.mention} hit against {ctx.author.mention} for {damage_variation}!")
+
                 if starter_health <= 0:
                     winner = enemy
                     winner_user = enemy_user
                     break
+            else:
+                await ctx.send(f"{enemy.mention} missed!")
 
-            if chance_to_damage_enemy > self.base_hit_chance:
-                enemy_health -= damage_to_enemy
+            await asyncio.sleep(3)
+            if chance_to_damage_enemy <= self.base_hit_chance:
+                damage_variation = damage_to_enemy + random.randint(0, self.max_damage_variation)
+
+                chance_to_crit = random.random()
+
+                if chance_to_crit <= self.base_crit_chance:
+                    enemy_health -= damage_variation * 2
+                    await ctx.send(
+                        f"{ctx.author.mention} hit a Crit against {enemy.mention} for {damage_variation * 2} damage!")
+                else:
+                    enemy_health -= damage_variation
+                    await ctx.send(f"{ctx.author.mention} hit {enemy.mention} for {damage_to_enemy}!")
+
                 if enemy_health <= 0:
                     winner = ctx.author
                     winner_user = starter_user
                     break
+            else:
+                await ctx.send(f"{ctx.author.mention} missed!")
+
+            await asyncio.sleep(2)
 
         await ctx.send(f"{winner.mention} has won! They gained {exp_reward} EXP and {vbuck_reward} V-Bucks!")
 

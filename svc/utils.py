@@ -316,6 +316,36 @@ class Games:
 
         return bj_embed
 
+    @staticmethod
+    def create_fight_view(starter_health: int, enemy_health: int, starter: discord.Member, enemy: discord.Member):
+        starter_name = None
+        enemy_name = None
+
+        if starter.nick is None:
+            starter_name = starter.display_name
+        else:
+            starter_name = starter.nick
+
+        if enemy.nick is None:
+            enemy_name = enemy.display_name
+        else:
+            enemy_name = enemy.nick
+
+        title = f"Fight"
+        description = f"A fight between {starter_name} and {enemy_name}"
+        thumbnail = bot_enums.BOT_AVATAR_URL
+
+        fight_embed = discord.Embed(
+            title=title,
+            description=description,
+            thumbnail=thumbnail,
+            color=Color.random_color())
+
+        fight_embed.add_field(name=f"{starter.nick}", value=f"Health: {int(starter_health)}")
+        fight_embed.add_field(name=f"{enemy.nick}", value=f"Health: {int(enemy_health)}")
+
+        return fight_embed
+
 class Color:
 
     @staticmethod

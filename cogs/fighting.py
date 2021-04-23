@@ -35,12 +35,20 @@ class Fighting(commands.Cog):
         await asyncio.sleep(10)
         await ctx.send(f"Yep, it works")
 
-    @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
+    @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
     @commands.command()
     async def fight(self, ctx, enemy: discord.Member):
 
+        if ctx.author == enemy:
+            await ctx.send("You cannot fight yourself.")
+            return
+
         starter_user = svc.Mongo.get_user(ctx.author, ctx.guild)
         enemy_user = svc.Mongo.get_user(enemy, ctx.guild)
+
+        if enemy_user is None:
+            await ctx.send("They do not want to fight you.")
+            return
 
         starter_health = self.base_health + (2 * starter_user.level)
         enemy_health = self.base_health + (2 * enemy_user.level)
@@ -55,6 +63,7 @@ class Fighting(commands.Cog):
         damage_to_starter = round(enemy_attack * (min(enemy_attack / starter_defense, 1)), 4)
 
         winner = None
+        loser = None
         loser_user = None
         winner_user = None
 
@@ -74,13 +83,14 @@ class Fighting(commands.Cog):
                 if chance_to_crit <= self.base_crit_chance:
                     starter_health -= damage_variation * 2
                     await ctx.send(
-                        f"{enemy.mention} hit a Crit {ctx.author.mention} for {damage_variation * 2} damage!")
+                        f"{enemy.mention} hit a Crit against {ctx.author.mention} for {damage_variation * 2} damage!")
                 else:
                     starter_health -= damage_variation
-                    await ctx.send(f"{enemy.mention} hit against {ctx.author.mention} for {damage_variation}!")
+                    await ctx.send(f"{enemy.mention} hit {ctx.author.mention} for {damage_variation}!")
 
                 if starter_health <= 0:
                     winner = enemy
+                    loser = ctx.author
                     loser_user = starter_user
                     winner_user = enemy_user
                     break
@@ -103,6 +113,7 @@ class Fighting(commands.Cog):
 
                 if enemy_health <= 0:
                     winner = ctx.author
+                    loser = enemy
                     loser_user = enemy_user
                     winner_user = starter_user
                     break
@@ -112,15 +123,21 @@ class Fighting(commands.Cog):
             await asyncio.sleep(2 / self.game_speed)
 
         exp_reward = int((100 + random.randint(0, self.max_reward_variation)) *
-                         (loser_user.level * random.uniform(1, self.max_level_impact_variation) * .75))
+                         ((loser_user.level / winner_user.level) * random.uniform(1, self.max_level_impact_variation) * .75))
         vbuck_reward = int((1000 + random.randint(0, self.max_reward_variation)) *
-                           (loser_user.level * random.uniform(1, self.max_level_impact_variation)))
+                           ((loser_user.level / winner_user.level) * random.uniform(1, self.max_level_impact_variation)))
 
         await ctx.send(f"{winner.mention} has won! They gained {exp_reward} EXP and {vbuck_reward} V-Bucks!")
 
         svc.Mongo.income(winner, ctx.guild, vbuck_reward)
         curr_exp = winner_user.exp
         svc.Mongo.update_exp(winner, ctx.guild, curr_exp + exp_reward)
+
+        vbuck_loss = int(loser_user.vbucks / 3)
+
+        svc.Mongo.income(loser, ctx.guild, -vbuck_loss)
+
+        await ctx.send(f"{loser.mention} has lost and does not have insurance! They lose {vbuck_loss} in medical bills.")
 
 
 def setup(client):

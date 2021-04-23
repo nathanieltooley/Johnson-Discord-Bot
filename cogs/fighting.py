@@ -23,6 +23,8 @@ class Fighting(commands.Cog):
     max_reward_variation = 25
     max_level_impact_variation = 2
 
+    game_speed = 1
+
     def __init__(self, client):
         self.client = client
 
@@ -62,7 +64,7 @@ class Fighting(commands.Cog):
 
             await ctx.send("", embed=svc.Games.create_fight_view(starter_health, enemy_health, ctx.author, enemy))
 
-            await asyncio.sleep(3)
+            await asyncio.sleep(3 / self.game_speed)
             # defender advantage
             if chance_to_damage_starter <= self.base_hit_chance:
                 damage_variation = damage_to_starter + random.randint(0, self.max_damage_variation)
@@ -85,7 +87,7 @@ class Fighting(commands.Cog):
             else:
                 await ctx.send(f"{enemy.mention} missed!")
 
-            await asyncio.sleep(3)
+            await asyncio.sleep(3 / self.game_speed)
             if chance_to_damage_enemy <= self.base_hit_chance:
                 damage_variation = damage_to_enemy + random.randint(0, self.max_damage_variation)
 
@@ -97,7 +99,7 @@ class Fighting(commands.Cog):
                         f"{ctx.author.mention} hit a Crit against {enemy.mention} for {damage_variation * 2} damage!")
                 else:
                     enemy_health -= damage_variation
-                    await ctx.send(f"{ctx.author.mention} hit {enemy.mention} for {damage_to_enemy}!")
+                    await ctx.send(f"{ctx.author.mention} hit {enemy.mention} for {damage_variation}!")
 
                 if enemy_health <= 0:
                     winner = ctx.author
@@ -107,12 +109,12 @@ class Fighting(commands.Cog):
             else:
                 await ctx.send(f"{ctx.author.mention} missed!")
 
-            await asyncio.sleep(2)
+            await asyncio.sleep(2 / self.game_speed)
 
         exp_reward = int((100 + random.randint(0, self.max_reward_variation)) *
-                         (loser_user.level * random.uniform(0, self.max_level_impact_variation)))
+                         (loser_user.level * random.uniform(1, self.max_level_impact_variation) * .75))
         vbuck_reward = int((1000 + random.randint(0, self.max_reward_variation)) *
-                           (loser_user.level * random.uniform(0, self.max_level_impact_variation)))
+                           (loser_user.level * random.uniform(1, self.max_level_impact_variation)))
 
         await ctx.send(f"{winner.mention} has won! They gained {exp_reward} EXP and {vbuck_reward} V-Bucks!")
 

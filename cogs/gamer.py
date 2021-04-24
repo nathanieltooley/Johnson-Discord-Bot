@@ -85,7 +85,7 @@ class Gamer(commands.Cog):
 
         if field == "vbucks":
             embed_title = "Richest"
-        elif field == "exp" or "exprience":
+        elif field == "exp" or field == "experience" or field == "xp":
             embed_title = "Most Experienced"
             field = "exp"
         else:

@@ -13,11 +13,6 @@ class Moderation(commands.Cog):
 
     @commands.has_permissions(administrator=True)
     @commands.command()
-    async def test_mod(self, ctx):
-        await ctx.send("Yep it works")
-
-    @commands.has_permissions(administrator=True)
-    @commands.command()
     async def mute(self, ctx, member: discord.Member, seconds=0, reason="Just shut up"):
         mute_role = None
         check_mute = discord.utils.find(lambda x: x.name == "Muted", ctx.guild.roles)

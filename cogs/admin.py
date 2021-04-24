@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 
 from cogs.event import Event
 
+
 def check_if_owner(ctx):
     return ctx.author.id == enums.Enums.OWNER_ID.value
 

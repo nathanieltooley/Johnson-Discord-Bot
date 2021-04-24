@@ -29,6 +29,15 @@ class Admin(commands.Cog):
 
     @commands.has_permissions(administrator=True)
     @commands.command()
+    async def set_user_level(self, ctx, member: discord.Member, level: int):
+
+        required_exp = pow(level, 4)
+        svc.Mongo.update_exp(member, ctx.guild, required_exp)
+
+        await ctx.send(f"{member.mention}'s level is now {level}. XP is {required_exp}")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command()
     async def spawn_item(self, ctx, member: discord.Member, ref_id):
         item, value = svc.Mongo.give_item_to_user(member, ref_id, ctx.guild)
         await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")

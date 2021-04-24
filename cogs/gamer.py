@@ -12,17 +12,40 @@ class Gamer(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases=["viewgamerstats"])
-    async def view_gamer_stats(self, ctx):
+    @commands.command(aliases=["showgamerstats"])
+    async def view_gamer_stats(self, ctx, member: discord.Member):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
         their experience, and their current level."""
 
-        svc.Mongo.create_user(ctx.author, ctx.guild)
-        user = svc.Mongo.get_user(ctx.author, ctx.guild)
+        svc.Mongo.create_user(member, ctx.guild)
+
+        embed = self.create_user_stats(member, ctx.guild)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=["showselfstats"])
+    async def view_self_stats(self, ctx):
+
+        embed = self.create_user_stats(ctx.author, ctx.guild)
+
+        await ctx.send(embed=embed)
+
+    @staticmethod
+    def create_user_stats(member: discord.Member, server: discord.Guild):
+
+        svc.Mongo.create_user(member, server)
+        user = svc.Mongo.get_user(member, server)
+
+        username = ""
+
+        if member.nick is None:
+            username = member.display_name
+        else:
+            username = member.nick
 
         embed = discord.Embed(
-            title=f"{ctx.message.author.nick}'s Stats",
-            description=f"All of {ctx.message.author.nick}'s personal information",
+            title=f"{username}'s Stats",
+            description=f"All of {username}'s personal information",
             color=discord.Colour.blurple()
         )
 
@@ -37,7 +60,7 @@ class Gamer(commands.Cog):
                         value=f"{exp}/{int((math.pow((level + 1), 4)))}")
         embed.add_field(name="Level", value=f"{level}")
 
-        await ctx.send(embed=embed)
+        return embed
 
     @commands.command()
     async def slur_check(self, ctx, member: discord.Member):

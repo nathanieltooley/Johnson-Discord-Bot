@@ -294,9 +294,11 @@ class Games:
 
         title = f"{name}'s Cards"
         description = f"The Cards of {name}"
-        image = bot_enums.BOT_AVATAR_URL
+        url = bot_enums.BOT_AVATAR_URL.value
 
-        card_embed = discord.Embed(title=title, description=description, image=image, color=color)
+        card_embed = discord.Embed(title=title, description=description, color=color)
+
+        card_embed.set_thumbnail(url=url)
 
         for card in cards:
             card_embed.add_field(name=Games.card_names.get(card[0]), value=Games.card_suits.get(card[1]))
@@ -307,9 +309,11 @@ class Games:
     def send_blackjack_option(member: discord.Member):
         title = f"Blackjack"
         description = f"Time to Choose {member.mention}!"
-        image = bot_enums.BOT_AVATAR_URL
+        url = bot_enums.BOT_AVATAR_URL.value
 
-        bj_embed = discord.Embed(title=title, description=description, image=image, color=discord.Color.blue())
+        bj_embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
+
+        bj_embed.set_thumbnail(url=url)
 
         bj_embed.add_field(name="1", value="Hit")
         bj_embed.add_field(name="2", value="Stand")
@@ -333,13 +337,14 @@ class Games:
 
         title = f"Fight"
         description = f"A fight between {starter_name} and {enemy_name}"
-        thumbnail = bot_enums.BOT_AVATAR_URL
+        url = bot_enums.BOT_AVATAR_URL.value
 
         fight_embed = discord.Embed(
             title=title,
             description=description,
-            thumbnail=thumbnail,
             color=Color.random_color())
+
+        fight_embed.set_thumbnail(url=url)
 
         fight_embed.add_field(name=f"{starter_name}", value=f"Health: {int(starter_health)}")
         fight_embed.add_field(name=f"{enemy_name}", value=f"Health: {int(enemy_health)}")

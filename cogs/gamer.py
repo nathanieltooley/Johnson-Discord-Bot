@@ -101,6 +101,8 @@ class Gamer(commands.Cog):
             color=discord.Colour.from_rgb(randrange(0, 256), randrange(0, 256), randrange(0, 256))
         )
 
+        embed.set_thumbnail(url=bot_enums.Enums.BOT_AVATAR_URL.value)
+
         if field == "vbucks":
             for count, gamer in results:
                 embed.add_field(name=f"{gamer.name}", value=f"{gamer.vbucks} V-Bucks", inline=False)

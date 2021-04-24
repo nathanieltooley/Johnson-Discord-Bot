@@ -28,13 +28,6 @@ class Fighting(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.has_permissions(administrator=True)
-    @commands.command()
-    async def fight_test(self, ctx):
-        await ctx.send(f"Wait!")
-        await asyncio.sleep(10)
-        await ctx.send(f"Yep, it works")
-
     @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
     @commands.command()
     async def fight(self, ctx, enemy: discord.Member):

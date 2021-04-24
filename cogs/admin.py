@@ -6,6 +6,9 @@ from discord.ext import commands, tasks
 
 from cogs.event import Event
 
+def check_if_owner(ctx):
+    return ctx.author.id == enums.Enums.OWNER_ID.value
+
 
 class Admin(commands.Cog):
 
@@ -13,12 +16,14 @@ class Admin(commands.Cog):
         self.client = client
 
     @commands.has_permissions(administrator=True)
+    @commands.check(check_if_owner)
     @commands.command()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
         svc.Mongo.update_vbucks(member, ctx.guild, money)
         await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
 
     @commands.has_permissions(administrator=True)
+    @commands.check(check_if_owner)
     @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = svc.Mongo.update_exp(member, ctx.guild, exp)
@@ -28,6 +33,7 @@ class Admin(commands.Cog):
             await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
 
     @commands.has_permissions(administrator=True)
+    @commands.check(check_if_owner)
     @commands.command()
     async def set_user_level(self, ctx, member: discord.Member, level: int):
 
@@ -37,6 +43,7 @@ class Admin(commands.Cog):
         await ctx.send(f"{member.mention}'s level is now {level}. XP is {required_exp}")
 
     @commands.has_permissions(administrator=True)
+    @commands.check(check_if_owner)
     @commands.command()
     async def spawn_item(self, ctx, member: discord.Member, ref_id):
         item, value = svc.Mongo.give_item_to_user(member, ref_id, ctx.guild)
@@ -51,6 +58,7 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def talk(self, ctx, message):
+        # im gonna keep this in cuz i think the message is funny
         if ctx.author.id != enums.Enums.OWNER_ID.value:
             await ctx.send("nope")
             return
@@ -62,6 +70,7 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command()
     async def talk_ch(self, ctx, message, channel_name: str):
+        # im gonna keep this in cuz i think the message is funny
         if ctx.author.id != enums.Enums.OWNER_ID.value:
             await ctx.send("nope")
             return

@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 
 from svc import utils as svc
+from enums.bot_enums import Enums as bot_enums
 
 
 class Fighting(commands.Cog):
@@ -40,6 +41,11 @@ class Fighting(commands.Cog):
         enemy_user = svc.Mongo.get_user(enemy, ctx.guild)
 
         if enemy_user is None:
+            await ctx.send("They do not want to fight you.")
+            return
+
+        # i get to fight whoever I want because I have special privilege
+        if enemy.status != discord.Status.online and ctx.author.id != bot_enums.OWNER_ID.value:
             await ctx.send("They do not want to fight you.")
             return
 

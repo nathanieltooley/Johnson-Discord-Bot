@@ -1,4 +1,5 @@
 import svc.utils as svc
+import discord
 
 from discord.ext import commands, tasks
 
@@ -9,7 +10,7 @@ class Event(commands.Cog):
         self.client = client
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         l_message = message.content
         q_message = l_message.lower()
 
@@ -17,7 +18,14 @@ class Event(commands.Cog):
 
         adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
                     'faggot', 'beaner']  # Open for expansion
+
         if message.author == self.client.user or message.author.bot:  # bot check
+
+            for adl in adl_list:
+                if adl in q_message:
+                    await message.delete()
+                    break
+
             return
 
         for adl in adl_list:

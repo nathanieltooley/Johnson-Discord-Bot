@@ -11,51 +11,17 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        l_message = message.content
-        q_message = l_message.lower()
-
-        obsc_check = False
-
-        adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
-                    'faggot', 'beaner']  # Open for expansion
+        user_said_slur = False
 
         if message.author == self.client.user or message.author.bot:  # bot check
-
-            for adl in adl_list:
-                if adl in q_message:
-                    await message.delete()
-                    break
-
+            await self.bot_checks(message)
             return
 
-        for adl in adl_list:
-            if adl in q_message and not q_message.startswith("https://tenor.com/"):  # Ignore gif links
-                obsc_check = True
-                svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
-                svc.Logging.log(__name__, f"{message.author.name} said slur: {adl}")
+        user_said_slur = self.slur_checks(message)
+        await Event.determine_response(user_said_slur, message)
 
-        if obsc_check:
-            await message.channel.send(
-                f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
-            await message.delete()
-            svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
-
-        if not obsc_check:
-
-            await self.keyword_responses(message)
-
-            if 'im ' in q_message:
-                await self.im_check(message, "im ")
-
-            if "i'm " in q_message:
-                await self.im_check(message, "i'm ")
-
-        svc.Mongo.create_user(message.author, message.guild)
-        svc.Mongo.income(message.author, message.guild, 50)
-        level_up = svc.Mongo.exp_check(message.author, message.guild, 1, 10)
-
-        if level_up:
-            await message.channel.send(level_up)
+        if not user_said_slur:
+            await Event.add_to_stats(message)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -97,6 +63,51 @@ class Event(commands.Cog):
             dm_embed.set_image(url=spotify.album_cover_url)
 
             await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
+
+    @staticmethod
+    def create_check_message(message: discord.Message):
+        return message.content.lower()
+
+    @staticmethod
+    async def bot_checks(message):
+        c_message = Event.create_check_message(message)
+
+        for adl in svc.Checks.adl_list:
+            if adl in c_message:
+                await message.delete()
+                break
+
+    @staticmethod
+    async def slur_checks(message):
+        c_message = Event.create_check_message(message)
+
+        for adl in svc.Checks.adl_list:
+            if adl in c_message and not c_message.startswith("https://tenor.com/"):  # Ignore gif links
+                svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
+                svc.Logging.log(__name__, f"{message.author.name} said slur: {adl}")
+                return True
+
+        return False
+
+    @staticmethod
+    async def determine_response(slur_check, message):
+        c_message = Event.create_check_message(message)
+
+        if slur_check:
+            await message.channel.send(
+                f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
+            await message.delete()
+            svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
+
+        if not slur_check:
+
+            await Event.keyword_responses(message)
+
+            if 'im ' in c_message:
+                await Event.im_check(message, "im ")
+
+            if "i'm " in c_message:
+                await Event.im_check(message, "i'm ")
 
     @staticmethod
     async def im_check(message, check):
@@ -147,21 +158,31 @@ class Event(commands.Cog):
         else:
             return False
 
-    async def keyword_responses(self, message):
-        if self.message_check(message, 'fortnite'):
+    @staticmethod
+    async def keyword_responses(message):
+        if Event.message_check(message, 'fortnite'):
             await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
 
-        if self.message_check(message, 'based'):
+        if Event.message_check(message, 'based'):
             await message.channel.send("Based on what?")
 
-        if self.message_check(message, "poggers"):
+        if Event.message_check(message, "poggers"):
             await message.channel.send(
                 f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
 
-        if self.message_check(message, "smile"):
+        if Event.message_check(message, "smile"):
             await message.channel.send(
                 "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
             )
+
+    @staticmethod
+    async def add_to_stats(message):
+        svc.Mongo.create_user(message.author, message.guild)
+        svc.Mongo.income(message.author, message.guild, 50)
+        level_up = svc.Mongo.exp_check(message.author, message.guild, 1, 10)
+
+        if level_up:
+            await message.channel.send(level_up)
 
 
 def setup(client):

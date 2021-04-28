@@ -14,12 +14,14 @@ class Gamble(commands.Cog):
         self.client = client
         
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def roll(self, ctx, sides=6):
         await ctx.send(f'{ctx.message.author.nick} rolled a {random.randrange(1, sides)}')
 
     # might be reworked, probably won't
     # could possibly use enums or something
     @commands.command()
+    @svc.Checks.rude_name_check()
     @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
     async def rps(self, ctx, member1: discord.member.Member, member2: discord.member.Member):
         rps_member1 = svc.Games.pickrps()
@@ -66,6 +68,7 @@ class Gamble(commands.Cog):
             await ctx.send('Its a tie!')
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     @commands.cooldown(1, 30, discord.ext.commands.BucketType.member)
     async def gamble(self, ctx, amount: int):
         user = svc.Mongo.get_user(ctx.author, ctx.guild)
@@ -86,6 +89,7 @@ class Gamble(commands.Cog):
             await ctx.send("You can't gamble for more than you own, I can't program loans. Not yet at least.")
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
     async def blackjack(self, ctx, amount: int):
         user = svc.Mongo.get_user(ctx.author, ctx.guild)

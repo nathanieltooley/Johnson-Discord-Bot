@@ -13,6 +13,7 @@ class Gamer(commands.Cog):
         self.client = client
 
     @commands.command(aliases=["showgamerstats"])
+    @svc.Checks.rude_name_check()
     async def view_gamer_stats(self, ctx, member: discord.Member):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
         their experience, and their current level."""
@@ -24,6 +25,7 @@ class Gamer(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["showselfstats"])
+    @svc.Checks.rude_name_check()
     async def view_self_stats(self, ctx):
 
         embed = self.create_user_stats(ctx.author, ctx.guild)
@@ -63,6 +65,7 @@ class Gamer(commands.Cog):
         return embed
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def slur_check(self, ctx, member: discord.Member):
         user = svc.Mongo.get_user(member, member.guild)
         if not user.slur_count:
@@ -79,6 +82,7 @@ class Gamer(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def view_gamer_boards(self, ctx, field="vbucks"):
         embed_title = None
         field = field.lower()
@@ -112,6 +116,7 @@ class Gamer(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def give_money(self, ctx, reciever: discord.Member, money):
         if ctx.author == reciever:
             await ctx.send("You can't send yourself money")
@@ -125,6 +130,7 @@ class Gamer(commands.Cog):
             await ctx.send(f"Transaction of {money} V-Bucks Successful!")
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def give_gift(self, ctx, reciever: discord.Member, item_id):
         ctx.send("Not Implemented")
         return
@@ -144,6 +150,7 @@ class Gamer(commands.Cog):
         await ctx.send(f"{item[0]} was given to {reciever.display_name}!")"""
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def get_user_inventory(self, ctx, member: discord.Member = None):
         if member is None:
             item = svc.Mongo.get_user_inventory(ctx.author, ctx.guild)
@@ -173,6 +180,7 @@ class Gamer(commands.Cog):
             await ctx.send(item)
 
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def exp_exchange(self, ctx, vbuck_payment: int):
         conversion_ratio = .1
 
@@ -190,6 +198,7 @@ class Gamer(commands.Cog):
         svc.Mongo.update_exp(ctx.author, ctx.guild, new_exp)
 
         await ctx.send(f"{ctx.author.mention} You gained {added_exp} XP. You have {new_exp}")
+
 
 def setup(client):
     client.add_cog(Gamer(client))

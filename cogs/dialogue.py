@@ -109,6 +109,7 @@ class Dialogue(commands.Cog):
         self.client = client
 
     @commands.command()
+    @utils.Checks.rude_name_check()
     async def start_dialogue(self, ctx):
 
         DialogueHandler.get_json_files()

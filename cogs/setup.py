@@ -34,6 +34,7 @@ class Setup(commands.Cog):
         
     # Commands
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def ping(self, ctx):
         await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms")
 

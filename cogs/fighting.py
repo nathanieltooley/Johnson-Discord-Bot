@@ -31,6 +31,7 @@ class Fighting(commands.Cog):
 
     @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
     @commands.command()
+    @svc.Checks.rude_name_check()
     async def fight(self, ctx, enemy: discord.Member):
 
         if ctx.author == enemy:

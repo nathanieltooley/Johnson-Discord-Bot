@@ -10,6 +10,7 @@ from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
 from enums.bot_enums import Enums as bot_enums
+from discord.ext import commands
 
 colorama.init()
 
@@ -376,3 +377,25 @@ class Logging:
     @staticmethod
     def warning(name, log):
         print(colorama.Fore.YELLOW + f"WARNING:{name}:{log}")
+
+class Checks:
+
+    adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
+                    'faggot', 'beaner']
+
+    @staticmethod
+    def rude_name_check():
+        def predicate(ctx):
+            check_name = ""
+
+            if ctx.author.nick is None:
+                check_name = ctx.author.display_name
+            else:
+                check_name = ctx.author.nick
+
+            for adl in Checks.adl_list:
+                if adl in check_name:
+                    return False
+
+            return True
+        return commands.check(predicate)

@@ -12,6 +12,7 @@ class Moderation(commands.Cog):
         self.client = client
 
     @commands.has_permissions(administrator=True)
+    @utils.Checks.check_is_owner()
     @commands.command()
     async def mute(self, ctx, member: discord.Member, seconds=0, reason="Just shut up"):
         mute_role = None

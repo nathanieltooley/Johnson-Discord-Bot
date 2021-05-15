@@ -6,6 +6,7 @@ import colorama
 
 from mongoengine.queryset import QuerySet
 from random import randrange, choice
+
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
@@ -352,6 +353,7 @@ class Games:
 
         return fight_embed
 
+
 class Color:
 
     @staticmethod
@@ -378,9 +380,10 @@ class Logging:
     def warning(name, log):
         print(colorama.Fore.YELLOW + f"WARNING:{name}:{log}")
 
+
 class Checks:
 
-    adl_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
+    slur_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
                     'faggot', 'beaner']
 
     @staticmethod
@@ -393,9 +396,16 @@ class Checks:
             else:
                 check_name = ctx.author.nick
 
-            for adl in Checks.adl_list:
+            for adl in Checks.slur_list:
                 if adl in check_name:
                     return False
 
             return True
+        return commands.check(predicate)
+
+    @staticmethod
+    def check_is_owner():
+        def predicate(ctx):
+            return ctx.author.id == bot_enums.OWNER_ID.value
+
         return commands.check(predicate)

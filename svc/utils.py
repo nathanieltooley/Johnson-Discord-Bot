@@ -255,7 +255,6 @@ class Mongo:
 
 
 class Games:
-
     card_names = {
         1: "Ace",
         2: "Two",
@@ -382,9 +381,8 @@ class Logging:
 
 
 class Checks:
-
     slur_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
-                    'faggot', 'beaner']
+                 'faggot', 'beaner']
 
     @staticmethod
     def rude_name_check():
@@ -401,6 +399,7 @@ class Checks:
                     return False
 
             return True
+
         return commands.check(predicate)
 
     @staticmethod

@@ -11,16 +11,16 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        user_said_slur = False
+        user_slur = False
 
         if message.author == self.client.user or message.author.bot:  # bot check
             await self.bot_checks(message)
             return
 
-        user_said_slur = await self.slur_checks(message)
-        await Event.determine_response(user_said_slur, message)
+        user_slur = self.slur_checks(message)
+        await Event.determine_response(user_slur, message)
 
-        if not user_said_slur:
+        if user_slur is None:
             await Event.add_to_stats(message)
 
     @commands.Cog.listener()
@@ -34,8 +34,9 @@ class Event(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             await ctx.send("You seemed to have messed up, try again")
         else:
-            svc.Logging.error("command_error", error)
             await ctx.send(f"{error}")
+
+        svc.Logging.error("command_error", error)
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):
@@ -78,29 +79,36 @@ class Event(commands.Cog):
                 break
 
     @staticmethod
-    async def slur_checks(message):
+    def slur_checks(message):
         c_message = Event.create_check_message(message)
 
-        for adl in svc.Checks.adl_list:
-            if adl in c_message and not c_message.startswith("https://tenor.com/"):  # Ignore gif links
-                svc.Mongo.add_to_slur_count(message.author, message.guild, 1, adl)
-                svc.Logging.log(__name__, f"{message.author.name} said slur: {adl}")
-                return True
+        for slur in svc.Checks.adl_list:
+            if slur in c_message and not c_message.startswith("https://tenor.com/"):  # Ignore gif links
+                return slur
 
-        return False
+        return None
 
     @staticmethod
-    async def determine_response(slur_check, message):
+    def record_said_slur(message, slur):
+        svc.Mongo.add_to_slur_count(message.author, message.guild, 1, slur)
+        svc.Logging.log(__name__, f"{message.author.name} said slur: {slur}")
+
+    @staticmethod
+    async def respond_to_slur(message):
+        await message.channel.send(
+            f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
+        await message.delete()
+        svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
+
+    @staticmethod
+    async def determine_response(said_slur, message):
         c_message = Event.create_check_message(message)
 
-        if slur_check:
-            await message.channel.send(
-                f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
-            await message.delete()
-            svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
+        if said_slur is not None:
+            Event.record_said_slur(message, said_slur)
+            await Event.respond_to_slur(message)
 
-        if not slur_check:
-
+        if said_slur is None:
             await Event.keyword_responses(message)
 
             if 'im ' in c_message:

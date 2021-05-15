@@ -73,7 +73,7 @@ class Event(commands.Cog):
     async def bot_checks(message):
         c_message = Event.create_check_message(message)
 
-        for adl in svc.Checks.adl_list:
+        for adl in svc.Checks.slur_list:
             if adl in c_message:
                 await message.delete()
                 break
@@ -82,7 +82,7 @@ class Event(commands.Cog):
     def slur_checks(message):
         c_message = Event.create_check_message(message)
 
-        for slur in svc.Checks.adl_list:
+        for slur in svc.Checks.slur_list:
             if slur in c_message and not c_message.startswith("https://tenor.com/"):  # Ignore gif links
                 return slur
 

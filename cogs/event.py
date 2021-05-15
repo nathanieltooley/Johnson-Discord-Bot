@@ -17,7 +17,7 @@ class Event(commands.Cog):
             await self.bot_checks(message)
             return
 
-        user_said_slur = self.slur_checks(message)
+        user_said_slur = await self.slur_checks(message)
         await Event.determine_response(user_said_slur, message)
 
         if not user_said_slur:

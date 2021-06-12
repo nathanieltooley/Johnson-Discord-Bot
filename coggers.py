@@ -1,5 +1,5 @@
 import os
-import svc.utils as svc
+import svc.utils as utils
 
 from discord.ext import commands, tasks
 
@@ -30,8 +30,7 @@ async def reload(ctx, extension):
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
         client.load_extension(f'cogs.{filename[:-3]}')
-        svc.Logging.log("coggers", f"{filename} loaded")  # Cut off .py
-
+        utils.Logging.log("coggers", f"{filename} loaded")  # Cut off .py
 
 client.run(os.environ.get("TOKEN"))
 

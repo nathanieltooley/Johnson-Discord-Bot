@@ -3,13 +3,16 @@ import mongoengine
 import math
 import datetime
 import colorama
+import spotipy
 
 from mongoengine.queryset import QuerySet
 from random import randrange, choice
+from spotipy.oauth2 import SpotifyClientCredentials
 
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
+from data_models.spotify_check import SpotifyCheck, Song
 from enums.bot_enums import Enums as bot_enums
 from discord.ext import commands
 
@@ -253,6 +256,74 @@ class Mongo:
         else:
             return item
 
+    @staticmethod
+    def get_saved_spotify_change(tracks):
+        try:
+            checks = SpotifyCheck.objects.get()
+            return SpotifyCheck.objects.first()
+        except mongoengine.DoesNotExist:
+            check = Mongo.update_spotify_check(tracks)
+            return check
+
+    @staticmethod
+    def check_for_spotify_change():
+        tracks = SpotifyHelpers.get_all_playlist_tracks()
+
+        sc = Mongo.get_saved_spotify_change(tracks)
+
+        if len(tracks) != sc.count:
+            diff = SpotifyHelpers.determine_diff(tracks, sc.songs, sc.last_updated)
+            Mongo.update_spotify_check(tracks)
+
+            return diff
+        else:
+            return None
+
+    @staticmethod
+    def create_spotify_check(tracks):
+        sc = SpotifyCheck(count=len(tracks), last_updated=datetime.datetime.now(datetime.timezone.utc))
+
+        for track in tracks:
+            artist_names = []
+
+            for artist in track['track']['artists']:
+                artist_names.append(artist['name'])
+
+            # date format: YYYY-MM-DDTHH-MM-SSZ
+            added_at = SpotifyHelpers.parse_date(track['added_at'])
+
+            album_url = None
+
+            if track['track']['is_local']:
+                album_url = bot_enums.BOT_AVATAR_URL.value
+            else:
+                album_url = track['track']['album']['images'][0]['url']
+
+            song = Song(name=track['track']['name'],
+                        artists=artist_names,
+                        album=track['track']['album']['name'],
+                        album_url=album_url,
+                        added_at=added_at)
+
+            sc.songs.append(song)
+
+        return sc
+
+    @staticmethod
+    def update_spotify_check(tracks):
+        sc = Mongo.create_spotify_check(tracks)
+
+        update_dict = {
+            'set__count': sc.count,
+            'set__last_updated': sc.last_updated,
+            'set__songs': sc.songs
+        }
+
+        SpotifyCheck.objects.update_one(upsert=True, **update_dict)
+        return sc
+
+
+
 
 class Games:
     card_names = {
@@ -408,3 +479,77 @@ class Checks:
             return ctx.author.id == bot_enums.OWNER_ID.value
 
         return commands.check(predicate)
+
+
+class SpotifyCreator:
+
+    @staticmethod
+    def create_spotify_object():
+        sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+        return sp
+
+
+class SpotifyHelpers:
+
+    spotify = SpotifyCreator.create_spotify_object()
+
+    @staticmethod
+    def get_all_playlist_tracks():
+        my_user_id = "yallmindifiyeet"
+        playlist_id = '6yO77cQ0JTMKuNxLh47oLX'
+
+        results = SpotifyHelpers.spotify.user_playlist_tracks(my_user_id, playlist_id)
+        tracks = results['items']
+
+        while results['next']:
+            results = SpotifyHelpers.spotify.next(results)
+            tracks.extend(results['items'])
+
+        return tracks
+
+    @staticmethod
+    def parse_date(date_string):
+        return datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+
+    @staticmethod
+    def determine_diff(tracks, songs, check_updated):
+        songs_in_tracks = []
+        songs_gone = []
+
+        for song in songs:
+            found = False
+            for track in tracks:
+                if song.name == track['track']['name'] and song.artists[0] == track['track']['artists'][0]['name']:
+                    songs_in_tracks.append(song)
+                    found = True
+
+                    break
+
+            if not found:
+                songs_gone.append(song)
+
+        tracks_added = []
+
+        for track in tracks:
+            parsed_date = SpotifyHelpers.parse_date(track['added_at'])
+
+            td = check_updated - parsed_date
+
+            if td.total_seconds() < 0:
+                tracks_added.append(track)
+
+        return songs_gone, tracks_added
+
+    @staticmethod
+    def create_artist_string(artists):
+        artist_string = ""
+
+        for artist in artists:
+            if artist == artists[-1]:
+                artist_string += artist
+            else:
+                artist_string += f"{artist}, "
+
+        return artist_string
+
+

@@ -7,6 +7,7 @@ import random
 from itertools import cycle
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
+from enums.bot_enums import Enums
 
 status = cycle(["For more info, use .helpme!",
                     "Minecraft",
@@ -31,6 +32,7 @@ class Setup(commands.Cog):
         svc.Logging.log(__name__, "Johnson is spittin straight cog!")
         # self.change_status.start()
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
+        self.check_playlist_changes.start()
         
     # Commands
     @commands.command()
@@ -69,6 +71,63 @@ class Setup(commands.Cog):
     async def change_status(self):
         new_stat = next(status)
         await self.client.change_presence(activity=discord.Game(new_stat))
+
+    def create_change_embeds(self, changes):
+        embeds = []
+
+        # removals
+        if changes[0]:
+            for change in changes[0]:
+                artist_string = svc.SpotifyHelpers.create_artist_string(change.artists)
+
+                removed_embed = discord.Embed(title=change.name,
+                                              description="This song has been removed from the playlist.",
+                                              color=discord.Color.red(),
+                                              )
+
+                removed_embed.set_author(name=artist_string)
+                removed_embed.set_image(url=change.album_url)
+
+                embeds.append(removed_embed)
+
+        # additions
+        if changes[1]:
+            for change in changes[1]:
+                artists_names = [artist['name'] for artist in change['track']['artists']]
+                artist_string = svc.SpotifyHelpers.create_artist_string(artists_names)
+
+                added_embed = discord.Embed(title=change['track']['name'],
+                                            description="This song has been added to the playlist.",
+                                            color=discord.Color.blue())
+
+                added_embed.set_author(name=artist_string)
+
+                album_url = ""
+
+                try:
+                    album_url = change['track']['album']['images'][0]['url']
+                except IndexError:
+                    album_url = Enums.BOT_AVATAR_URL.value
+
+                added_embed.set_image(url=album_url)
+
+                embeds.append(added_embed)
+
+        return embeds
+
+    @tasks.loop(seconds=2)
+    async def check_playlist_changes(self):
+        # hard coded because fuck it, its my bot and my playlist
+        channel_id = 649781215808978946
+        channel = self.client.get_channel(channel_id)
+
+        diff = svc.Mongo.check_for_spotify_change()
+
+        if diff:
+            embeds = self.create_change_embeds(diff)
+
+            for embed in embeds:
+                await channel.send(embed=embed)
 
     @change_status.before_loop
     async def before_status(self):

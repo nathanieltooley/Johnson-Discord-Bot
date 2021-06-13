@@ -32,5 +32,5 @@ for filename in os.listdir("./cogs"):
         client.load_extension(f'cogs.{filename[:-3]}')
         utils.Logging.log("coggers", f"{filename} loaded")  # Cut off .py
 
-client.run(os.environ.get("TEST_TOKEN"))
+client.run(os.environ.get("TOKEN"))
 

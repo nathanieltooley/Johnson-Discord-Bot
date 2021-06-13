@@ -131,8 +131,8 @@ class Setup(commands.Cog):
     async def check_playlist_changes(self):
         start = datetime.datetime.now()
         # hard coded because fuck it, its my bot and my playlist
-        channel_id = 842246555205763092
-        # channel_id = 649781215808978946
+        # channel_id = 842246555205763092
+        channel_id = 649781215808978946
         channel = self.client.get_channel(channel_id)
 
         diff = svc.Mongo.check_for_spotify_change()

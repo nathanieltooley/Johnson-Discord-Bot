@@ -257,21 +257,27 @@ class Mongo:
             return item
 
     @staticmethod
-    def get_saved_spotify_change(tracks):
+    def get_saved_spotify_change():
         try:
             checks = SpotifyCheck.objects.get()
             return SpotifyCheck.objects.first()
         except mongoengine.DoesNotExist:
-            check = Mongo.update_spotify_check(tracks)
-            return check
+            return None
 
     @staticmethod
     def check_for_spotify_change():
-        tracks = SpotifyHelpers.get_all_playlist_tracks()
+        count = SpotifyHelpers.get_length_of_playlist()
 
-        sc = Mongo.get_saved_spotify_change(tracks)
+        sc = Mongo.get_saved_spotify_change()
 
-        if len(tracks) != sc.count:
+        if sc is None:
+            tracks = SpotifyHelpers.get_all_playlist_tracks()
+            sc = Mongo.create_spotify_check(tracks)
+            sc.save()
+
+        if count != sc.count:
+            tracks = SpotifyHelpers.get_all_playlist_tracks()
+
             diff = SpotifyHelpers.determine_diff(tracks, sc.songs, sc.last_updated)
             Mongo.update_spotify_check(tracks)
 
@@ -299,13 +305,18 @@ class Mongo:
             else:
                 album_url = track['track']['album']['images'][0]['url']
 
+
             song = Song(name=track['track']['name'],
                         artists=artist_names,
                         album=track['track']['album']['name'],
                         album_url=album_url,
                         added_at=added_at)
 
-            sc.songs.append(song)
+
+
+            # sc.songs.append(song)
+
+            sc.songs.append(track['track']['id'])
 
         return sc
 
@@ -508,6 +519,18 @@ class SpotifyHelpers:
         return tracks
 
     @staticmethod
+    def get_track(id):
+        return SpotifyHelpers.spotify.track(id)
+
+    @staticmethod
+    def get_length_of_playlist():
+        my_user_id = "yallmindifiyeet"
+        playlist_id = '6yO77cQ0JTMKuNxLh47oLX'
+
+        results = SpotifyHelpers.spotify.user_playlist_tracks(my_user_id, playlist_id)
+        return results['total']
+
+    @staticmethod
     def parse_date(date_string):
         return datetime.datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
 
@@ -519,7 +542,7 @@ class SpotifyHelpers:
         for song in songs:
             found = False
             for track in tracks:
-                if song.name == track['track']['name'] and song.artists[0] == track['track']['artists'][0]['name']:
+                if song == track['track']['id']: # song.name == track['track']['name'] and song.artists[0] == track['track']['artists'][0]['name']:
                     songs_in_tracks.append(song)
                     found = True
 

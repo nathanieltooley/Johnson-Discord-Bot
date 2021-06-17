@@ -1,7 +1,10 @@
+from discord_slash import SlashContext
+
 import svc.utils as svc
 import discord
 
 from discord.ext import commands, tasks
+from discord_slash.error import CheckFailure
 
 
 class Event(commands.Cog):
@@ -37,6 +40,11 @@ class Event(commands.Cog):
             await ctx.send(f"{error}")
 
         svc.Logging.error("command_error", error)
+
+    @commands.Cog.listener()
+    async def on_slash_command_error(self, ctx: SlashContext, ex):
+        if isinstance(ex, CheckFailure):
+            await ctx.send("You cannot use this command. Try changing your name")
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):

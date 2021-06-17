@@ -9,6 +9,7 @@ import random
 from itertools import cycle
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
+from discord_slash import cog_ext, SlashContext
 from enums.bot_enums import Enums
 
 status = cycle(["For more info, use .helpme!",
@@ -36,9 +37,9 @@ class Setup(commands.Cog):
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         
     # Commands
-    @commands.command()
+    @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
-    async def ping(self, ctx):
+    async def _ping(self, ctx: SlashContext):
         await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms")
 
     @commands.command()

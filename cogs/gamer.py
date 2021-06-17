@@ -5,6 +5,8 @@ from enums import bot_enums
 
 from random import randrange
 from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
+from discord_slash.utils.manage_commands import create_option, create_choice
 
 
 class Gamer(commands.Cog):
@@ -12,7 +14,16 @@ class Gamer(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases=["showgamerstats"])
+    @cog_ext.cog_slash(name="view_gamer_stats",
+                       description="View the stats of yourself or your fellow gamers",
+                       options=[
+                           create_option(
+                               name="user",
+                               description="The user you wish to view",
+                               option_type=6,
+                               required=True),
+                       ],
+                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def view_gamer_stats(self, ctx, member: discord.Member):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
@@ -21,14 +32,6 @@ class Gamer(commands.Cog):
         svc.Mongo.create_user(member, ctx.guild)
 
         embed = self.create_user_stats(member, ctx.guild)
-
-        await ctx.send(embed=embed)
-
-    @commands.command(aliases=["showselfstats"])
-    @svc.Checks.rude_name_check()
-    async def view_self_stats(self, ctx):
-
-        embed = self.create_user_stats(ctx.author, ctx.guild)
 
         await ctx.send(embed=embed)
 
@@ -64,7 +67,16 @@ class Gamer(commands.Cog):
 
         return embed
 
-    @commands.command()
+    @cog_ext.cog_slash(name="view_slur_stats",
+                       description="View the slur stats of yourself or your fellow gamers",
+                       options=[
+                           create_option(
+                               name="user",
+                               description="The user you wish to view",
+                               option_type=6,
+                               required=True),
+                       ],
+                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def slur_check(self, ctx, member: discord.Member):
         user = svc.Mongo.get_user(member, member.guild)
@@ -81,7 +93,19 @@ class Gamer(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @cog_ext.cog_slash(name="view_leader_boards",
+                       description="See who's on top!",
+                       options=[
+                           create_option(
+                               name="sortby",
+                               description="The user you wish to view",
+                               option_type=3,
+                               required=True,
+                               choices=[create_choice(value="vbucks", name="V-Bucks"),
+                                        create_choice(value="xp", name="XP")]
+                           ),
+                       ],
+                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def view_gamer_boards(self, ctx, field="vbucks"):
         embed_title = None
@@ -115,7 +139,23 @@ class Gamer(commands.Cog):
                 embed.add_field(name=f"{gamer.name}", value=f"Level {gamer.level}: {gamer.exp} EXP", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @cog_ext.cog_slash(name="give_money",
+                       description="Gift your hard earned cash to the less fortunate",
+                       options=[
+                           create_option(
+                               name="reciever",
+                               description="The user you wish to view",
+                               option_type=6,
+                               required=True
+                           ),
+                           create_option(
+                               name="money",
+                               description="The amount of money to gift",
+                               option_type=4,
+                               required=True
+                           )
+                       ],
+                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def give_money(self, ctx, reciever: discord.Member, money):
         if ctx.author == reciever:
@@ -129,57 +169,17 @@ class Gamer(commands.Cog):
         elif transact:
             await ctx.send(f"Transaction of {money} V-Bucks Successful!")
 
-    @commands.command()
-    @svc.Checks.rude_name_check()
-    async def give_gift(self, ctx, reciever: discord.Member, item_id):
-        ctx.send("Not Implemented")
-        return
-
-        """if ctx.author == reciever:
-            await ctx.send("You can't gift yourself this item!")
-            return
-
-        if not svc.Mongo.get_item_from_inventory(member=ctx.author, server=ctx.guild, item_id=item_id):
-            await ctx.send("You do not have this item.")
-            return
-
-        svc.Mongo.delete_item(ctx.author, ctx.guild, item_id)
-        last_owner = ctx.author
-        item = svc.Mongo.give_item_to_user(member=reciever, item_id=item_id, server=ctx.guild, last_owner=ctx.author)
-
-        await ctx.send(f"{item[0]} was given to {reciever.display_name}!")"""
-
-    @commands.command()
-    @svc.Checks.rude_name_check()
-    async def get_user_inventory(self, ctx, member: discord.Member = None):
-        if member is None:
-            item = svc.Mongo.get_user_inventory(ctx.author, ctx.guild)
-            name = ctx.author.nick
-        else:
-            item = svc.Mongo.get_user_inventory(member, ctx.guild)
-            if member.bot:
-                name = member.name
-            else:
-                name = member.nick
-
-        count = len(item)
-
-        embed = discord.Embed(
-            title=f"{name}'s Inventory",
-            description=f"The inventory of {name}. Total Item Count {count}",
-            color=discord.Colour.dark_purple()
-        )
-
-        if isinstance(item, list):
-            item = enumerate(item, 1)
-            for count, i in item:
-                embed.add_field(name=f"{i.name}", value=f"{i.value} V-Bucks", inline=False)
-
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(item)
-
-    @commands.command()
+    @cog_ext.cog_slash(name="xp_exchange",
+                       description="Pay your way to knowledge and experience!",
+                       options=[
+                           create_option(
+                               name="payment",
+                               description="The user you wish to view",
+                               option_type=4,
+                               required=True,
+                           ),
+                       ],
+                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def exp_exchange(self, ctx, vbuck_payment: int):
         conversion_ratio = .1

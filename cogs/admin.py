@@ -2,7 +2,10 @@ import discord
 import svc.utils as utils
 import enums.bot_enums as enums
 
+
+from discord_slash import cog_ext, SlashContext
 from discord.ext import commands, tasks
+from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
 
 from cogs.event import Event
 
@@ -12,16 +15,50 @@ class Admin(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.has_permissions(administrator=True)
+    @cog_ext.cog_slash(
+        name="update_vbucks",
+        description="Update a user's V-Bucks",
+        options=[
+            create_option(
+                name="user",
+                description="User to update",
+                option_type=6,
+                required=True
+            ),
+            create_option(
+                name="money",
+                description="New V-Bucks Amount",
+                option_type=4,
+                required=True
+            )
+        ],
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
     @utils.Checks.check_is_owner()
-    @commands.command()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
         utils.Mongo.update_vbucks(member, ctx.guild, money)
         await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
 
-    @commands.has_permissions(administrator=True)
+    @cog_ext.cog_slash(
+        name="update_xp",
+        description="Update a user's XP",
+        options=[
+            create_option(
+                name="user",
+                description="User to update",
+                option_type=6,
+                required=True
+            ),
+            create_option(
+                name="xp",
+                description="New XP Amount",
+                option_type=4,
+                required=True
+            )
+        ],
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
     @utils.Checks.check_is_owner()
-    @commands.command()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = utils.Mongo.update_exp(member, ctx.guild, exp)
         if check is None:
@@ -29,9 +66,26 @@ class Admin(commands.Cog):
         else:
             await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
 
-    @commands.has_permissions(administrator=True)
+    @cog_ext.cog_slash(
+        name="set_user_level",
+        description="Set a user's level and update their XP",
+        options=[
+            create_option(
+                name="user",
+                description="User to update",
+                option_type=6,
+                required=True
+            ),
+            create_option(
+                name="level",
+                description="New User Level",
+                option_type=4,
+                required=True
+            )
+        ],
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
     @utils.Checks.check_is_owner()
-    @commands.command()
     async def set_user_level(self, ctx, member: discord.Member, level: int):
 
         required_exp = pow(level, 4)
@@ -39,42 +93,54 @@ class Admin(commands.Cog):
 
         await ctx.send(f"{member.mention}'s level is now {level}. XP is {required_exp}")
 
-    @commands.has_permissions(administrator=True)
+    @cog_ext.cog_slash(
+        name="create_account",
+        description="Create an database entry for a user",
+        options=[
+            create_option(
+                name="user",
+                description="User to create entry for",
+                option_type=6,
+                required=True
+            ),
+        ],
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
     @utils.Checks.check_is_owner()
-    @commands.command()
-    async def spawn_item(self, ctx, member: discord.Member, ref_id):
-        item, value = utils.Mongo.give_item_to_user(member, ref_id, ctx.guild)
-        await ctx.send(f"Given User Item: {item}, of Value: {value} V-Bucks")
-
-    @commands.has_permissions(administrator=True)
-    @utils.Checks.check_is_owner()
-    @commands.command()
     async def create_account(self, ctx, member: discord.Member):
         utils.Mongo.create_user(member, ctx.guild)
         await ctx.send(f"{member.display_name}'s account was created.")
 
-    @commands.has_permissions(administrator=True)
-    @commands.command()
-    async def talk(self, ctx, message):
+    @cog_ext.cog_slash(
+        name="talk",
+        description="Make Johnson Bot talk in any channel you want!",
+        options=[
+            create_option(
+                name="message",
+                description="Message to Send",
+                option_type=3,
+                required=True
+            ),
+            create_option(
+                name="channel",
+                description="Channel to send it to",
+                option_type=7,
+                required=True
+            )
+        ],
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
+    async def talk_ch(self, ctx: SlashContext, message, channel: discord.abc.GuildChannel):
         # im gonna keep this in cuz i think the message is funny
         if ctx.author.id != enums.Enums.OWNER_ID.value:
             await ctx.send("nope")
             return
 
-        # Hard Coded, use talk_ch other wise
-        channel = discord.utils.find(lambda x: x.id == 649780790468542516, ctx.guild.text_channels)
-        await channel.send(message)
-
-    @commands.has_permissions(administrator=True)
-    @commands.command()
-    async def talk_ch(self, ctx, message, channel_name: str):
-        # im gonna keep this in cuz i think the message is funny
-        if ctx.author.id != enums.Enums.OWNER_ID.value:
-            await ctx.send("nope")
-            return
-
-        channel = discord.utils.find(lambda x: channel_name.lower() in x.name.lower(), ctx.guild.text_channels)
-        await channel.send(message)
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(message)
+            await ctx.send(content="Sent", hidden=True)
+        else:
+            await ctx.send("Not a text channel")
 
 
 def setup(client):

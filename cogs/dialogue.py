@@ -4,10 +4,10 @@ import enums.bot_enums as enums
 import svc.utils as utils
 
 from discord.ext import commands
+from discord_slash import SlashContext, cog_ext
+from discord_slash.utils.manage_commands import create_option
 
 from dialogue.dialogue_handler import DialogueHandler
-
-
 
 class DialogueTree:
     def __init__(self, dialogue_nodes, start_node):
@@ -108,7 +108,11 @@ class Dialogue(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
+    @cog_ext.cog_slash(
+        name="start_dialogue",
+        description="Start up a conversation with Johnson Bot",
+        guild_ids=enums.Enums.GUILD_IDS.value
+    )
     @utils.Checks.rude_name_check()
     async def start_dialogue(self, ctx):
 

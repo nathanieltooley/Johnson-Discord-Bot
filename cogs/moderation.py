@@ -14,7 +14,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(administrator=True)
     @utils.Checks.check_is_owner()
     @commands.command()
-    async def mute(self, ctx, member: discord.Member, seconds=0, reason="Just shut up"):
+    async def _mute(self, ctx, member: discord.Member, seconds=0, reason="Just shut up"):
         mute_role = None
         check_mute = discord.utils.find(lambda x: x.name == "Muted", ctx.guild.roles)
 

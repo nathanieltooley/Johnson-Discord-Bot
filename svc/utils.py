@@ -334,8 +334,6 @@ class Mongo:
         return sc
 
 
-
-
 class Games:
     card_names = {
         1: "Ace",

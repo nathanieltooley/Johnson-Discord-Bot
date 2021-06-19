@@ -54,21 +54,6 @@ class Setup(commands.Cog):
         else:
             await ctx.send("You do not own this bot!")
 
-    @commands.command(aliases=['helpme'])
-    async def support(self, ctx):
-        """Custom help message"""
-        await ctx.send('--Made by Nathaniel--\n'
-                    'Commands: \n'
-                    '.ping: Pong!\n'
-                    '.roll [number of sides]: Rolls a die, accepts a number; default is 6 \n'
-                    '.rps [Player 1] [Player 2]: Shoot! There is a monetary reward for those who win\n'
-                    ".viewgamerstats [id]: View a player's statistics.\n"
-                    ".view_gamer_boards: View the server's leaderboard.\n"
-                    ".gamble [amount]: Gamble to your hearts content. It's Vegas baby!\n"
-                    "I'm also a part-time Dad now as well! (as per Noah's request)\n"
-                    "I'm also now controlled by the ADL\n"
-                    "Source code available at https://github.com/applememes69420/Johnson-Discord-Bot")
-
     @tasks.loop(seconds=45)
     async def change_status(self):
         new_stat = next(status)
@@ -145,7 +130,6 @@ class Setup(commands.Cog):
                 await channel.send(embed=embed)
 
         print(f"check took: {datetime.datetime.now() - start}")
-
 
     @change_status.before_loop
     async def before_status(self):

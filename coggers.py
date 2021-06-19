@@ -1,36 +1,17 @@
 import os
 import svc.utils as utils
+import discord
 
+from discord_slash import SlashCommand, SlashContext
 from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix=".")
-
-
-@commands.has_permissions(administrator=True)
-@client.command()
-async def load(ctx, extension):
-    client.load_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} has been loaded")
-
-
-@commands.has_permissions(administrator=True)
-@client.command()
-async def unload(ctx, extension):
-    client.unload_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} has been unloaded")
-
-
-@commands.has_permissions(administrator=True)
-@client.command()
-async def reload(ctx, extension):
-    client.unload_extension(f"cogs.{extension}")
-    client.load_extension(f"cogs.{extension}")
-    await ctx.send(f"{extension} has been reloaded")
+slash = SlashCommand(client, sync_commands=True, sync_on_cog_reload=True)
        
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
-        client.load_extension(f'cogs.{filename[:-3]}')
-        utils.Logging.log("coggers", f"{filename} loaded")  # Cut off .py
+        client.load_extension(f'cogs.{filename[:-3]}') # Cut off .py
+        utils.Logging.log("coggers", f"{filename} loaded")
 
 client.run(os.environ.get("TOKEN"))
 

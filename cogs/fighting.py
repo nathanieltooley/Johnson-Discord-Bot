@@ -4,7 +4,10 @@ import random
 import discord
 
 from discord.ext import commands
+from discord_slash import cog_ext
+from discord_slash.utils.manage_commands import create_option
 
+from enums.bot_enums import Enums
 from svc import utils as svc
 from enums.bot_enums import Enums as bot_enums
 
@@ -28,11 +31,25 @@ class Fighting(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.is_fighting = False
 
-    @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
-    @commands.command()
+    @cog_ext.cog_slash(
+        name="fight",
+        description="Fight with another user",
+        options=[
+            create_option(
+                name="user",
+                description="User to fight",
+                option_type=6,
+                required=True
+            ),
+        ],
+        guild_ids=Enums.GUILD_IDS.value
+    )
     @svc.Checks.rude_name_check()
     async def fight(self, ctx, enemy: discord.Member):
+        await ctx.send("Not implemented fully", hidden=True)
+        return
 
         if ctx.author == enemy:
             await ctx.send("You cannot fight yourself.")

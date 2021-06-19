@@ -1,5 +1,8 @@
 import asyncio
 
+from discord_slash import cog_ext, SlashContext
+from discord_slash.utils.manage_commands import create_option
+
 import svc.utils as svc
 import discord
 import os
@@ -7,46 +10,72 @@ import random
 
 from discord.ext import commands, tasks
 
+from enums.bot_enums import Enums
+
 
 class Gamble(commands.Cog):
     
     def __init__(self, client):
         self.client = client
-        
-    @commands.command()
+
+    @cog_ext.cog_slash(
+        name="roll",
+        description="Roll a random sized die",
+        options=[
+            create_option(
+                name="sides",
+                description="Number of sides on the die",
+                option_type=4,
+                required=True
+            ),
+        ],
+        guild_ids=Enums.GUILD_IDS.value
+    )
     @svc.Checks.rude_name_check()
-    async def roll(self, ctx, sides=6):
-        await ctx.send(f'{ctx.message.author.nick} rolled a {random.randrange(1, sides)}')
+    async def roll(self, ctx: SlashContext, sides):
+        await ctx.send(f'{ctx.author.mention} rolled a {random.randrange(1, sides)}')
 
     # might be reworked, probably won't
     # could possibly use enums or something
-    @commands.command()
+    @cog_ext.cog_slash(
+        name="rock_paper_scissors",
+        description="Fight somebody in a game of rock paper scissors",
+        options=[
+            create_option(
+                name="opponent",
+                description="User to fight",
+                option_type=6,
+                required=True
+            ),
+        ],
+        guild_ids=Enums.GUILD_IDS.value
+    )
     @svc.Checks.rude_name_check()
-    @commands.cooldown(1, 15, discord.ext.commands.BucketType.member)
-    async def rps(self, ctx, member1: discord.member.Member, member2: discord.member.Member):
+    async def rps(self, ctx, opponent: discord.member.Member):
+
         rps_member1 = svc.Games.pickrps()
         rps_member2 = svc.Games.pickrps()
         rpstotal = rps_member1 + ' ' + rps_member2
         
         rpsdict = {
-            "rock scissors": member1,
-            "paper rock": member1,
-            "scissors paper": member1,
-            "scissors rock": member2,
-            "rock paper": member2,
-            "paper scissors": member2
+            "rock scissors": ctx.author,
+            "paper rock": ctx.author,
+            "scissors paper": ctx.author,
+            "scissors rock": opponent,
+            "rock paper": opponent,
+            "paper scissors": opponent
         }
 
-        await ctx.send(f'{member1.mention} got {rps_member1}, and {member2.mention} got {rps_member2}')
+        await ctx.send(f'{ctx.author.mention} got {rps_member1}, and {opponent.mention} got {rps_member2}')
 
         if rps_member1 != rps_member2:
             winner = rpsdict[rpstotal]
             loser = None
 
-            if winner == member1:  # find the loser using the winner
-                loser = member2
+            if winner == ctx.author:  # find the loser using the winner
+                loser = opponent
             else:
-                loser = member1
+                loser = ctx.author
 
             winner_user = svc.Mongo.create_user(winner, ctx.guild)  # Create the user if there isn't one
             loser_user = svc.Mongo.create_user(loser, ctx.guild)
@@ -67,9 +96,20 @@ class Gamble(commands.Cog):
         else:
             await ctx.send('Its a tie!')
 
-    @commands.command()
+    @cog_ext.cog_slash(
+        name="gamble",
+        description="Gamble away your money. There is no strategy, only luck.",
+        options=[
+            create_option(
+                name="amount",
+                description="Money to Gamble",
+                option_type=4,
+                required=True
+            ),
+        ],
+        guild_ids=Enums.GUILD_IDS.value
+    )
     @svc.Checks.rude_name_check()
-    @commands.cooldown(1, 30, discord.ext.commands.BucketType.member)
     async def gamble(self, ctx, amount: int):
         user = svc.Mongo.get_user(ctx.author, ctx.guild)
 
@@ -91,7 +131,7 @@ class Gamble(commands.Cog):
     @commands.command()
     @svc.Checks.rude_name_check()
     @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
-    async def blackjack(self, ctx, amount: int):
+    async def _blackjack(self, ctx, amount: int):
         user = svc.Mongo.get_user(ctx.author, ctx.guild)
 
         if amount > user.vbucks:

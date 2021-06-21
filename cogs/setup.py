@@ -12,14 +12,13 @@ from discord.ext import commands, tasks
 from discord_slash import cog_ext, SlashContext
 from enums.bot_enums import Enums
 
-status = cycle(["For more info, use .helpme!",
+status = cycle(["Now Using Slash Commands!",
                     "Minecraft",
                     "Who uses this bot anyways?",
                     "Made by Nathaniel",
-                    "Fortnite",
-                    "SwowS",
+                    "Build: Different",
                     "Team Fortress 2",
-                    "Back Online!"])
+                    "your mom"])
 
 
 class Setup(commands.Cog):

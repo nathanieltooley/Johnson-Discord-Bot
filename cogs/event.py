@@ -125,6 +125,9 @@ class Event(commands.Cog):
             if "i'm " in c_message:
                 await Event.im_check(message, "i'm ")
 
+            if 'i‘m ' in c_message:
+                await Event.im_check(message, "i‘m ")
+
     @staticmethod
     async def im_check(message, check):
 

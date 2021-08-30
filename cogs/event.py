@@ -194,8 +194,11 @@ class Event(commands.Cog):
                 "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
             )
 
-        if Event.message_check(message, "thanks"):
+        if Event.message_check(message, "thanks") or Event.message_check(message, "thank you"):
             await message.channel.send("you're welcome :)")
+
+        if Event.message_check(message, "flanksteak"):
+            await message.channel.send("Why did you say that?")
 
     @staticmethod
     async def add_to_stats(message):

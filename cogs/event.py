@@ -45,6 +45,9 @@ class Event(commands.Cog):
     async def on_slash_command_error(self, ctx: SlashContext, ex):
         if isinstance(ex, CheckFailure):
             await ctx.send("You cannot use this command. Try changing your name")
+        else:
+            await ctx.send(str(ex))
+            print(ex)
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):

@@ -27,6 +27,7 @@ class Setup(commands.Cog):
         self.client = client
         self.change_status.start()
         self.check_playlist_changes.start()
+        self.count = 0
         
     # Events
     @commands.Cog.listener()
@@ -39,7 +40,9 @@ class Setup(commands.Cog):
     @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=Enums.GUILD_IDS.value)
     @svc.Checks.rude_name_check()
     async def _ping(self, ctx: SlashContext):
-        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms")
+        self.count += 1
+        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms: test {self.count}")
+
 
     @commands.command()
     async def shutdown(self, ctx):

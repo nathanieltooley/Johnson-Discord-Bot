@@ -69,7 +69,7 @@ regex==2020.11.13
 requests==2.25.1
 requests-toolbelt==0.7.0
 rich==10.1.0
-rope==0.17.0
+rope==0.20.1
 rsa==4.7
 six==1.15.0
 snowballstemmer==2.0.0

@@ -111,7 +111,7 @@ class Dialogue(commands.Cog):
     @cog_ext.cog_slash(
         name="start_dialogue",
         description="Start up a conversation with Johnson Bot",
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.rude_name_check()
     async def start_dialogue(self, ctx):

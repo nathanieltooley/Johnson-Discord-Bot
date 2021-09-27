@@ -1,6 +1,6 @@
 import datetime
 
-import svc.utils as svc
+import svc.utils as utils
 import discord
 import os
 import itertools
@@ -33,12 +33,13 @@ class Setup(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         global_init()
-        svc.Logging.log(__name__, "Johnson is spittin straight cog!")
+        utils.Logging.log(__name__, "Johnson is spittin straight cog!")
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
+        utils.Logging.log(__name__, f"Johnson Level: {utils.Level.get_bot_level()}")
         
     # Commands
-    @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+    @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def _ping(self, ctx: SlashContext):
         self.count += 1
         await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms: test {self.count}")
@@ -67,10 +68,10 @@ class Setup(commands.Cog):
         # removals
         if changes[0]:
             for song_id in changes[0]:
-                track = svc.SpotifyHelpers.get_track(song_id)
+                track = utils.SpotifyHelpers.get_track(song_id)
 
                 artists_names = [artist['name'] for artist in track['artists']]
-                artist_string = svc.SpotifyHelpers.create_artist_string(artists_names)
+                artist_string = utils.SpotifyHelpers.create_artist_string(artists_names)
 
                 removed_embed = discord.Embed(title=track['name'],
                                               description="This song has been removed from the playlist.",
@@ -94,7 +95,7 @@ class Setup(commands.Cog):
         if changes[1]:
             for song_id in changes[1]:
                 artists_names = [artist['name'] for artist in song_id['track']['artists']]
-                artist_string = svc.SpotifyHelpers.create_artist_string(artists_names)
+                artist_string = utils.SpotifyHelpers.create_artist_string(artists_names)
 
                 added_embed = discord.Embed(title=song_id['track']['name'],
                                             description="This song has been added to the playlist.",
@@ -123,7 +124,7 @@ class Setup(commands.Cog):
         channel_id = 649781215808978946
         channel = self.client.get_channel(channel_id)
 
-        diff = svc.Mongo.check_for_spotify_change()
+        diff = utils.Mongo.check_for_spotify_change()
 
         if diff:
             embeds = self.create_change_embeds(diff)
@@ -135,12 +136,12 @@ class Setup(commands.Cog):
 
     @change_status.before_loop
     async def before_status(self):
-        svc.Logging.log(__name__, "Waiting start status change...")
+        utils.Logging.log(__name__, "Waiting start status change...")
         await self.client.wait_until_ready()
 
     @check_playlist_changes.before_loop
     async def before_check(self):
-        svc.Logging.log(__name__, "Waiting to start spotify polling...")
+        utils.Logging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()
         
 

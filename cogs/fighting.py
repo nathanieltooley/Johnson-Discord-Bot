@@ -8,7 +8,7 @@ from discord_slash import cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from enums.bot_enums import Enums
-from svc import utils as svc
+from svc import utils as utils
 from enums.bot_enums import Enums as bot_enums
 
 
@@ -44,9 +44,9 @@ class Fighting(commands.Cog):
                 required=True
             ),
         ],
-        guild_ids=Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
-    @svc.Checks.rude_name_check()
+    @utils.Checks.rude_name_check()
     async def fight(self, ctx, enemy: discord.Member):
         await ctx.send("Not implemented fully", hidden=True)
         return

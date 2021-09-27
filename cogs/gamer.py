@@ -1,4 +1,4 @@
-import svc.utils as svc
+import svc.utils as utils
 import discord
 import math
 from enums import bot_enums
@@ -23,13 +23,13 @@ class Gamer(commands.Cog):
                                option_type=6,
                                required=True),
                        ],
-                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+                       guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def view_gamer_stats(self, ctx, member: discord.Member):
         """This command allows a user to view his/her 'Gamer' stats, include their V-Buck amount, 
         their experience, and their current level."""
 
-        svc.Mongo.create_user(member, ctx.guild)
+        utils.Mongo.create_user(member, ctx.guild)
 
         embed = self.create_user_stats(member, ctx.guild)
 
@@ -38,8 +38,8 @@ class Gamer(commands.Cog):
     @staticmethod
     def create_user_stats(member: discord.Member, server: discord.Guild):
 
-        svc.Mongo.create_user(member, server)
-        user = svc.Mongo.get_user(member, server)
+        utils.Mongo.create_user(member, server)
+        user = utils.Mongo.get_user(member, server)
 
         username = ""
 
@@ -76,17 +76,17 @@ class Gamer(commands.Cog):
                                option_type=6,
                                required=True),
                        ],
-                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+                       guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def slur_check(self, ctx, member: discord.Member):
-        user = svc.Mongo.get_user(member, member.guild)
+        user = utils.Mongo.get_user(member, member.guild)
         if not user.slur_count:
             await ctx.send("This person is clean!")
             return
 
         embed = discord.Embed(title=f"{member.nick}'s Racist Resume",
                               description=f"How racist is {member.nick}",
-                              color=svc.Color.random_color())
+                              color=utils.Color.random_color())
 
         for k, v in user.slur_count.items():
             embed.add_field(name=k, value=v, inline=False)
@@ -105,8 +105,8 @@ class Gamer(commands.Cog):
                                         create_choice(value="xp", name="XP")]
                            ),
                        ],
-                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+                       guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def view_gamer_boards(self, ctx, field="vbucks"):
         embed_title = None
         field = field.lower()
@@ -120,7 +120,7 @@ class Gamer(commands.Cog):
             await ctx.send(f"ERROR: {field} is not a vaild field")
             return
 
-        results = svc.Mongo.get_leaderboard_results(field, ctx.guild)
+        results = utils.Mongo.get_leaderboard_results(field, ctx.guild)
         results = enumerate(results, 1)
 
         embed = discord.Embed(
@@ -155,14 +155,14 @@ class Gamer(commands.Cog):
                                required=True
                            )
                        ],
-                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+                       guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def give_money(self, ctx, reciever: discord.Member, money):
         if ctx.author == reciever:
             await ctx.send("You can't send yourself money")
             return
 
-        transact = svc.Mongo.transact(ctx.author, reciever, ctx.guild, money)
+        transact = utils.Mongo.transact(ctx.author, reciever, ctx.guild, money)
 
         if not transact:
             await ctx.send("Transaction failed. You attempted to give away more than you own.")
@@ -179,12 +179,12 @@ class Gamer(commands.Cog):
                                required=True,
                            ),
                        ],
-                       guild_ids=bot_enums.Enums.GUILD_IDS.value)
-    @svc.Checks.rude_name_check()
+                       guild_ids=utils.Level.get_guild_ids())
+    @utils.Checks.rude_name_check()
     async def exp_exchange(self, ctx, vbuck_payment: int):
         conversion_ratio = .1
 
-        user = svc.Mongo.get_user(ctx.author, ctx.guild)
+        user = utils.Mongo.get_user(ctx.author, ctx.guild)
         current_vbucks = user.vbucks
 
         if vbuck_payment > current_vbucks:
@@ -194,8 +194,8 @@ class Gamer(commands.Cog):
         added_exp = vbuck_payment * conversion_ratio
         new_exp = user.exp + added_exp
 
-        svc.Mongo.income(ctx.author, ctx.guild, -vbuck_payment)
-        svc.Mongo.update_exp(ctx.author, ctx.guild, new_exp)
+        utils.Mongo.income(ctx.author, ctx.guild, -vbuck_payment)
+        utils.Mongo.update_exp(ctx.author, ctx.guild, new_exp)
 
         await ctx.send(f"{ctx.author.mention} You gained {added_exp} XP. You have {new_exp}")
 

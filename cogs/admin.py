@@ -32,7 +32,7 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.check_is_owner()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
@@ -56,7 +56,7 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.check_is_owner()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
@@ -83,7 +83,7 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.check_is_owner()
     async def set_user_level(self, ctx, member: discord.Member, level: int):
@@ -104,7 +104,7 @@ class Admin(commands.Cog):
                 required=True
             ),
         ],
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.check_is_owner()
     async def create_account(self, ctx, member: discord.Member):
@@ -128,7 +128,7 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=enums.Enums.GUILD_IDS.value
+        guild_ids=utils.Level.get_guild_ids()
     )
     async def talk_ch(self, ctx: SlashContext, message, channel: discord.abc.GuildChannel):
         # im gonna keep this in cuz i think the message is funny

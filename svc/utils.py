@@ -1,3 +1,5 @@
+import os
+
 import discord
 import mongoengine
 import math
@@ -573,4 +575,17 @@ class SpotifyHelpers:
 
         return artist_string
 
+class Level:
 
+    @staticmethod
+    def get_bot_level():
+        return os.getenv("LEVEL")
+
+    @staticmethod
+    def get_guild_ids():
+        level = Level.get_bot_level()
+
+        if level == "DEBUG":
+            return [427299383474782208]
+        elif level == "PROD":
+            return [600162735975694356]

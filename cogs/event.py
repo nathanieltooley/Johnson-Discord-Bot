@@ -16,6 +16,11 @@ class Event(commands.Cog):
     async def on_message(self, message: discord.Message):
         user_slur = False
 
+        print(type(message.channel))
+        if type(message.channel) == discord.channel.DMChannel:
+            await self.process_dm(message)
+            return
+
         if message.author == self.client.user or message.author.bot:  # bot check
             await self.bot_checks(message)
             return
@@ -211,6 +216,13 @@ class Event(commands.Cog):
 
         if level_up:
             await message.channel.send(level_up)
+
+    async def process_dm(self, message: discord.Message):
+        target_guild = self.client.get_guild(600162735975694356)
+        target_channel = target_guild.get_channel(758528118209904671)
+
+        if target_guild.get_member(message.author.id):
+            await target_channel.send(f"{message.author.mention} says: {message.content}")
 
 
 def setup(client):

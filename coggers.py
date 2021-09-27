@@ -5,7 +5,10 @@ import discord
 from discord_slash import SlashCommand, SlashContext
 from discord.ext import commands, tasks
 
-client = commands.Bot(command_prefix=".")
+intents = discord.Intents.default()
+intents.members = True
+
+client = commands.Bot(intents=intents, command_prefix=".")
 slash = SlashCommand(client, sync_commands=True, sync_on_cog_reload=True)
        
 for filename in os.listdir("./cogs"):

@@ -155,6 +155,7 @@ class Admin(commands.Cog):
         ],
         guild_ids=utils.Level.get_guild_ids()
     )
+    @utils.Checks.check_is_owner()
     async def change_currency_name(self, ctx: SlashContext, c_name):
         utils.Mongo.set_server_currency_name(ctx.guild.id, c_name)
         await ctx.send(f"Name has changed to: {c_name}")

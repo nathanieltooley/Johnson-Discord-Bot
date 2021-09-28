@@ -6,6 +6,8 @@ import discord
 from discord.ext import commands, tasks
 from discord_slash.error import CheckFailure
 
+from enums.bot_enums import Enums as bot_enums
+
 
 class Event(commands.Cog):
 
@@ -218,7 +220,7 @@ class Event(commands.Cog):
             await message.channel.send(level_up)
 
     async def process_dm(self, message: discord.Message):
-        target_guild = self.client.get_guild(600162735975694356)
+        target_guild = self.client.get_guild(bot_enums.JOHNSON_ID.value)
         target_channel = target_guild.get_channel(758528118209904671)
 
         if target_guild.get_member(message.author.id):

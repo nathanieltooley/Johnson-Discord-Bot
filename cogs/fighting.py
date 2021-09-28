@@ -48,7 +48,7 @@ class Fighting(commands.Cog):
     )
     @utils.Checks.rude_name_check()
     async def fight(self, ctx, enemy: discord.Member):
-        await ctx.send("Not implemented fully", hidden=True)
+        await ctx.send("Not implemented at all lol", hidden=True)
         return
 
         if ctx.author == enemy:

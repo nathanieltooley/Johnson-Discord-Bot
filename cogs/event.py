@@ -19,7 +19,7 @@ class Event(commands.Cog):
         user_slur = False
 
         print(type(message.channel))
-        if type(message.channel) == discord.channel.DMChannel:
+        if type(message.channel) == discord.channel.DMChannel and message.author != self.client.user:
             await self.process_dm(message)
             return
 
@@ -220,11 +220,23 @@ class Event(commands.Cog):
             await message.channel.send(level_up)
 
     async def process_dm(self, message: discord.Message):
-        target_guild = self.client.get_guild(bot_enums.JOHNSON_ID.value)
-        target_channel = target_guild.get_channel(758528118209904671)
+        target_guild = None
+        target_channel = None
+
+        if svc.Level.get_bot_level() == "DEBUG":
+            target_guild = self.client.get_guild(bot_enums.TEST_SERVER_ID.value)
+            target_channel = target_guild.get_channel(842246555205763092)
+        else:
+            target_guild = self.client.get_guild(bot_enums.JOHNSON_ID.value)
+            target_channel = target_guild.get_channel(758528118209904671)
 
         if target_guild.get_member(message.author.id):
             await target_channel.send(f"{message.author.mention} says: {message.content}")
+            await Event.send_admin_req_dm(message)
+
+    @staticmethod
+    async def send_admin_req_dm(message):
+        await message.channel.send("Message received. Forwarding to Johnson HQ.")
 
 
 def setup(client):

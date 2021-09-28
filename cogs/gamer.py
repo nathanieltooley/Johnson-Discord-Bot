@@ -58,9 +58,11 @@ class Gamer(commands.Cog):
         exp = user.exp
         level = user.level
 
+        server_currency = utils.Mongo.get_server_currency_name(server.id)
+
         embed.set_thumbnail(
             url=bot_enums.Enums.BOT_AVATAR_URL.value)
-        embed.add_field(name="V-Bucks", value=f"{vbucks}")
+        embed.add_field(name=f"{server_currency}", value=f"{vbucks}")
         embed.add_field(name="Experience",
                         value=f"{exp}/{int((math.pow((level + 1), 4)))}")
         embed.add_field(name="Level", value=f"{level}")
@@ -101,17 +103,19 @@ class Gamer(commands.Cog):
                                description="The user you wish to view",
                                option_type=3,
                                required=True,
-                               choices=[create_choice(value="vbucks", name="V-Bucks"),
+                               choices=[create_choice(value="money", name=f"Currency"),
                                         create_choice(value="xp", name="XP")]
                            ),
                        ],
                        guild_ids=utils.Level.get_guild_ids())
     @utils.Checks.rude_name_check()
-    async def view_gamer_boards(self, ctx, field="vbucks"):
+    async def view_gamer_boards(self, ctx, field="money"):
         embed_title = None
         field = field.lower()
 
-        if field == "vbucks":
+        server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+
+        if field == "money":
             embed_title = "Richest"
         elif field == "exp" or field == "experience" or field == "xp":
             embed_title = "Most Experienced"
@@ -131,9 +135,9 @@ class Gamer(commands.Cog):
 
         embed.set_thumbnail(url=bot_enums.Enums.BOT_AVATAR_URL.value)
 
-        if field == "vbucks":
+        if field == "money":
             for count, gamer in results:
-                embed.add_field(name=f"{gamer.name}", value=f"{gamer.vbucks} V-Bucks", inline=False)
+                embed.add_field(name=f"{gamer.name}", value=f"{gamer.vbucks} {server_currency}", inline=False)
         else:
             for count, gamer in results:
                 embed.add_field(name=f"{gamer.name}", value=f"Level {gamer.level}: {gamer.exp} EXP", inline=False)
@@ -157,17 +161,18 @@ class Gamer(commands.Cog):
                        ],
                        guild_ids=utils.Level.get_guild_ids())
     @utils.Checks.rude_name_check()
-    async def give_money(self, ctx, reciever: discord.Member, money):
-        if ctx.author == reciever:
+    async def give_money(self, ctx, receiver: discord.Member, money):
+        if ctx.author == receiver:
             await ctx.send("You can't send yourself money")
             return
 
-        transact = utils.Mongo.transact(ctx.author, reciever, ctx.guild, money)
+        transact = utils.Mongo.transact(ctx.author, receiver, ctx.guild, money)
 
         if not transact:
             await ctx.send("Transaction failed. You attempted to give away more than you own.")
         elif transact:
-            await ctx.send(f"Transaction of {money} V-Bucks Successful!")
+            server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+            await ctx.send(f"Transaction of {money} {server_currency} Successful!")
 
     @cog_ext.cog_slash(name="xp_exchange",
                        description="Pay your way to knowledge and experience!",
@@ -188,7 +193,8 @@ class Gamer(commands.Cog):
         current_vbucks = user.vbucks
 
         if vbuck_payment > current_vbucks:
-            await ctx.send("You do not have enough vbucks")
+            server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+            await ctx.send(f"You do not have enough {server_currency}")
             return
 
         added_exp = vbuck_payment * conversion_ratio

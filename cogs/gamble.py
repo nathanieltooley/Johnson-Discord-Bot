@@ -91,8 +91,9 @@ class Gamble(commands.Cog):
 
             utils.Mongo.income(winner, ctx.guild, vbuck_reward)
             utils.Mongo.income(loser, ctx.guild, (-vbuck_reward))
-            
-            await ctx.send(f"{winner.mention} won and got {vbuck_reward} from {loser.mention}")
+
+            server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+            await ctx.send(f"{winner.mention} won and got {vbuck_reward} {server_currency} from {loser.mention}")
         else:
             await ctx.send('Its a tie!')
 
@@ -113,18 +114,20 @@ class Gamble(commands.Cog):
     async def gamble(self, ctx, amount: int):
         user = utils.Mongo.get_user(ctx.author, ctx.guild)
 
+        server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+
         rand_selection = random.random()
         if (.1 <= rand_selection <= .7) and (amount < user.vbucks):
             new_amount = amount * ((random.randrange(1, 20)) / 10)
             int(new_amount)
             utils.Mongo.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = new_amount + user.vbucks
-            await ctx.send(f"You gained {new_amount}. You now have {print_vbucks}.")
+            await ctx.send(f"You gained {new_amount} {server_currency}. You now have {print_vbucks} {server_currency}.")
         elif (rand_selection >= .7) and (amount < user.vbucks):
             new_amount = (-amount)
             utils.Mongo.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = user.vbucks - amount
-            await ctx.send(f"You lost {amount}. You have {print_vbucks} left.")
+            await ctx.send(f"You lost {amount} {server_currency}. You have {print_vbucks} {server_currency} left.")
         else:
             await ctx.send("You can't gamble for more than you own, I can't program loans. Not yet at least.")
 

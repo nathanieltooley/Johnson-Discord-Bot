@@ -36,17 +36,16 @@ class Mongo:
         return response
 
     @staticmethod
-    def get_server(server):
-        response = Servers.objects().filter(discord_id=server.id).first()
+    def get_server(server_id):
+        response = Servers.objects().filter(discord_id=server_id).first()
         return response
 
     @staticmethod
-    def create_server(guild: discord.Guild):
+    def create_server(server_id):
         server = Servers()
-        server.name = guild.name
-        server.discord_id = guild.id
+        server.discord_id = server_id
 
-        if not Mongo.get_server(guild):
+        if not Mongo.get_server(server_id):
             server.save()
         else:
             return False
@@ -60,8 +59,8 @@ class Mongo:
 
         user.switch_collection(f"{server.id}")
 
-        if not Mongo.get_server(server):
-            Mongo.create_server(server)
+        if not Mongo.get_server(server.id):
+            Mongo.create_server(server.id)
 
         if not Mongo.get_user(discord_user, server):
             user.save()
@@ -335,6 +334,27 @@ class Mongo:
         SpotifyCheck.objects.update_one(upsert=True, **update_dict)
         return sc
 
+    @staticmethod
+    def set_server_currency_name(server_id, currency_name):
+        server = Mongo.get_server(server_id)
+
+        if server is None:
+            Mongo.create_server(server_id)
+            server = Mongo.get_server(server_id)
+
+        server.currency_name = currency_name
+        server.save()
+
+    @staticmethod
+    def get_server_currency_name(server_id):
+        server = Mongo.get_server(server_id)
+
+        c_name = server.currency_name
+
+        if c_name is None:
+            return "V-Bucks"
+        else:
+            return c_name
 
 class Games:
     card_names = {

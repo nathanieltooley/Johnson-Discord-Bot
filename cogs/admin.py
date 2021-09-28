@@ -142,6 +142,23 @@ class Admin(commands.Cog):
         else:
             await ctx.send("Not a text channel")
 
+    @cog_ext.cog_slash(
+        name="change_currency_name",
+        description="Don't want to trade V-Bucks? No worries, just change the name!",
+        options=[
+            create_option(
+                name="currencyname",
+                description="New Name",
+                option_type=3,
+                required=True
+            )
+        ],
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def change_currency_name(self, ctx: SlashContext, c_name):
+        utils.Mongo.set_server_currency_name(ctx.guild.id, c_name)
+        await ctx.send(f"Name has changed to: {c_name}")
+
 
 def setup(client):
     client.add_cog(Admin(client))

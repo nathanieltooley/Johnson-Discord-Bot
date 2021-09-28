@@ -3,9 +3,8 @@ import datetime
 
 
 class Servers(mongoengine.DynamicDocument):
-    name = mongoengine.StringField(required=True)
     discord_id = mongoengine.LongField(required=True)
-    date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
+    currency_name = mongoengine.StringField(default="V-Bucks")
 
     meta = {
         "db_alias": "default",

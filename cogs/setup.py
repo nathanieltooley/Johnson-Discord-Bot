@@ -36,6 +36,7 @@ class Setup(commands.Cog):
         utils.Logging.log(__name__, "Johnson is spittin straight cog!")
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         utils.Logging.log(__name__, f"Johnson Level: {utils.Level.get_bot_level()}")
+        utils.Logging.log(__name__, f"test server c_name: {utils.Mongo.get_server_currency_name(Enums.TEST_SERVER_ID.value)}")
         
     # Commands
     @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=utils.Level.get_guild_ids())

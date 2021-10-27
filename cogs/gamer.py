@@ -100,7 +100,7 @@ class Gamer(commands.Cog):
                        options=[
                            create_option(
                                name="sortby",
-                               description="The user you wish to view",
+                               description="What to sort the leader boards by.",
                                option_type=3,
                                required=True,
                                choices=[create_choice(value="money", name=f"Currency"),

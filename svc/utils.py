@@ -595,6 +595,28 @@ class SpotifyHelpers:
 
         return artist_string
 
+    @staticmethod
+    def verify_spotify_url(url, desired_type):
+        # ex. "https://open.spotify.com/track/33i4H7iDxIes1d8Nd0S3QF?si=aa73a3fc629140c1"
+
+        # remove https://
+        pre_split = url[8: len(url)]
+
+        sections = pre_split.split('/')
+
+        # three responses: correct form, incorrect type, not a spotify link (in that order)
+        try:
+            domain_name = sections[0]
+            spotify_type = sections[1]
+
+            if spotify_type == desired_type:
+                return True
+            else:
+                return False
+
+        except IndexError:
+            return None
+
 class Level:
 
     @staticmethod

@@ -18,7 +18,6 @@ class Event(commands.Cog):
     async def on_message(self, message: discord.Message):
         user_slur = False
 
-        print(type(message.channel))
         if type(message.channel) == discord.channel.DMChannel and message.author != self.client.user:
             await self.process_dm(message)
             return

@@ -595,6 +595,9 @@ class SpotifyCreator:
         url = sp_oauth.get_authorize_url()
         code = sp_oauth.parse_response_code(url)
 
+        Logging.log(__name__, f"url: {url}")
+        Logging.log(__name__, f"code: {code}")
+
         token = sp_oauth.get_access_token(code)
         sp = spotipy.Spotify(auth=token['access_token'])
 

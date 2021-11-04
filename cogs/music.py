@@ -120,8 +120,9 @@ class Music(commands.Cog):
             track = utils.SpotifyHelpers.get_track(utils.SpotifyHelpers.parse_id_out_of_url(poll.song_url))
 
             if meets_vote_req:
-                await ctx.send(f"The vote on {track['name']} has passed! It will be added to our playlist")
-                Music.add_song_to_playlist(poll.song_url)
+                await ctx.send(f"The vote on {track['name']} has passed! It will be added to our playlist (Manually, "
+                               f"Don't ask why or I will kill myself)")
+                # Music.add_song_to_playlist(poll.song_url)
                 poll.delete()
                 return
 

@@ -608,7 +608,7 @@ class SpotifyCreator:
 class SpotifyHelpers:
 
     spotify = SpotifyCreator.create_spotify_object()
-    auth_spotify = SpotifyCreator.create_auth_spotify_object()
+    auth_spotify = None # SpotifyCreator.create_auth_spotify_object()
 
     @staticmethod
     def get_all_playlist_tracks(playlist_id='6yO77cQ0JTMKuNxLh47oLX'):

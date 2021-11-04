@@ -10,7 +10,7 @@ from itertools import cycle
 from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
 from discord_slash import cog_ext, SlashContext
-from enums.bot_enums import Enums
+from enums.bot_enums import Enums as bot_enums
 
 status = cycle(["Now Using Slash Commands!",
                     "Minecraft",
@@ -27,6 +27,7 @@ class Setup(commands.Cog):
         self.client = client
         self.change_status.start()
         self.check_playlist_changes.start()
+        self.check_for_dead_polls.start()
         self.count = 0
         
     # Events
@@ -36,7 +37,7 @@ class Setup(commands.Cog):
         utils.Logging.log(__name__, "Johnson is spittin straight cog!")
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         utils.Logging.log(__name__, f"Johnson Level: {utils.Level.get_bot_level()}")
-        utils.Logging.log(__name__, f"test server c_name: {utils.Mongo.get_server_currency_name(Enums.TEST_SERVER_ID.value)}")
+        utils.Logging.log(__name__, f"test server c_name: {utils.Mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}")
         
     # Commands
     @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=utils.Level.get_guild_ids())
@@ -86,7 +87,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = track['album']['images'][0]['url']
                 except IndexError:
-                    album_url = Enums.BOT_AVATAR_URL.value
+                    album_url = bot_enums.BOT_AVATAR_URL.value
 
                 removed_embed.set_image(url=album_url)
 
@@ -109,7 +110,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = song_id['track']['album']['images'][0]['url']
                 except IndexError:
-                    album_url = Enums.BOT_AVATAR_URL.value
+                    album_url = bot_enums.BOT_AVATAR_URL.value
 
                 added_embed.set_image(url=album_url)
 
@@ -135,6 +136,23 @@ class Setup(commands.Cog):
 
         print(f"check took: {datetime.datetime.now() - start}")
 
+    @tasks.loop(hours=1)
+    async def check_for_dead_polls(self):
+        polls = utils.Mongo.get_all_polls()
+
+        for poll in polls:
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(tzinfo=datetime.timezone.utc)
+
+            # limit is a day
+            if td.total_seconds() >= 86400:
+                channel = utils.Level.get_poll_channel(self.client)
+                message = await channel.fetch_message(poll.poll_id)
+
+                await message.delete()
+                await channel.send(f"{self.client.get_user(poll.creator).mention}'s poll has been closed")
+                poll.delete()
+
     @change_status.before_loop
     async def before_status(self):
         utils.Logging.log(__name__, "Waiting start status change...")
@@ -143,6 +161,11 @@ class Setup(commands.Cog):
     @check_playlist_changes.before_loop
     async def before_check(self):
         utils.Logging.log(__name__, "Waiting to start spotify polling...")
+        await self.client.wait_until_ready()
+
+    @check_for_dead_polls.before_loop
+    async def before_polls(self):
+        utils.Logging.log(__name__, "Waiting to start poll prune...")
         await self.client.wait_until_ready()
         
 

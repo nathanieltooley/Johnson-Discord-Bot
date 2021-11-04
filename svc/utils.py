@@ -9,12 +9,13 @@ import spotipy
 
 from mongoengine.queryset import QuerySet
 from random import randrange, choice
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
 from data_models.spotify_check import SpotifyCheck, Song
+from data_models.spotify_poll import SongPoll
 from enums.bot_enums import Enums as bot_enums
 from discord.ext import commands
 
@@ -356,6 +357,70 @@ class Mongo:
         else:
             return c_name
 
+    @staticmethod
+    def create_spotify_poll(song_url, poll_creator: discord.Member, required_votes):
+        poll = SongPoll(
+            creator=poll_creator.id,
+            song_url=song_url,
+            required_votes=required_votes
+        )
+
+        check = SongPoll.objects(creator=poll_creator.id).first()
+
+        if check:
+            return False
+
+        poll.voters.append(poll_creator.id)
+        poll.save()
+
+        return True
+
+    @staticmethod
+    def get_spotify_poll(poll_creator: discord.Member):
+        return SongPoll.objects(creator=poll_creator.id).first()
+
+    @staticmethod
+    def check_for_poll(poll_creator: discord.Member):
+        check = SongPoll.objects(creator=poll_creator.id).first()
+
+        if check:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def set_poll_id(poll_creator: discord.Member, message_id):
+        poll = SongPoll.objects(creator=poll_creator.id).first()
+
+        if not poll:
+            return False
+
+        poll.poll_id = message_id
+        poll.save()
+
+    @staticmethod
+    def add_vote_to_poll(poll_creator: discord.Member, voter: discord.Member):
+        poll = SongPoll.objects(creator=poll_creator.id).first()
+
+        if not poll:
+            return None
+
+        poll.current_votes += 1
+        poll.voters.append(voter.id)
+
+        if poll.current_votes >= poll.required_votes:
+            poll.save()
+            return True
+        else:
+            poll.save()
+            return False
+
+    @staticmethod
+    def get_all_polls():
+        polls = SongPoll.objects()
+        return polls
+
+
 class Games:
     card_names = {
         1: "Ace",
@@ -516,18 +581,34 @@ class SpotifyCreator:
 
     @staticmethod
     def create_spotify_object():
+        scope = "playlist-modify-public"
+
         sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+        return sp
+
+    @staticmethod
+    def create_auth_spotify_object():
+        scope = "playlist-modify-private"
+        cache = ".spotipyoauthcache"
+
+        sp_oauth = SpotifyOAuth(scope=scope, cache_path=cache)
+        url = sp_oauth.get_authorize_url()
+        code = sp_oauth.parse_response_code(url)
+
+        token = sp_oauth.get_access_token(code)
+        sp = spotipy.Spotify(auth=token['access_token'])
+
         return sp
 
 
 class SpotifyHelpers:
 
     spotify = SpotifyCreator.create_spotify_object()
+    auth_spotify = SpotifyCreator.create_auth_spotify_object()
 
     @staticmethod
-    def get_all_playlist_tracks():
+    def get_all_playlist_tracks(playlist_id='6yO77cQ0JTMKuNxLh47oLX'):
         my_user_id = "yallmindifiyeet"
-        playlist_id = '6yO77cQ0JTMKuNxLh47oLX'
 
         results = SpotifyHelpers.spotify.user_playlist_tracks(my_user_id, playlist_id)
         tracks = results['items']
@@ -617,6 +698,36 @@ class SpotifyHelpers:
         except IndexError:
             return None
 
+    @staticmethod
+    def parse_id_out_of_url(song_url):
+        # https://open.spotify.com/track/1bt443XPmX5ZG5DjhMJ8Rh?si=f6f953ba6c594500
+        sections = song_url.split('/')
+        end = sections[-1]
+
+        if "?" in end:
+            q_pos = end.find("?")
+            return end[0: q_pos]
+        else:
+            return end
+
+    @staticmethod
+    def get_album_art_url(track):
+        return track['album']['images'][0]['url']
+
+    @staticmethod
+    def add_song_to_playlist(playlist_id, song_url):
+        SpotifyHelpers.auth_spotify.user_playlist_add_tracks("yallmindifiyeet", playlist_id, [SpotifyHelpers.parse_id_out_of_url(song_url)])
+
+    @staticmethod
+    def is_song_in_playlist(playlist_id, song_url):
+        tracks = SpotifyHelpers.get_all_playlist_tracks(playlist_id)
+
+        for track in tracks:
+            if SpotifyHelpers.parse_id_out_of_url(song_url) == track['track']['id']:
+                return True
+
+        return False
+
 class Level:
 
     @staticmethod
@@ -631,3 +742,14 @@ class Level:
             return [427299383474782208]
         elif level == "PROD":
             return [600162735975694356]
+
+    @staticmethod
+    def get_poll_channel(client):
+        level = Level.get_bot_level()
+
+        if level == "DEBUG":
+            guild = client.get_guild(427299383474782208)
+            return guild.get_channel(427299383474782210)
+        elif level == "PROD":
+            guild = client.get_guild(600162735975694356)
+            return guild.get_channel(758528118209904671)

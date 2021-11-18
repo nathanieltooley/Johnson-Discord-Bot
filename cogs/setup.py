@@ -126,15 +126,19 @@ class Setup(commands.Cog):
         channel_id = 649781215808978946
         channel = self.client.get_channel(channel_id)
 
-        diff = utils.Mongo.check_for_spotify_change()
+        try:
+            diff = utils.Mongo.check_for_spotify_change()
 
-        if diff:
-            embeds = self.create_change_embeds(diff)
+            if diff:
+                embeds = self.create_change_embeds(diff)
 
-            for embed in embeds:
-                await channel.send(embed=embed)
+                for embed in embeds:
+                    await channel.send(embed=embed)
 
-        print(f"check took: {datetime.datetime.now() - start}")
+            utils.Logging.log("Spotify Check", f"Check successful; took: {datetime.datetime.now() - start}")
+        except Exception as e:
+            utils.Logging.error("Spotify Check", f"Check unsuccessful: {e}")
+
 
     @tasks.loop(hours=1)
     async def check_for_dead_polls(self):

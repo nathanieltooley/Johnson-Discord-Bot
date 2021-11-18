@@ -269,17 +269,15 @@ class Mongo:
     @staticmethod
     def check_for_spotify_change():
         count = SpotifyHelpers.get_length_of_playlist()
+        tracks = SpotifyHelpers.get_all_playlist_tracks()
 
         sc = Mongo.get_saved_spotify_change()
 
         if sc is None:
-            tracks = SpotifyHelpers.get_all_playlist_tracks()
             sc = Mongo.create_spotify_check(tracks)
             sc.save()
 
         if count != sc.count:
-            tracks = SpotifyHelpers.get_all_playlist_tracks()
-
             diff = SpotifyHelpers.determine_diff(tracks, sc.songs, sc.last_updated)
             Mongo.update_spotify_check(tracks)
 

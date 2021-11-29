@@ -148,6 +148,8 @@ class Setup(commands.Cog):
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(tzinfo=datetime.timezone.utc)
 
+            utils.Logging.log("spotify_prune", f"Time delta: {td.total_seconds()}")
+
             # limit is a day
             if td.total_seconds() >= 86400:
                 channel = utils.Level.get_poll_channel(self.client)

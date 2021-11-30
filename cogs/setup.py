@@ -148,7 +148,7 @@ class Setup(commands.Cog):
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(tzinfo=datetime.timezone.utc)
 
-            utils.Logging.log("spotify_prune", f"Time delta: {td.total_seconds()}")
+            utils.Logging.log("spotify_prune", f"Time delta: {td}")
 
             # limit is a day
             if td.total_seconds() >= 86400:
@@ -156,7 +156,8 @@ class Setup(commands.Cog):
                 message = await channel.fetch_message(poll.poll_id)
 
                 await message.delete()
-                await channel.send(f"{self.client.get_user(poll.creator).mention}'s poll has been closed")
+                await channel.send(f"{self.client.get_user(poll.creator).mention}'s poll has been closed. opened at "
+                                   f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})")
                 poll.delete()
 
     @change_status.before_loop

@@ -44,7 +44,7 @@ class Setup(commands.Cog):
     @utils.Checks.rude_name_check()
     async def _ping(self, ctx: SlashContext):
         self.count += 1
-        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms: test {self.count}")
+        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
 
 
     @commands.command()

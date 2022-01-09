@@ -1,4 +1,6 @@
 import discord
+import youtube_dl
+
 import svc.utils as utils
 
 from discord.ext import commands
@@ -6,6 +8,7 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from enums.bot_enums import Enums as bot_enums
+from enums.bot_enums import DiscordEnums as discord_enums
 
 
 class Music(commands.Cog):
@@ -178,6 +181,51 @@ class Music(commands.Cog):
 
         poll.delete()
         await message.delete()
+
+    @commands.command()
+    async def play(self, ctx: discord.ext.commands.Context, song_url):
+        result = await Music.join(ctx)
+
+        # If we didn't connect, stop command
+        if result is None:
+            return
+
+        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': "-vn"}
+        ydl_options = {'format': 'bestaudio'}
+
+        vc = ctx.voice_client
+
+        utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
+        with youtube_dl.YoutubeDL(ydl_options) as ydl:
+            info = ydl.extract_info(song_url, download=False)
+            url2 = info['formats'][0]['url']
+
+            if utils.Level.get_bot_level() == "DEBUG":
+                utils.Logging.log("music_bot", f"Probe Url: {url2}")
+
+            source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
+
+            vc.play(source)
+
+    @commands.command()
+    async def disconnect(self, ctx):
+        await ctx.voice_client.disconnect()
+
+    @staticmethod
+    async def join(ctx: discord.ext.commands.Context):
+        if ctx.author.voice is None:
+            await ctx.send("You need to be in a voice channel.")
+            return None
+
+        voice_channel = ctx.author.voice.channel
+
+        if ctx.voice_client is None:
+            await voice_channel.connect()
+        else:
+            await ctx.voice_client.move_to(voice_channel)
+
+        return True
+
 
 
     @staticmethod

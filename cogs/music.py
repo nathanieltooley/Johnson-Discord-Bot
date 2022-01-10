@@ -1,3 +1,6 @@
+import asyncio
+import pprint
+
 import discord
 import youtube_dl
 
@@ -15,6 +18,7 @@ class Music(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.queue = []
 
     @cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
@@ -190,26 +194,32 @@ class Music(commands.Cog):
         if result is None:
             return
 
-        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': "-vn"}
-        ydl_options = {'format': 'bestaudio'}
+        self.add_to_queue(song_url)
 
-        vc = ctx.voice_client
+        if ctx.voice_client.is_playing():
+            await ctx.send("Song currently playing. Will queue next song.")
+            return
 
-        utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
-        with youtube_dl.YoutubeDL(ydl_options) as ydl:
-            info = ydl.extract_info(song_url, download=False)
-            url2 = info['formats'][0]['url']
-
-            if utils.Level.get_bot_level() == "DEBUG":
-                utils.Logging.log("music_bot", f"Probe Url: {url2}")
-
-            source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
-
-            vc.play(source)
+        await self.play_song(ctx, song_url)
 
     @commands.command()
     async def disconnect(self, ctx):
         await ctx.voice_client.disconnect()
+
+    @commands.command()
+    async def stop(self, ctx):
+        if ctx.voice_client:
+            ctx.voice_client.stop()
+
+    @commands.command()
+    async def pause(self, ctx):
+        if ctx.voice_client:
+            ctx.voice_client.pause()
+
+    @commands.command()
+    async def resume(self, ctx):
+        if ctx.voice_client:
+            ctx.voice_client.resume()
 
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
@@ -226,11 +236,46 @@ class Music(commands.Cog):
 
         return True
 
+    async def play_song(self, ctx, song_url):
+        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                          'options': "-vn"}
+        ydl_options = {'format': 'bestaudio'}
 
+        vc = ctx.voice_client
+
+        utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
+        with youtube_dl.YoutubeDL(ydl_options) as ydl:
+            info = ydl.extract_info(song_url, download=False)
+
+            # pprint.pprint(info)
+
+            url2 = info['formats'][0]['url']
+
+            if utils.Level.get_bot_level() == "DEBUG":
+                utils.Logging.log("music_bot", f"Probe Url: {url2}")
+
+            source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
+
+            vc.play(source, after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx), self.client.loop))
+
+        utils.Logging.log("music_bot", "Song Over")
 
     @staticmethod
     def add_song_to_playlist(song_url):
         utils.SpotifyHelpers.add_song_to_playlist(bot_enums.OUR_PLAYLIST_ID.value, song_url)
+
+    def add_to_queue(self, song_url):
+        self.queue.append(song_url)
+
+    async def check_queue(self, ctx):
+        print(f"before: {self.queue}")
+        self.queue.pop(0)
+        print(f"after: {self.queue}")
+        if len(self.queue) > 0:
+            await self.play_song(ctx, self.queue[0])
+        else:
+            await ctx.send("Done playing songs.")
+
 
 def setup(client):
     client.add_cog(Music(client))

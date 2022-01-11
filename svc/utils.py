@@ -18,6 +18,7 @@ from data_models.spotify_check import SpotifyCheck, Song
 from data_models.spotify_poll import SongPoll
 from enums.bot_enums import Enums as bot_enums
 from discord.ext import commands
+from youtube_search import YoutubeSearch
 
 colorama.init()
 
@@ -731,6 +732,31 @@ class SpotifyHelpers:
 
         return False
 
+    @staticmethod
+    def get_artist_names(track_info):
+        artist_names = []
+
+        for artist in track_info['artists']:
+            artist_names.append(artist['name'])
+
+        return artist_names
+
+    @staticmethod
+    def search_song_on_youtube(song_url):
+        track_info = SpotifyHelpers.get_track(SpotifyHelpers.parse_id_out_of_url(song_url))
+
+        artists = SpotifyHelpers.get_artist_names(track_info)
+        search_query = f"{track_info['name']} {SpotifyHelpers.create_artist_string(artists)}"
+
+        search_results = YoutubeSearch(search_query).to_dict()
+
+        return SpotifyHelpers.determine_best_search_result(search_results)
+
+    @staticmethod
+    def determine_best_search_result(search_results: dict):
+        return search_results[1]
+
+
 class Level:
 
     @staticmethod
@@ -756,3 +782,15 @@ class Level:
         elif level == "PROD":
             guild = client.get_guild(600162735975694356)
             return guild.get_channel(758528118209904671)
+
+
+class YoutubeHelpers:
+
+    @staticmethod
+    def construct_url_from_suffix(suffix):
+        return f"https://www.youtube.com{suffix}"
+
+    @staticmethod
+    def construct_url_from_id(id):
+        return f"https://www.youtube.com/watch?v={id}"
+

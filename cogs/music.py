@@ -12,6 +12,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 
 from enums.bot_enums import Enums as bot_enums
 from enums.bot_enums import DiscordEnums as discord_enums
+from enums.bot_enums import ReturnTypes as return_types
 
 
 class Music(commands.Cog):
@@ -188,6 +189,10 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx: discord.ext.commands.Context, song_url):
+        if Music.determine_url_type(song_url) == return_types.RETURN_TYPE_INVALID_URL:
+            await ctx.send("Invalid URL!")
+            return
+
         result = await Music.join(ctx)
 
         # If we didn't connect, stop command
@@ -206,7 +211,7 @@ class Music(commands.Cog):
     async def disconnect(self, ctx):
         await ctx.voice_client.disconnect()
 
-    @commands.command()
+    @commands.command(aliases=["skip"])
     async def stop(self, ctx):
         if ctx.voice_client:
             ctx.voice_client.stop()
@@ -237,6 +242,12 @@ class Music(commands.Cog):
         return True
 
     async def play_song(self, ctx, song_url):
+        url_type = Music.determine_url_type(song_url)
+
+        if url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
+            suffix = utils.SpotifyHelpers.search_song_on_youtube(song_url)["url_suffix"]
+            song_url = utils.YoutubeHelpers.construct_url_from_suffix(suffix)
+
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': "-vn"}
         ydl_options = {'format': 'bestaudio'}
@@ -256,13 +267,30 @@ class Music(commands.Cog):
 
             source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
 
+            # we use asyncio because we can't use await in lambda
             vc.play(source, after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx), self.client.loop))
-
-        utils.Logging.log("music_bot", "Song Over")
 
     @staticmethod
     def add_song_to_playlist(song_url):
         utils.SpotifyHelpers.add_song_to_playlist(bot_enums.OUR_PLAYLIST_ID.value, song_url)
+
+    @staticmethod
+    def determine_url_type(song_url):
+        # https://www.youtube.com/watch?v=_arqbQqq88M
+        # https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
+
+        segments = song_url.split("/")
+        segments.reverse()
+
+        try:
+            if segments[1] == "www.youtube.com":
+                return return_types.RETURN_TYPE_YOUTUBE_URL
+            elif segments[2] == "open.spotify.com":
+                return return_types.RETURN_TYPE_SPOTIFY_URL
+            else:
+                return return_types.RETURN_TYPE_INVALID_URL
+        except IndexError as e:
+            return return_types.RETURN_TYPE_INVALID_URL
 
     def add_to_queue(self, song_url):
         self.queue.append(song_url)

@@ -24,3 +24,8 @@ class DiscordEnums(Enum):
     OPTION_TYPE_MENTIONABLE = 9
     OPTION_TYPE_NUMBER = 10
 
+class ReturnTypes(Enum):
+    RETURN_TYPE_YOUTUBE_URL = 1
+    RETURN_TYPE_SPOTIFY_URL = 2
+    RETURN_TYPE_INVALID_URL = 3
+

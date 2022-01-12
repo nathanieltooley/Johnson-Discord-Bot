@@ -6,6 +6,7 @@ import math
 import datetime
 import colorama
 import spotipy
+import youtube_dl
 
 from mongoengine.queryset import QuerySet
 from random import randrange, choice
@@ -793,4 +794,11 @@ class YoutubeHelpers:
     @staticmethod
     def construct_url_from_id(id):
         return f"https://www.youtube.com/watch?v={id}"
+
+    @staticmethod
+    def get_video_info(url):
+        with youtube_dl.YoutubeDL({}) as ydl:
+            info = ydl.extract_info(url, download=False)
+
+            return info
 

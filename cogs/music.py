@@ -1,5 +1,6 @@
 import asyncio
 import pprint
+import random
 
 import discord
 import youtube_dl
@@ -10,6 +11,7 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
+from data_models.bot_dataclasses import QueuedSong
 from enums.bot_enums import Enums as bot_enums
 from enums.bot_enums import DiscordEnums as discord_enums
 from enums.bot_enums import ReturnTypes as return_types
@@ -20,6 +22,9 @@ class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.queue = []
+        self.view_index = 0
+        self.queue_message = None
+        self.np_message = None
 
     @cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
@@ -189,7 +194,8 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx: discord.ext.commands.Context, song_url):
-        if Music.determine_url_type(song_url) == return_types.RETURN_TYPE_INVALID_URL:
+        url_type = Music.determine_url_type(song_url)
+        if url_type == return_types.RETURN_TYPE_INVALID_URL:
             await ctx.send("Invalid URL!")
             return
 
@@ -199,13 +205,26 @@ class Music(commands.Cog):
         if result is None:
             return
 
-        self.add_to_queue(song_url)
+        if url_type == return_types.RETURN_TYPE_SPOTPLAYLIST_URL:
+            playlist_tracks = utils.SpotifyHelpers.get_all_playlist_tracks(utils.SpotifyHelpers.parse_id_out_of_url(song_url))
+
+            for top_track in playlist_tracks:
+                track = top_track["track"]
+                self.add_to_queue(
+                    track["external_urls"]["spotify"],
+                    track["name"],
+                    utils.SpotifyHelpers.get_artist_names(track),
+                )
+
+            await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
+        else:
+            self.add_to_queue(song_url)
 
         if ctx.voice_client.is_playing():
             await ctx.send("Song currently playing. Will queue next song.")
             return
 
-        await self.play_song(ctx, song_url)
+        await self.play_song(ctx, self.queue[0])
 
     @commands.command()
     async def disconnect(self, ctx):
@@ -226,6 +245,38 @@ class Music(commands.Cog):
         if ctx.voice_client:
             ctx.voice_client.resume()
 
+    @commands.command()
+    async def queue(self, ctx):
+        embed = discord.Embed(
+            title="Current Queue",
+            description=f"Length: {len(self.queue)}",
+        )
+
+        embed.set_footer(text="FUCK YOU")
+        embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
+
+        max_songs = 10
+
+        # grab the first ten songs and put them in a new list
+        shown_songs = self.queue[self.view_index:self.view_index + max_songs]
+
+        for song in shown_songs:
+            if not song.props_set:
+                song.cache_properties()
+
+            embed.add_field(name=utils.SpotifyHelpers.create_artist_string(song.authors), value=song.title, inline=False)
+
+        if self.queue_message is not None:
+            await self.queue_message.delete()
+
+        self.queue_message = await ctx.send(embed=embed)
+
+    @commands.command()
+    async def shuffle(self, ctx):
+        if self.queue is not None:
+            random.shuffle(self.queue)
+            await ctx.send("Shuffling List")
+
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
         if ctx.author.voice is None:
@@ -241,8 +292,9 @@ class Music(commands.Cog):
 
         return True
 
-    async def play_song(self, ctx, song_url):
-        url_type = Music.determine_url_type(song_url)
+    async def play_song(self, ctx, queued_song):
+        song_url = queued_song.url
+        url_type = queued_song.url_type
 
         if url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
             suffix = utils.SpotifyHelpers.search_song_on_youtube(song_url)["url_suffix"]
@@ -253,6 +305,8 @@ class Music(commands.Cog):
         ydl_options = {'format': 'bestaudio'}
 
         vc = ctx.voice_client
+
+        retries = 5
 
         utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
@@ -265,10 +319,32 @@ class Music(commands.Cog):
             if utils.Level.get_bot_level() == "DEBUG":
                 utils.Logging.log("music_bot", f"Probe Url: {url2}")
 
-            source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
+            source = None
+
+            # lots of 403 errors, don't know why
+            while True:
+                try:
+                    source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
+                    break
+                except Exception as e:
+                    retries -= 1
+
+                    if retries <= 0:
+                        break
+
+            if source is None:
+                await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
+                await self.check_queue(ctx)
 
             # we use asyncio because we can't use await in lambda
-            vc.play(source, after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx), self.client.loop))
+            vc.play(source,
+                    after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx), self.client.loop))
+
+            if self.np_message is not None:
+                await self.np_message.delete()
+
+            self.np_message = await ctx.send(
+                f"Now Playing: {queued_song.title} - {utils.SpotifyHelpers.create_artist_string(queued_song.authors)}")
 
     @staticmethod
     def add_song_to_playlist(song_url):
@@ -286,19 +362,22 @@ class Music(commands.Cog):
             if segments[1] == "www.youtube.com":
                 return return_types.RETURN_TYPE_YOUTUBE_URL
             elif segments[2] == "open.spotify.com":
-                return return_types.RETURN_TYPE_SPOTIFY_URL
+                if segments[1] == "track":
+                    return return_types.RETURN_TYPE_SPOTIFY_URL
+                elif segments[1] == "playlist":
+                    return return_types.RETURN_TYPE_SPOTPLAYLIST_URL
             else:
                 return return_types.RETURN_TYPE_INVALID_URL
         except IndexError as e:
             return return_types.RETURN_TYPE_INVALID_URL
 
-    def add_to_queue(self, song_url):
-        self.queue.append(song_url)
+    def add_to_queue(self, song_url, title="", authors=None):
+        q_song = QueuedSong(url=song_url, url_type=Music.determine_url_type(song_url), title=title, authors=authors)
+
+        self.queue.append(q_song)
 
     async def check_queue(self, ctx):
-        print(f"before: {self.queue}")
         self.queue.pop(0)
-        print(f"after: {self.queue}")
         if len(self.queue) > 0:
             await self.play_song(ctx, self.queue[0])
         else:

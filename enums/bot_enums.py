@@ -3,7 +3,7 @@ import enum
 
 
 class Enums(Enum):
-    BOT_AVATAR_URL = "https://cdn.discordapp.com/attachments/649780106885070868/649786020870750251/JOHNSON.png"
+    BOT_AVATAR_URL = "https://media.discordapp.net/attachments/649780106885070868/852369616226353234/New_Johnson.png?width=486&height=468"
     OWNER_ID = 139374003365216256
     TEST_SERVER_ID = 427299383474782208
     JOHNSON_ID = 600162735975694356
@@ -28,4 +28,5 @@ class ReturnTypes(Enum):
     RETURN_TYPE_YOUTUBE_URL = 1
     RETURN_TYPE_SPOTIFY_URL = 2
     RETURN_TYPE_INVALID_URL = 3
+    RETURN_TYPE_SPOTPLAYLIST_URL = 4
 

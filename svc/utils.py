@@ -743,11 +743,17 @@ class SpotifyHelpers:
         return artist_names
 
     @staticmethod
-    def search_song_on_youtube(song_url):
+    def search_song_on_youtube(song_url, just_title=False):
         track_info = SpotifyHelpers.get_track(SpotifyHelpers.parse_id_out_of_url(song_url))
 
         artists = SpotifyHelpers.get_artist_names(track_info)
-        search_query = f"{track_info['name']} {SpotifyHelpers.create_artist_string(artists)}"
+
+        search_query = ""
+
+        if just_title:
+            search_query = f"{track_info['name']}"
+        else:
+            search_query = f"{track_info['name']} {SpotifyHelpers.create_artist_string(artists)}"
 
         search_results = YoutubeSearch(search_query).to_dict()
 
@@ -755,7 +761,10 @@ class SpotifyHelpers:
 
     @staticmethod
     def determine_best_search_result(search_results: dict):
-        return search_results[1]
+        if search_results is None or len(search_results) == 0:
+            return None
+
+        return search_results[0]
 
 
 class Level:

@@ -43,7 +43,10 @@ class Event(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             await ctx.send("You seemed to have messed up, try again")
         else:
-            await ctx.send(f"{error}")
+            if svc.Level.get_bot_level() == "DEBUG":
+                raise error
+            else:
+                await ctx.send(f"{error}")
 
         svc.Logging.error("command_error", error)
 

@@ -247,6 +247,10 @@ class Music(commands.Cog):
 
     @commands.command()
     async def queue(self, ctx):
+        if self.queue is None:
+            await ctx.send("There is nothing queued")
+            return
+
         embed = discord.Embed(
             title="Current Queue",
             description=f"Length: {len(self.queue)}",
@@ -277,6 +281,11 @@ class Music(commands.Cog):
             random.shuffle(self.queue)
             await ctx.send("Shuffling List")
 
+    @commands.command(aliases=["clear"])
+    async def clear_queue(self, ctx):
+        if self.queue is not None:
+            self.queue = None
+
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
         if ctx.author.voice is None:
@@ -297,7 +306,28 @@ class Music(commands.Cog):
         url_type = queued_song.url_type
 
         if url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
-            suffix = utils.SpotifyHelpers.search_song_on_youtube(song_url)["url_suffix"]
+            result = None
+            tries = 5
+
+            while True:
+                result = utils.SpotifyHelpers.search_song_on_youtube(song_url)
+
+                if result is None:
+                    tries -= 1
+
+                    # let try searching with only the title?
+                    if tries <= 0:
+                        await ctx.send("Could not find song on youtube . . . SKIPPING")
+                        await self.check_queue(ctx)
+                        return
+                    else:
+                        continue
+                else:
+                    utils.Logging.log("music_bot", f"Youtube search took {5 - tries} tries for {queued_song.title} - {queued_song.authors}")
+                    break
+
+            suffix = result["url_suffix"]
+
             song_url = utils.YoutubeHelpers.construct_url_from_suffix(suffix)
 
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
@@ -312,9 +342,24 @@ class Music(commands.Cog):
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(song_url, download=False)
 
-            # pprint.pprint(info)
+            url2 = None
 
-            url2 = info['formats'][0]['url']
+            i_retries = 5
+
+            while True:
+                try:
+                    url2 = info['formats'][0]['url']
+                    break
+                except IndexError as e:
+                    retries -= 1
+
+                    if retries <= 0:
+                        break
+
+            if url2 is None:
+                await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
+                await self.check_queue(ctx)
+                return
 
             if utils.Level.get_bot_level() == "DEBUG":
                 utils.Logging.log("music_bot", f"Probe Url: {url2}")
@@ -335,6 +380,7 @@ class Music(commands.Cog):
             if source is None:
                 await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
                 await self.check_queue(ctx)
+                return
 
             # we use asyncio because we can't use await in lambda
             vc.play(source,

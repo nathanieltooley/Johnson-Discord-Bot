@@ -210,6 +210,11 @@ class Music(commands.Cog):
 
             for top_track in playlist_tracks:
                 track = top_track["track"]
+
+                # fuck them
+                if track["is_local"]:
+                    continue
+
                 self.add_to_queue(
                     track["external_urls"]["spotify"],
                     track["name"],
@@ -283,8 +288,8 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["clear"])
     async def clear_queue(self, ctx):
-        if self.queue is not None:
-            self.queue = None
+        if not self.queue == []:
+            self.queue = []
 
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
@@ -342,19 +347,7 @@ class Music(commands.Cog):
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(song_url, download=False)
 
-            url2 = None
-
-            i_retries = 5
-
-            while True:
-                try:
-                    url2 = info['formats'][0]['url']
-                    break
-                except IndexError as e:
-                    retries -= 1
-
-                    if retries <= 0:
-                        break
+            url2 = info['formats'][0]['url']
 
             if url2 is None:
                 await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")

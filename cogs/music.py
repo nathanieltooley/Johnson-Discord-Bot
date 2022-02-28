@@ -5,6 +5,8 @@ import random
 import discord
 import youtube_dl
 
+from yt_dlp import YoutubeDL
+
 import svc.utils as utils
 
 from discord.ext import commands
@@ -25,6 +27,7 @@ class Music(commands.Cog):
         self.view_index = 0
         self.queue_message = None
         self.np_message = None
+        self.johnson_broke = True
 
     @cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
@@ -194,6 +197,10 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx: discord.ext.commands.Context, song_url, next="nah"):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         url_type = Music.determine_url_type(song_url)
         if url_type == return_types.RETURN_TYPE_INVALID_URL:
             await ctx.send("Invalid URL!")
@@ -228,6 +235,7 @@ class Music(commands.Cog):
 
             await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
+            # TODO: Add title and author parameters
             self.add_to_queue(song_url, index=insert_index)
 
         if ctx.voice_client.is_playing():
@@ -238,25 +246,45 @@ class Music(commands.Cog):
 
     @commands.command()
     async def disconnect(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         await ctx.voice_client.disconnect()
 
     @commands.command(aliases=["skip"])
     async def stop(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if ctx.voice_client:
             ctx.voice_client.stop()
 
     @commands.command()
     async def pause(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if ctx.voice_client:
             ctx.voice_client.pause()
 
     @commands.command()
     async def resume(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if ctx.voice_client:
             ctx.voice_client.resume()
 
     @commands.command()
     async def queue(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if self.queue is None:
             await ctx.send("There is nothing queued")
             return
@@ -287,12 +315,20 @@ class Music(commands.Cog):
 
     @commands.command()
     async def shuffle(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if self.queue is not None:
             random.shuffle(self.queue)
             await ctx.send("Shuffling List")
 
     @commands.command(aliases=["clear"])
     async def clear_queue(self, ctx):
+        if self.johnson_broke:
+            await ctx.send("Johnson's Audio functions are broken right now.")
+            return
+
         if not self.queue == []:
             self.queue = []
 
@@ -349,7 +385,7 @@ class Music(commands.Cog):
         retries = 5
 
         utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
-        with youtube_dl.YoutubeDL(ydl_options) as ydl:
+        with YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(song_url, download=False)
 
             url2 = info['formats'][0]['url']

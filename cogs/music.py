@@ -193,7 +193,7 @@ class Music(commands.Cog):
         await message.delete()
 
     @commands.command()
-    async def play(self, ctx: discord.ext.commands.Context, song_url):
+    async def play(self, ctx: discord.ext.commands.Context, song_url, next="nah"):
         url_type = Music.determine_url_type(song_url)
         if url_type == return_types.RETURN_TYPE_INVALID_URL:
             await ctx.send("Invalid URL!")
@@ -204,6 +204,10 @@ class Music(commands.Cog):
         # If we didn't connect, stop command
         if result is None:
             return
+
+        insert_index = 0
+        if not next == "nah":
+            insert_index = 1
 
         if url_type == return_types.RETURN_TYPE_SPOTPLAYLIST_URL:
             playlist_tracks = utils.SpotifyHelpers.get_all_playlist_tracks(utils.SpotifyHelpers.parse_id_out_of_url(song_url))
@@ -216,14 +220,15 @@ class Music(commands.Cog):
                     continue
 
                 self.add_to_queue(
-                    track["external_urls"]["spotify"],
-                    track["name"],
-                    utils.SpotifyHelpers.get_artist_names(track),
+                    song_url=track["external_urls"]["spotify"],
+                    title=track["name"],
+                    authors=utils.SpotifyHelpers.get_artist_names(track),
+                    index=insert_index
                 )
 
             await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
-            self.add_to_queue(song_url)
+            self.add_to_queue(song_url, index=insert_index)
 
         if ctx.voice_client.is_playing():
             await ctx.send("Song currently playing. Will queue next song.")
@@ -410,10 +415,13 @@ class Music(commands.Cog):
         except IndexError as e:
             return return_types.RETURN_TYPE_INVALID_URL
 
-    def add_to_queue(self, song_url, title="", authors=None):
+    def add_to_queue(self, song_url, title="", authors=None, index=0):
         q_song = QueuedSong(url=song_url, url_type=Music.determine_url_type(song_url), title=title, authors=authors)
 
-        self.queue.append(q_song)
+        if index == 0:
+            self.queue.append(q_song)
+        else:
+            self.queue.insert(index, q_song)
 
     async def check_queue(self, ctx):
         self.queue.pop(0)

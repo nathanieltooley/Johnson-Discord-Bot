@@ -6,7 +6,6 @@ import math
 import datetime
 import colorama
 import spotipy
-import youtube_dl
 
 from mongoengine.queryset import QuerySet
 from random import randrange, choice
@@ -20,6 +19,7 @@ from data_models.spotify_poll import SongPoll
 from enums.bot_enums import Enums as bot_enums
 from discord.ext import commands
 from youtube_search import YoutubeSearch
+from yt_dlp import YoutubeDL
 
 colorama.init()
 
@@ -806,7 +806,7 @@ class YoutubeHelpers:
 
     @staticmethod
     def get_video_info(url):
-        with youtube_dl.YoutubeDL({}) as ydl:
+        with YoutubeDL({}) as ydl:
             info = ydl.extract_info(url, download=False)
 
             return info

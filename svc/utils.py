@@ -811,3 +811,8 @@ class YoutubeHelpers:
 
             return info
 
+    @staticmethod
+    def find_best_audio_link(formats):
+        for f in formats:
+            if f['acodec'] == "opus":
+                return f["url"]

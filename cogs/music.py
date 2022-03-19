@@ -27,7 +27,7 @@ class Music(commands.Cog):
         self.view_index = 0
         self.queue_message = None
         self.np_message = None
-        self.johnson_broke = True
+        self.johnson_broke = False
 
     @cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
@@ -347,9 +347,12 @@ class Music(commands.Cog):
 
         return True
 
-    async def play_song(self, ctx, queued_song):
+    async def play_song(self, ctx, queued_song: QueuedSong):
         song_url = queued_song.url
         url_type = queued_song.url_type
+
+        if not queued_song.props_set:
+            queued_song.cache_properties()
 
         if url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
             result = None
@@ -388,22 +391,30 @@ class Music(commands.Cog):
         with YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(song_url, download=False)
 
-            url2 = info['formats'][0]['url']
+            # opus acodec
+            # high quality
 
-            if url2 is None:
+            audio_url = utils.YoutubeHelpers.find_best_audio_link(info['formats'])
+
+            if utils.Level.get_bot_level() == "DEBUG":
+                utils.Logging.log("music_bot", f"Best Audio Link: {audio_url}")
+
+            # url2 = info['formats'][0]['url']
+
+            """if url2 is None:
                 await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
                 await self.check_queue(ctx)
                 return
 
             if utils.Level.get_bot_level() == "DEBUG":
-                utils.Logging.log("music_bot", f"Probe Url: {url2}")
+                utils.Logging.log("music_bot", f"Probe Url: {url2}")"""
 
             source = None
 
             # lots of 403 errors, don't know why
             while True:
                 try:
-                    source = await discord.FFmpegOpusAudio.from_probe(url2, method='fallback', **ffmpeg_options)
+                    source = await discord.FFmpegOpusAudio.from_probe(audio_url, method='fallback', **ffmpeg_options)
                     break
                 except Exception as e:
                     retries -= 1

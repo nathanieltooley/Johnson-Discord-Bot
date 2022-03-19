@@ -28,7 +28,13 @@ class QueuedSong:
             info = utils.YoutubeHelpers.get_video_info(self.url)
 
             self.title = info["title"]
-            self.authors = (info["creator"],)
+
+            # I put them in a tuple because otherwise the author string function will count each character as an author
+            # ex. If the uploader's name is Johnson then it would be displayed "J, o, h, n, s, o, n" if not in a tuple
+            try:
+                self.authors = (info["creator"],)
+            except KeyError:
+                self.authors = (info["uploader"],)
 
             self.props_set = True
 

@@ -429,8 +429,12 @@ class Music(commands.Cog):
             if self.np_message is not None:
                 await self.np_message.delete()
 
-            self.np_message = await ctx.send(
-                f"Now Playing: {queued_song.title} - {utils.SpotifyHelpers.create_artist_string(queued_song.authors)}")
+            np_embed = discord.Embed(
+                title="Now Playing",
+                description=f"```{queued_song.title} - {utils.SpotifyHelpers.create_artist_string(queued_song.authors)}```"
+            )
+
+            self.np_message = await ctx.send(embed=np_embed)
 
     @staticmethod
     def add_song_to_playlist(song_url):
@@ -474,7 +478,13 @@ class Music(commands.Cog):
         if len(self.queue) > 0:
             await self.play_song(ctx, self.queue[0])
         else:
-            await ctx.send("Done playing songs.")
+            if self.np_message is not None:
+                await self.np_message.delete()
+            if self.queue_message is not None:
+                await self.queue_message.delete()
+
+            dp_message = await ctx.send("Done playing songs.")
+            await dp_message.delete(delay=10)
 
     def create_embed_description(self):
         max_songs = 10

@@ -822,3 +822,22 @@ class YoutubeHelpers:
             for f in formats:
                 if f['acodec'] == "opus":
                     return f["url"]
+
+class EmbedHelpers:
+
+    @staticmethod
+    def create_message_embed(title, message, code_block=False):
+        embed = discord.Embed(
+            title=title,
+            description=f"```{message}```" if code_block else message
+        )
+
+        embed.set_author(name="Johnson Bot", icon_url=bot_enums.BOT_AVATAR_URL.value, url="https://github.com/nathanieltooley/Johnson-Discord-Bot")
+        embed.set_footer(text="Made by Nathaniel", icon_url=bot_enums.ASTAR_AVATAR_URL.value)
+
+        return embed
+
+    @staticmethod
+    async def send_message_embed(ctx, title, message, code_block=False):
+        embed = EmbedHelpers.create_message_embed(title, message, code_block)
+        return await ctx.send(embed=embed)

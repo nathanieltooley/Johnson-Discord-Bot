@@ -280,7 +280,7 @@ class Music(commands.Cog):
             ctx.voice_client.resume()
 
     @commands.command()
-    async def queue(self, ctx):
+    async def queue(self, ctx, index=0):
         if self.johnson_broke:
             await ctx.send("Johnson's Audio functions are broken right now.")
             return
@@ -289,24 +289,20 @@ class Music(commands.Cog):
             await ctx.send("There is nothing queued")
             return
 
+        if index >= len(self.queue):
+            index = 0
+        elif index < 0:
+            index = len(self.queue) + index
+
+        self.view_index = index
+
         embed = discord.Embed(
-            title="Current Queue",
-            description=f"Length: {len(self.queue)}",
+            title=F"Current Queue (Length: {len(self.queue)})",
+            description=self.create_embed_description(),
         )
 
         embed.set_footer(text="FUCK YOU")
         embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
-
-        max_songs = 10
-
-        # grab the first ten songs and put them in a new list
-        shown_songs = self.queue[self.view_index:self.view_index + max_songs]
-
-        for song in shown_songs:
-            if not song.props_set:
-                song.cache_properties()
-
-            embed.add_field(name=utils.SpotifyHelpers.create_artist_string(song.authors), value=song.title, inline=False)
 
         if self.queue_message is not None:
             await self.queue_message.delete()
@@ -476,6 +472,33 @@ class Music(commands.Cog):
             await self.play_song(ctx, self.queue[0])
         else:
             await ctx.send("Done playing songs.")
+
+    def create_embed_description(self):
+        max_songs = 10
+
+        start = self.view_index
+        end = self.view_index + max_songs
+
+        if end > len(self.queue):
+            end = len(self.queue)
+
+        # grab the first ten songs and put them in a new list
+        shown_songs = self.queue[self.view_index:self.view_index + max_songs]
+
+        description_inner = ""
+
+        i = 0
+        for song in shown_songs:
+            if not song.props_set:
+                song.cache_properties()
+
+            description_inner += f"{i + 1 + self.view_index}. {song.title} - {utils.SpotifyHelpers.create_artist_string(song.authors)}\n"
+
+            i += 1
+
+        description_full = f"```fix\n{description_inner}```"
+
+        return description_full
 
 
 def setup(client):

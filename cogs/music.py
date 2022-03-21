@@ -289,7 +289,7 @@ class Music(commands.Cog):
             await ctx.send("There is nothing queued")
             return
 
-        if index >= len(self.queue):
+        if abs(index) >= len(self.queue):
             index = 0
         elif index < 0:
             index = len(self.queue) + index

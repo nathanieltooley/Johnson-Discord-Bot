@@ -235,7 +235,6 @@ class Music(commands.Cog):
 
             await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
-            # TODO: Add title and author parameters
             self.add_to_queue(song_url, index=insert_index)
 
         if ctx.voice_client.is_playing():
@@ -285,7 +284,7 @@ class Music(commands.Cog):
             await ctx.send("Johnson's Audio functions are broken right now.")
             return
 
-        if self.queue is None:
+        if self.queue is None or len(self.queue) == 0:
             await ctx.send("There is nothing queued")
             return
 
@@ -496,7 +495,9 @@ class Music(commands.Cog):
             if not song.props_set:
                 song.cache_properties()
 
-            description_inner += f"{i + 1 + self.view_index}. {song.title} - {utils.SpotifyHelpers.create_artist_string(song.authors)}\n"
+            description_inner += f"{i + 1 + self.view_index}. " \
+                                 f"{song.title} - {utils.SpotifyHelpers.create_artist_string(song.authors)} " \
+                                 f"{'(NOW PLAYING)' if (i + self.view_index) == 0 else ''}\n"
 
             i += 1
 

@@ -24,7 +24,7 @@ class QueuedSong:
             self.authors = utils.SpotifyHelpers.get_artist_names(track_info)
 
             self.props_set = True
-        elif self.url_type == return_types.RETURN_TYPE_YOUTUBE_URL:
+        else:
             info = utils.YoutubeHelpers.get_video_info(self.url)
 
             self.title = info["title"]

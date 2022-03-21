@@ -11,6 +11,7 @@ from mongoengine.queryset import QuerySet
 from random import randrange, choice
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
+import enums.bot_enums
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
@@ -812,7 +813,12 @@ class YoutubeHelpers:
             return info
 
     @staticmethod
-    def find_best_audio_link(formats):
-        for f in formats:
-            if f['acodec'] == "opus":
-                return f["url"]
+    def find_best_audio_link(formats, url_type):
+        if url_type == enums.bot_enums.ReturnTypes.RETURN_TYPE_SOUNDCLOUD_URL:
+            for f in formats:
+                if f['audio_ext'] == "opus":
+                    return f["url"]
+        else:
+            for f in formats:
+                if f['acodec'] == "opus":
+                    return f["url"]

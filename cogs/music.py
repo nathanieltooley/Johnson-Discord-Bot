@@ -390,7 +390,7 @@ class Music(commands.Cog):
             # opus acodec
             # high quality
 
-            audio_url = utils.YoutubeHelpers.find_best_audio_link(info['formats'])
+            audio_url = utils.YoutubeHelpers.find_best_audio_link(info['formats'], queued_song.url_type)
 
             if utils.Level.get_bot_level() == "DEBUG":
                 utils.Logging.log("music_bot", f"Best Audio Link: {audio_url}")
@@ -441,6 +441,8 @@ class Music(commands.Cog):
     def determine_url_type(song_url):
         # https://www.youtube.com/watch?v=_arqbQqq88M
         # https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
+        # https://soundcloud.com/beanbubger/apoapsis/s-zoij7masq5J?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing
+        # https://soundcloud.com/beanbubger/supersubset-v3
 
         segments = song_url.split("/")
         segments.reverse()
@@ -453,6 +455,8 @@ class Music(commands.Cog):
                     return return_types.RETURN_TYPE_SPOTIFY_URL
                 elif segments[1] == "playlist":
                     return return_types.RETURN_TYPE_SPOTPLAYLIST_URL
+            elif segments[2] == "soundcloud.com" or segments[3] == "soundcloud.com":
+                return return_types.RETURN_TYPE_SOUNDCLOUD_URL
             else:
                 return return_types.RETURN_TYPE_INVALID_URL
         except IndexError as e:

@@ -48,11 +48,8 @@ class Gamer(commands.Cog):
         else:
             username = member.nick
 
-        embed = discord.Embed(
-            title=f"{username}'s Stats",
-            description=f"All of {username}'s personal information",
-            color=discord.Colour.blurple()
-        )
+        embed = utils.EmbedHelpers.create_message_embed(title=f"{username}'s Stats",
+                                                        message=f"All of {username}'s personal information")
 
         vbucks = user.vbucks
         exp = user.exp
@@ -83,12 +80,11 @@ class Gamer(commands.Cog):
     async def slur_check(self, ctx, member: discord.Member):
         user = utils.Mongo.get_user(member, member.guild)
         if not user.slur_count:
-            await ctx.send("This person is clean!")
+            await utils.EmbedHelpers.send_message_embed(ctx, message="This person is clean!")
             return
 
-        embed = discord.Embed(title=f"{member.nick}'s Racist Resume",
-                              description=f"How racist is {member.nick}",
-                              color=utils.Color.random_color())
+        embed = utils.EmbedHelpers.create_message_embed(title=f"{member.nick}'s Racist Resume",
+                                                        message=f"How racist is {member.nick}")
 
         for k, v in user.slur_count.items():
             embed.add_field(name=k, value=v, inline=False)
@@ -121,17 +117,15 @@ class Gamer(commands.Cog):
             embed_title = "Most Experienced"
             field = "exp"
         else:
-            await ctx.send(f"ERROR: {field} is not a vaild field")
+            await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"ERROR: {field} is not a valid field",
+                                                        color=discord.Color.red())
             return
 
         results = utils.Mongo.get_leaderboard_results(field, ctx.guild)
         results = enumerate(results, 1)
 
-        embed = discord.Embed(
-            title=f"{embed_title} Gamers",
-            description=f"The {embed_title} Gamers! Can you match them?",
-            color=discord.Colour.from_rgb(randrange(0, 256), randrange(0, 256), randrange(0, 256))
-        )
+        embed = utils.EmbedHelpers.create_message_embed(title=f"{embed_title} Gamers",
+                                                        message=f"The {embed_title} Gamers! Can you match them?")
 
         embed.set_thumbnail(url=bot_enums.Enums.BOT_AVATAR_URL.value)
 
@@ -163,16 +157,18 @@ class Gamer(commands.Cog):
     @utils.Checks.rude_name_check()
     async def give_money(self, ctx, receiver: discord.Member, money):
         if ctx.author == receiver:
-            await ctx.send("You can't send yourself money")
+            await utils.EmbedHelpers.send_message_embed(ctx, code_block="You can't send yourself money", color=discord.Color.red())
             return
 
         transact = utils.Mongo.transact(ctx.author, receiver, ctx.guild, money)
 
         if not transact:
-            await ctx.send("Transaction failed. You attempted to give away more than you own.")
+            await utils.EmbedHelpers.send_message_embed(ctx, code_block="Transaction failed. "
+                                                                        "You attempted to give away more than you own.",
+                                                        color=discord.Color.red())
         elif transact:
             server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
-            await ctx.send(f"Transaction of {money} {server_currency} Successful!")
+            await utils.EmbedHelpers.send_message_embed(ctx, message=f"Transaction of {money} {server_currency} Successful!")
 
     @cog_ext.cog_slash(name="xp_exchange",
                        description="Pay your way to knowledge and experience!",
@@ -194,7 +190,8 @@ class Gamer(commands.Cog):
 
         if vbuck_payment > current_vbucks:
             server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
-            await ctx.send(f"You do not have enough {server_currency}")
+            await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"You do not have enough {server_currency}",
+                                                        color=discord.Color.red())
             return
 
         added_exp = vbuck_payment * conversion_ratio
@@ -203,7 +200,10 @@ class Gamer(commands.Cog):
         utils.Mongo.income(ctx.author, ctx.guild, -vbuck_payment)
         utils.Mongo.update_exp(ctx.author, ctx.guild, new_exp)
 
-        await ctx.send(f"{ctx.author.mention} You gained {added_exp} XP. You have {new_exp}")
+        await utils.EmbedHelpers.send_message_embed(ctx,
+                                                    code_block=f"{ctx.author.mention} You gained {added_exp} XP. "
+                                                               f"You have {new_exp}",
+                                                    color=discord.Color.green())
 
 
 def setup(client):

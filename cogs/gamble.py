@@ -66,7 +66,10 @@ class Gamble(commands.Cog):
             "paper scissors": opponent
         }
 
-        await ctx.send(f'{ctx.author.mention} got {rps_member1}, and {opponent.mention} got {rps_member2}')
+        await utils.EmbedHelpers.send_message_embed(ctx, title="SHOOT!",
+                                                    message=f'{ctx.author.mention} got **{rps_member1}**, '
+                                                            f'and {opponent.mention} got **{rps_member2}**',
+                                                    )
 
         if rps_member1 != rps_member2:
             winner = rpsdict[rpstotal]
@@ -93,9 +96,11 @@ class Gamble(commands.Cog):
             utils.Mongo.income(loser, ctx.guild, (-vbuck_reward))
 
             server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
-            await ctx.send(f"{winner.mention} won and got {vbuck_reward} {server_currency} from {loser.mention}")
+            await utils.EmbedHelpers.send_message_embed(ctx, title=f"{winner.nick} Wins!",
+                                                        message=f"{winner.mention} won and got **{vbuck_reward}** "
+                                                                f"{server_currency} from {loser.mention}")
         else:
-            await ctx.send('Its a tie!')
+            await utils.EmbedHelpers.send_message_embed(ctx, message='Its a tie!')
 
     @cog_ext.cog_slash(
         name="gamble",
@@ -119,17 +124,26 @@ class Gamble(commands.Cog):
         rand_selection = random.random()
         if (.1 <= rand_selection <= .7) and (amount < user.vbucks):
             new_amount = amount * ((random.randrange(1, 20)) / 10)
-            int(new_amount)
+            new_amount = int(new_amount)
             utils.Mongo.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = new_amount + user.vbucks
-            await ctx.send(f"You gained {new_amount} {server_currency}. You now have {print_vbucks} {server_currency}.")
+            await utils.EmbedHelpers.send_message_embed(ctx, title="You Win!",
+                                                        message=f"You gained {new_amount} {server_currency}. "
+                                                                f"You now have {print_vbucks} {server_currency}.",
+                                                        color=discord.Color.green())
         elif (rand_selection >= .7) and (amount < user.vbucks):
             new_amount = (-amount)
             utils.Mongo.income(ctx.author, ctx.guild, new_amount)
             print_vbucks = user.vbucks - amount
-            await ctx.send(f"You lost {amount} {server_currency}. You have {print_vbucks} {server_currency} left.")
+
+            await utils.EmbedHelpers.send_message_embed(ctx, title="You Lose.",
+                                                        message=f"You lost _{amount}_ {server_currency}. "
+                                                                f"You have **{print_vbucks}** {server_currency} left.",
+                                                        color=discord.Color.red())
         else:
-            await ctx.send("You can't gamble for more than you own, I can't program loans. Not yet at least.")
+            await utils.EmbedHelpers.send_message_embed(ctx, code_block="You can't gamble for more than you own, "
+                                                                        "I can't program loans. Not yet at least.",
+                                                        color=discord.Color.red())
 
     @commands.command()
     @utils.Checks.rude_name_check()

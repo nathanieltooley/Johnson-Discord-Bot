@@ -170,7 +170,8 @@ class Music(commands.Cog):
                 await ctx.send("You have already voted yes to this poll", hidden=True)
                 return
 
-            await ctx.send(f"{ctx.author.mention} has voted no to adding {track['name']} to the playlist! Vote is over!")
+            await ctx.send(
+                f"{ctx.author.mention} has voted no to adding {track['name']} to the playlist! Vote is over!")
             message = await ctx.channel.fetch_message(poll.poll_id)
 
             poll.delete()
@@ -217,7 +218,8 @@ class Music(commands.Cog):
             insert_index = 1
 
         if url_type == return_types.RETURN_TYPE_SPOTPLAYLIST_URL:
-            playlist_tracks = utils.SpotifyHelpers.get_all_playlist_tracks(utils.SpotifyHelpers.parse_id_out_of_url(song_url))
+            playlist_tracks = utils.SpotifyHelpers.get_all_playlist_tracks(
+                utils.SpotifyHelpers.parse_id_out_of_url(song_url))
 
             for top_track in playlist_tracks:
                 track = top_track["track"]
@@ -238,7 +240,7 @@ class Music(commands.Cog):
             self.add_to_queue(song_url, index=insert_index)
 
         if ctx.voice_client.is_playing():
-            await ctx.send("Song currently playing. Will queue next song.")
+            await utils.EmbedHelpers.send_message_embed(ctx, message="Song currently playing. Will queue next song.")
             return
 
         await self.play_song(ctx, self.queue[0])
@@ -361,13 +363,15 @@ class Music(commands.Cog):
 
                     # let try searching with only the title?
                     if tries <= 0:
-                        await ctx.send("Could not find song on youtube . . . SKIPPING")
+                        await utils.EmbedHelpers.send_message_embed(ctx,
+                                                                    code_block="Could not find song on youtube . . . SKIPPING")
                         await self.check_queue(ctx)
                         return
                     else:
                         continue
                 else:
-                    utils.Logging.log("music_bot", f"Youtube search took {5 - tries} tries for {queued_song.title} - {queued_song.authors}")
+                    utils.Logging.log("music_bot",
+                                      f"Youtube search took {5 - tries} tries for {queued_song.title} - {queued_song.authors}")
                     break
 
             suffix = result["url_suffix"]
@@ -418,7 +422,8 @@ class Music(commands.Cog):
                         break
 
             if source is None:
-                await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
+                await utils.EmbedHelpers.send_message_embed(ctx, code_block="COULD NOT PLAY MEDIA . . . SKIPPING",
+                                                            color=discord.Color.red())
                 await self.check_queue(ctx)
                 return
 
@@ -429,12 +434,18 @@ class Music(commands.Cog):
             if self.np_message is not None:
                 await self.np_message.delete()
 
-            np_embed = discord.Embed(
-                title="Now Playing",
-                description=f"```{queued_song.title} - {utils.SpotifyHelpers.create_artist_string(queued_song.authors)}```"
-            )
+            if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
+                color = discord.Color.green()
+            elif queued_song.url_type == return_types.RETURN_TYPE_SOUNDCLOUD_URL:
+                color = discord.Color.orange()
+            else:
+                color = discord.Color.dark_red()
 
-            self.np_message = await ctx.send(embed=np_embed)
+            self.np_message = await utils.EmbedHelpers.send_message_embed(ctx, "Now Playing",
+                                                                          message=f"**{queued_song.title}** - "
+                                                                                  f"_{utils.SpotifyHelpers.create_artist_string(queued_song.authors)}_",
+                                                                          color=color
+                                                                          )
 
     @staticmethod
     def add_song_to_playlist(song_url):
@@ -483,7 +494,7 @@ class Music(commands.Cog):
             if self.queue_message is not None:
                 await self.queue_message.delete()
 
-            dp_message = await ctx.send("Done playing songs.")
+            dp_message = await utils.EmbedHelpers.send_message_embed(ctx, message="Done Playing Songs.")
             await dp_message.delete(delay=10)
 
     def create_embed_description(self):

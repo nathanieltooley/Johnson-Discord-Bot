@@ -13,23 +13,23 @@ from discord_slash import cog_ext, SlashContext
 from enums.bot_enums import Enums as bot_enums
 
 status = cycle(["Now Using Slash Commands!",
-                    "Minecraft",
-                    "Who uses this bot anyways?",
-                    "Made by Nathaniel",
-                    "Build: Different",
-                    "Team Fortress 2",
-                    "your mom"])
+                "Minecraft",
+                "Who uses this bot anyways?",
+                "Made by Nathaniel",
+                "Build: Different",
+                "Team Fortress 2",
+                "your mom"])
 
 
 class Setup(commands.Cog):
-    
+
     def __init__(self, client):
         self.client = client
         self.change_status.start()
         self.check_playlist_changes.start()
         self.check_for_dead_polls.start()
         self.count = 0
-        
+
     # Events
     @commands.Cog.listener()
     async def on_ready(self):
@@ -37,15 +37,15 @@ class Setup(commands.Cog):
         utils.Logging.log(__name__, "Johnson is spittin straight cog!")
         await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
         utils.Logging.log(__name__, f"Johnson Level: {utils.Level.get_bot_level()}")
-        utils.Logging.log(__name__, f"test server c_name: {utils.Mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}")
-        
+        utils.Logging.log(__name__,
+                          f"test server c_name: {utils.Mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}")
+
     # Commands
     @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=utils.Level.get_guild_ids())
     @utils.Checks.rude_name_check()
     async def _ping(self, ctx: SlashContext):
         self.count += 1
-        await ctx.send(f"Pong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
-
+        await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"Pong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
 
     @commands.command()
     async def shutdown(self, ctx):
@@ -139,7 +139,6 @@ class Setup(commands.Cog):
         except Exception as e:
             utils.Logging.error("Spotify Check", f"Check unsuccessful: {e}")
 
-
     @tasks.loop(hours=1)
     async def check_for_dead_polls(self):
         polls = utils.Mongo.get_all_polls()
@@ -156,8 +155,12 @@ class Setup(commands.Cog):
                 message = await channel.fetch_message(poll.poll_id)
 
                 await message.delete()
-                await channel.send(f"{self.client.get_user(poll.creator).mention}'s poll has been closed. opened at "
-                                   f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})")
+
+                embed = utils.EmbedHelpers.create_message_embed("Poll Closed!",
+                                                                f"{self.client.get_user(poll.creator).mention}'s poll "
+                                                                f"has been closed. opened at "
+                                                                f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})")
+                await channel.send(embed=embed)
                 poll.delete()
 
     @change_status.before_loop
@@ -174,7 +177,7 @@ class Setup(commands.Cog):
     async def before_polls(self):
         utils.Logging.log(__name__, "Waiting to start poll prune...")
         await self.client.wait_until_ready()
-        
+
 
 def setup(client):
     client.add_cog(Setup(client))

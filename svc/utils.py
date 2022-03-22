@@ -826,10 +826,11 @@ class YoutubeHelpers:
 class EmbedHelpers:
 
     @staticmethod
-    def create_message_embed(title, message, code_block=False):
+    def create_message_embed(title="", message="", code_block=None, color=discord.Color.blurple()):
         embed = discord.Embed(
             title=title,
-            description=f"```{message}```" if code_block else message
+            description=f"{message}\n```{code_block}```" if code_block is not None else message,
+            color=color
         )
 
         embed.set_author(name="Johnson Bot", icon_url=bot_enums.BOT_AVATAR_URL.value, url="https://github.com/nathanieltooley/Johnson-Discord-Bot")
@@ -838,6 +839,6 @@ class EmbedHelpers:
         return embed
 
     @staticmethod
-    async def send_message_embed(ctx, title, message, code_block=False):
-        embed = EmbedHelpers.create_message_embed(title, message, code_block)
+    async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.random()):
+        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
         return await ctx.send(embed=embed)

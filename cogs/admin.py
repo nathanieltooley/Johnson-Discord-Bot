@@ -37,7 +37,7 @@ class Admin(commands.Cog):
     @utils.Checks.check_is_owner()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
         utils.Mongo.update_vbucks(member, ctx.guild, money)
-        await ctx.send(f"{member.mention}'s V-Buck amount has been updated to {money}")
+        await utils.EmbedHelpers.send_message_embed(ctx, "", f"{member.mention}'s V-Buck amount has been updated to **{money}**")
 
     @cog_ext.cog_slash(
         name="update_xp",
@@ -62,9 +62,9 @@ class Admin(commands.Cog):
     async def update_exp(self, ctx, member: discord.Member, exp: int):
         check = utils.Mongo.update_exp(member, ctx.guild, exp)
         if check is None:
-            await ctx.send(f"{member.mention}'s XP has been set to {exp}")
+            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to {exp}")
         else:
-            await ctx.send(f"{member.mention}'s XP has been set to {exp} and their level has changed to {check}")
+            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to **{exp}** and their level has changed to **{check}**")
 
     @cog_ext.cog_slash(
         name="set_user_level",
@@ -91,7 +91,7 @@ class Admin(commands.Cog):
         required_exp = pow(level, 4)
         utils.Mongo.update_exp(member, ctx.guild, required_exp)
 
-        await ctx.send(f"{member.mention}'s level is now {level}. XP is {required_exp}")
+        await utils.EmbedHelpers.send_message_embed(ctx, message=f"{member.mention}'s level is now **{level}**. XP is **{required_exp}**")
 
     @cog_ext.cog_slash(
         name="create_account",
@@ -109,7 +109,7 @@ class Admin(commands.Cog):
     @utils.Checks.check_is_owner()
     async def create_account(self, ctx, member: discord.Member):
         utils.Mongo.create_user(member, ctx.guild)
-        await ctx.send(f"{member.display_name}'s account was created.")
+        await utils.EmbedHelpers.send_message_embed(ctx, message=f"{member.display_name}'s account was created.")
 
     @cog_ext.cog_slash(
         name="talk",
@@ -158,7 +158,7 @@ class Admin(commands.Cog):
     @utils.Checks.check_is_owner()
     async def change_currency_name(self, ctx: SlashContext, c_name):
         utils.Mongo.set_server_currency_name(ctx.guild.id, c_name)
-        await ctx.send(f"Name has changed to: {c_name}")
+        await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"Name has changed to: {c_name}")
 
 
 def setup(client):

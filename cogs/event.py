@@ -46,7 +46,7 @@ class Event(commands.Cog):
             if svc.Level.get_bot_level() == "DEBUG":
                 raise error
             else:
-                await ctx.send(f"{error}")
+                await svc.EmbedHelpers.send_message_embed(ctx, title="ERROR", code_block=f"{error}", color=discord.Color.red())
 
         svc.Logging.error("command_error", error)
 
@@ -55,7 +55,11 @@ class Event(commands.Cog):
         if isinstance(ex, CheckFailure):
             await ctx.send("You cannot use this command. Try changing your name")
         else:
-            await ctx.send(str(ex))
+            if svc.Level.get_bot_level() == "DEBUG":
+                raise ex
+            else:
+                await svc.EmbedHelpers.send_message_embed(ctx, title="ERROR", code_block=f"{ex}", color=discord.Color.red())
+
             print(ex)
 
     @commands.Cog.listener()

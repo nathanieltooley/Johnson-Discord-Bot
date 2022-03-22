@@ -136,13 +136,18 @@ class Music(commands.Cog):
             track = utils.SpotifyHelpers.get_track(utils.SpotifyHelpers.parse_id_out_of_url(poll.song_url))
 
             if meets_vote_req:
-                await ctx.send(f"The vote on {track['name']} has passed! It will be added to our playlist")
+                await utils.EmbedHelpers.send_message_embed(ctx, title="Playlist Vote Yes",
+                                                            message=f"The vote on {track['name']} has passed! "
+                                                                    f"It will be added to our playlist",
+                                                            color=discord.Color.green())
                 # Music.add_song_to_playlist(poll.song_url)
                 poll.delete()
                 return
 
             if not meets_vote_req:
-                await ctx.send(f"{poll.current_votes} / {poll.required_votes} for {track['name']}.")
+                await utils.EmbedHelpers.send_message_embed(ctx, title="Playlist Vote Status",
+                                                            message=f"{poll.current_votes} / {poll.required_votes} for "
+                                                                    f"{track['name']}.")
         else:
             await ctx.send("Make sure that this person has a poll running!", hidden=True)
 
@@ -170,8 +175,10 @@ class Music(commands.Cog):
                 await ctx.send("You have already voted yes to this poll", hidden=True)
                 return
 
-            await ctx.send(
-                f"{ctx.author.mention} has voted no to adding {track['name']} to the playlist! Vote is over!")
+            await utils.EmbedHelpers.send_message_embed(ctx, title="Playlist Vote No",
+                                                        message=f"{ctx.author.mention} has voted no to adding "
+                                                                f"{track['name']} to the playlist! Vote is over!",
+                                                        color=discord.Color.red())
             message = await ctx.channel.fetch_message(poll.poll_id)
 
             poll.delete()
@@ -189,8 +196,12 @@ class Music(commands.Cog):
 
         track = utils.SpotifyHelpers.get_track(utils.SpotifyHelpers.parse_id_out_of_url(poll.song_url))
 
-        await ctx.send(f"{ctx.author.mention} has cancelled their poll over adding {track['name']} to the playlist! "
-                       f"Vote is over!")
+        await utils.EmbedHelpers.send_message_embed(ctx, title="Playlist Cancel",
+                                                    message=f"{ctx.author.mention} "
+                                                            f"has cancelled their poll over adding "
+                                                            f"{track['name']} to the playlist! "
+                                                            f"Vote is over!",
+                                                    color=discord.Color.red())
         message = await ctx.channel.fetch_message(poll.poll_id)
 
         poll.delete()
@@ -204,7 +215,9 @@ class Music(commands.Cog):
 
         url_type = Music.determine_url_type(song_url)
         if url_type == return_types.RETURN_TYPE_INVALID_URL:
-            await ctx.send("Invalid URL!")
+            await utils.EmbedHelpers.send_message_embed(ctx, title="ERROR",
+                                                        code_block="Invalid URL!",
+                                                        color=discord.Color.red())
             return
 
         result = await Music.join(ctx)
@@ -318,7 +331,7 @@ class Music(commands.Cog):
 
         if self.queue is not None:
             random.shuffle(self.queue)
-            await ctx.send("Shuffling List")
+            await utils.EmbedHelpers.send_message_embed(ctx, message="Shuffling List")
 
     @commands.command(aliases=["clear"])
     async def clear_queue(self, ctx):
@@ -332,7 +345,7 @@ class Music(commands.Cog):
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
         if ctx.author.voice is None:
-            await ctx.send("You need to be in a voice channel.")
+            await utils.EmbedHelpers.send_message_embed(ctx, message="You need to be in a voice channel.")
             return None
 
         voice_channel = ctx.author.voice.channel

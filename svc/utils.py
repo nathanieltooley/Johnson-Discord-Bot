@@ -839,6 +839,6 @@ class EmbedHelpers:
         return embed
 
     @staticmethod
-    async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.random()):
+    async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.blurple()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
         return await ctx.send(embed=embed)

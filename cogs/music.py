@@ -350,7 +350,7 @@ class Music(commands.Cog):
                        "   - Pause what is playing, can be resumed with .resume or \n" \
                        "     .play\n" \
                        ".queue [index]\n" \
-                       "   - View up to 10 songs that are queued" \
+                       "   - View up to 10 songs that are queued\n" \
                        ".skip\n" \
                        "   - Skip\n" \
                        ".shuffle\n" \

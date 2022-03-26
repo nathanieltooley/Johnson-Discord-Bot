@@ -767,6 +767,15 @@ class SpotifyHelpers:
 
         return search_results[0]
 
+    @staticmethod
+    def get_all_album_tracks(album_id):
+        album_page = SpotifyHelpers.spotify.album_tracks(album_id)
+        tracks = album_page['items']
+
+        while album_page['next']:
+            t = SpotifyHelpers.spotify.next(album_page)
+            tracks.extend(t)
+
 
 class Level:
 

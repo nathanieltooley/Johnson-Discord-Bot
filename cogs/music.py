@@ -28,6 +28,7 @@ class Music(commands.Cog):
         self.queue_message = None
         self.np_message = None
         self.johnson_broke = False
+        self.paused = False
 
     @cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
@@ -266,16 +267,12 @@ class Music(commands.Cog):
 
         await ctx.voice_client.disconnect()
 
-    @commands.command(aliases=["skip"])
-    async def stop(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
-
+    @commands.command()
+    async def skip(self, ctx):
         if ctx.voice_client:
             ctx.voice_client.stop()
 
-    @commands.command()
+    @commands.command(aliases=["stop"])
     async def pause(self, ctx):
         if self.johnson_broke:
             await ctx.send("Johnson's Audio functions are broken right now.")
@@ -283,6 +280,7 @@ class Music(commands.Cog):
 
         if ctx.voice_client:
             ctx.voice_client.pause()
+            self.paused = True
 
     @commands.command()
     async def resume(self, ctx):
@@ -292,6 +290,7 @@ class Music(commands.Cog):
 
         if ctx.voice_client:
             ctx.voice_client.resume()
+            self.paused = False
 
     @commands.command()
     async def queue(self, ctx, index=0):
@@ -341,6 +340,29 @@ class Music(commands.Cog):
 
         if not self.queue == []:
             self.queue = []
+
+    @commands.command(aliases=["help_music"])
+    async def music_help(self, ctx):
+        help_message = ".play [song_url(Spotify, Youtube, Soundcloud)] [next]\n" \
+                       "   - Play a song, type next after the url if you want to \n" \
+                       "     play the song next\n" \
+                       ".pause or .stop\n" \
+                       "   - Pause what is playing, can be resumed with .resume or \n" \
+                       "     .play\n" \
+                       ".queue [index]\n" \
+                       "   - View up to 10 songs that are queued" \
+                       ".skip\n" \
+                       "   - Skip" \
+                       ".shuffle\n" \
+                       "   - Shuffle\n" \
+                       ".clear or .clear_queue\n" \
+                       "   - Clear the queue\n" \
+                       ".resume\n" \
+                       "   - Resume\n" \
+                       ".disconnect\n" \
+                       "   - Kick Johnson Bot from the VC."
+
+        await utils.EmbedHelpers.send_message_embed(ctx, title="Commands", code_block=help_message)
 
     @staticmethod
     async def join(ctx: discord.ext.commands.Context):
@@ -482,6 +504,8 @@ class Music(commands.Cog):
                     return return_types.RETURN_TYPE_SPOTIFY_URL
                 elif segments[1] == "playlist":
                     return return_types.RETURN_TYPE_SPOTPLAYLIST_URL
+                else:
+                    return return_types.RETURN_TYPE_INVALID_URL
             elif segments[2] == "soundcloud.com" or segments[3] == "soundcloud.com":
                 return return_types.RETURN_TYPE_SOUNDCLOUD_URL
             else:

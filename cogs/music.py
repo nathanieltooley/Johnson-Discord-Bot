@@ -352,7 +352,7 @@ class Music(commands.Cog):
                        ".queue [index]\n" \
                        "   - View up to 10 songs that are queued" \
                        ".skip\n" \
-                       "   - Skip" \
+                       "   - Skip\n" \
                        ".shuffle\n" \
                        "   - Shuffle\n" \
                        ".clear or .clear_queue\n" \

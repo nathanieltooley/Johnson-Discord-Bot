@@ -457,7 +457,7 @@ class Music(commands.Cog):
                         break
 
             if source is None:
-                await utils.EmbedHelpers.send_message_embed(ctx, code_block="COULD NOT PLAY MEDIA . . . SKIPPING",
+                await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",
                                                             color=discord.Color.red())
                 await self.check_queue(ctx)
                 return

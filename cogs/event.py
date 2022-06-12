@@ -29,6 +29,7 @@ class Event(commands.Cog):
         user_slur = self.slur_checks(message)
         await Event.determine_response(user_slur, message)
 
+        # if no slur has been said, reward the user for messaging (gold and xp)
         if user_slur is None:
             await Event.add_to_stats(message)
 
@@ -89,6 +90,14 @@ class Event(commands.Cog):
 
             await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
 
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        user_slur = self.slur_checks(after)
+        await Event.determine_response(user_slur, after)
+
+        if user_slur is None:
+            await Event.add_to_stats(after)
+
     @staticmethod
     def create_check_message(message: discord.Message):
         return message.content.lower()
@@ -119,10 +128,13 @@ class Event(commands.Cog):
 
     @staticmethod
     async def respond_to_slur(message):
+        message_author = message.author.name
+        message_content = message.content
+
         await message.channel.send(
             f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
         await message.delete()
-        svc.Logging.log(__name__, f"Message deleted, from {message.author.name}:{message.content}")
+        svc.Logging.log(__name__, f"Message deleted, from {message_author}:{message_content}")
 
     @staticmethod
     async def determine_response(said_slur, message):

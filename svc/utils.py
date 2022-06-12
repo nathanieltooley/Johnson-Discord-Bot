@@ -856,6 +856,10 @@ class MessageHelpers:
     @staticmethod
     async def safe_message_delete(message: discord.Message):
         try:
+            Logging.log("message_deletion", f"Deleting message {message.id}")
             await message.delete()
+
+            # we return None here so that the stored message gets replaced with None
+            return None
         except discord.NotFound or discord.HTTPException:
-            Logging.error("message_deletion", "Failed to delete message " + message.id)
+            Logging.error("message_deletion", f"Error occurred when trying to delete message {message.id}")

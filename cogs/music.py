@@ -30,7 +30,7 @@ class Music(commands.Cog):
         self.johnson_broke = False
         self.paused = False
 
-    @cog_ext.cog_slash(name="start_playlist_vote",
+    """@cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
                                    "(Must have a link to song on spotify).",
                        options=[
@@ -206,7 +206,7 @@ class Music(commands.Cog):
         message = await ctx.channel.fetch_message(poll.poll_id)
 
         poll.delete()
-        await message.delete()
+        await message.delete()"""
 
     @commands.command()
     async def play(self, ctx: discord.ext.commands.Context, song_url, next="nah"):

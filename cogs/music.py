@@ -318,7 +318,7 @@ class Music(commands.Cog):
         embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
 
         if self.queue_message is not None:
-            await self.queue_message.delete()
+            await utils.MessageHelpers.safe_message_delete(self.queue_message)
 
         self.queue_message = await ctx.send(embed=embed)
 
@@ -467,7 +467,7 @@ class Music(commands.Cog):
                     after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx), self.client.loop))
 
             if self.np_message is not None:
-                await self.np_message.delete()
+                await utils.MessageHelpers.safe_message_delete(self.np_message)
 
             if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
                 color = discord.Color.green()
@@ -527,9 +527,9 @@ class Music(commands.Cog):
             await self.play_song(ctx, self.queue[0])
         else:
             if self.np_message is not None:
-                await self.np_message.delete()
+                await utils.MessageHelpers.safe_message_delete(self.np_message)
             if self.queue_message is not None:
-                await self.queue_message.delete()
+                await utils.MessageHelpers.safe_message_delete(self.queue_message)
 
             dp_message = await utils.EmbedHelpers.send_message_embed(ctx, message="Done Playing Songs.")
             await dp_message.delete(delay=10)

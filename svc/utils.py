@@ -803,7 +803,6 @@ class Level:
             guild = client.get_guild(600162735975694356)
             return guild.get_channel(758528118209904671)
 
-
 class YoutubeHelpers:
 
     @staticmethod
@@ -851,3 +850,12 @@ class EmbedHelpers:
     async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.blurple()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
         return await ctx.send(embed=embed)
+
+class MessageHelpers:
+
+    @staticmethod
+    async def safe_message_delete(message: discord.Message):
+        try:
+            await message.delete()
+        except discord.NotFound or discord.HTTPException:
+            Logging.error("message_deletion", "Failed to delete message " + message.id)

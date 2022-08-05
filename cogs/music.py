@@ -251,13 +251,28 @@ class Music(commands.Cog):
 
             await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
-            self.add_to_queue(song_url, index=insert_index)
+            try:
+                utils.YoutubeHelpers.get_video_info(song_url)
+                self.add_to_queue(song_url, index=insert_index)
+            except Exception as e:
+                await utils.EmbedHelpers.send_message_embed(ctx,
+                                                            code_block=f"COULD NOT GET INFO. "
+                                                                       f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
+                                                            color=discord.Color.red())
+                return
 
         if ctx.voice_client.is_playing():
             await utils.EmbedHelpers.send_message_embed(ctx, message="Song currently playing. Will queue next song.")
             return
 
-        await self.play_song(ctx, self.queue[0])
+        try:
+            await self.play_song(ctx, self.queue[0])
+        except Exception as e:
+            await utils.EmbedHelpers.send_message_embed(ctx,
+                                                        code_block=f"COULD NOT GET INFO. "
+                                                                   f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
+                                                        color=discord.Color.red())
+            await self.check_queue(ctx)
 
     @commands.command()
     async def disconnect(self, ctx):

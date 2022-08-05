@@ -17,7 +17,7 @@ if __name__ == '__main__':
             client.load_extension(f'cogs.{filename[:-3]}')  # Cut off .py
             utils.Logging.log("coggers", f"{filename} loaded")
 
-    environ_vars = ["DISCORD_HOST", "HOST", "LEVEL", "SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
+    environ_vars = ["DISCORD_HOST", "LEVEL", "SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
                     "SPOTIPY_REDIRECT_URI", "TOKEN"]
 
     ev_not_set = False

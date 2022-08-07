@@ -30,7 +30,7 @@ class Music(commands.Cog):
         self.johnson_broke = False
         self.paused = False
 
-    @cog_ext.cog_slash(name="start_playlist_vote",
+    """@cog_ext.cog_slash(name="start_playlist_vote",
                        description="Start a vote to add a song to Our Playlist :) "
                                    "(Must have a link to song on spotify).",
                        options=[
@@ -206,7 +206,7 @@ class Music(commands.Cog):
         message = await ctx.channel.fetch_message(poll.poll_id)
 
         poll.delete()
-        await message.delete()
+        await message.delete()"""
 
     @commands.command()
     async def play(self, ctx: discord.ext.commands.Context, song_url, next="nah"):
@@ -504,6 +504,7 @@ class Music(commands.Cog):
     @staticmethod
     def determine_url_type(song_url):
         # https://www.youtube.com/watch?v=_arqbQqq88M
+        # https://youtu.be/U9qdhF7m80M
         # https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
         # https://soundcloud.com/beanbubger/apoapsis/s-zoij7masq5J?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing
         # https://soundcloud.com/beanbubger/supersubset-v3
@@ -512,7 +513,7 @@ class Music(commands.Cog):
         segments.reverse()
 
         try:
-            if segments[1] == "www.youtube.com":
+            if segments[1] == "www.youtube.com" or segments[1] == "youtu.be":
                 return return_types.RETURN_TYPE_YOUTUBE_URL
             elif segments[2] == "open.spotify.com":
                 if segments[1] == "track":

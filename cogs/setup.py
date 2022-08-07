@@ -27,7 +27,7 @@ class Setup(commands.Cog):
         self.client = client
         self.change_status.start()
         self.check_playlist_changes.start()
-        self.check_for_dead_polls.start()
+        # self.check_for_dead_polls.start()
         self.count = 0
 
     # Events
@@ -139,7 +139,7 @@ class Setup(commands.Cog):
         except Exception as e:
             utils.Logging.error("Spotify Check", f"Check unsuccessful: {e}")
 
-    @tasks.loop(hours=1)
+    # @tasks.loop(hours=1)
     async def check_for_dead_polls(self):
         polls = utils.Mongo.get_all_polls()
 
@@ -173,7 +173,7 @@ class Setup(commands.Cog):
         utils.Logging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()
 
-    @check_for_dead_polls.before_loop
+    # @check_for_dead_polls.before_loop
     async def before_polls(self):
         utils.Logging.log(__name__, "Waiting to start poll prune...")
         await self.client.wait_until_ready()

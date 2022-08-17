@@ -275,6 +275,18 @@ class Music(commands.Cog):
             await self.check_queue(ctx)
 
     @cog_ext.cog_slash(
+        name="connect",
+        description="Have Johnson Bot connect to your voice channel. (Done automatically by /play!)",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    @utils.Checks.rude_name_check()
+    async def _connect(self, ctx: SlashContext):
+        result = await self.join(ctx)
+
+        if result == return_types.RETURN_TYPE_SUCCESSFUL_CONNECT:
+            await ctx.send("Connected!", hidden=True)
+
+    @cog_ext.cog_slash(
         name="disconnect",
         description="Disconnect the bot from a voice channel.",
         guild_ids=utils.Level.get_guild_ids()
@@ -387,20 +399,13 @@ class Music(commands.Cog):
 
         await utils.EmbedHelpers.send_message_embed(ctx, title="Commands", code_block=help_message)
 
-    @staticmethod
-    async def join(ctx: discord.ext.commands.Context):
+    async def join(self, ctx: SlashContext):
         if ctx.author.voice is None:
             await utils.EmbedHelpers.send_message_embed(ctx, message="You need to be in a voice channel.")
             return None
 
-        voice_channel = ctx.author.voice.channel
-
-        if ctx.voice_client is None:
-            await voice_channel.connect()
-        else:
-            await ctx.voice_client.move_to(voice_channel)
-
-        return True
+        await utils.VoiceClientManager.connect_to_member(self.client, ctx.author)
+        return return_types.RETURN_TYPE_SUCCESSFUL_CONNECT
 
     async def play_song(self, ctx, queued_song: QueuedSong):
         song_url = queued_song.url

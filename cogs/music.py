@@ -274,13 +274,21 @@ class Music(commands.Cog):
                                                         color=discord.Color.red())
             await self.check_queue(ctx)
 
-    @commands.command()
-    async def disconnect(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
+    @cog_ext.cog_slash(
+        name="disconnect",
+        description="Disconnect the bot from a voice channel.",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    @utils.Checks.rude_name_check()
+    async def _disconnect(self, ctx: SlashContext):
+        result = await utils.VoiceClientManager.disconnect(self.client)
 
-        await ctx.voice_client.disconnect()
+        if result is None:
+            await utils.EmbedHelpers.send_message_embed(ctx=ctx,
+                                                        code_block="ERROR: Johnson Bot is not in a voice channel!",
+                                                        color=discord.Color.red())
+        else:
+            await ctx.send("Disconnected!", hidden=True)
 
     @commands.command()
     async def skip(self, ctx):

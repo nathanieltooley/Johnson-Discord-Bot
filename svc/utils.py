@@ -878,11 +878,20 @@ class VoiceClientManager:
             return await voice_state.channel.connect()
         else:
             # move the voice client to the correct channel
-            await client.voice_clients[0].move_to(voice_state.channel)
+            voice_client = client.voice_clients[0]
+
+            # if we are already connected with the right member, just return the vc
+            for vc_member in voice_client.channel.members:
+                if vc_member.id == member.id:
+                    return voice_client
+
+            await voice_client.move_to(voice_state.channel)
+            return voice_client
 
     @staticmethod
     async def disconnect(client: commands.Bot):
         if len(client.voice_clients) != 0:
             await client.voice_clients[0].disconnect()
+            return enums.bot_enums.ReturnTypes.RETURN_TYPE_SUCCESSFUL_DISCONNECT
         else:
             return None

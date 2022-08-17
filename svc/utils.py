@@ -863,3 +863,26 @@ class MessageHelpers:
             return None
         except discord.NotFound or discord.HTTPException:
             Logging.error("message_deletion", f"Error occurred when trying to delete message {message.id}")
+
+class VoiceClientManager:
+
+    @staticmethod
+    async def connect_to_member(client: commands.Bot, member: discord.Member):
+        voice_state: discord.VoiceState = member.voice
+
+        # My bot can only have one voice_client
+        if voice_state is None:
+            return None
+
+        if len(client.voice_clients) == 0:
+            return await voice_state.channel.connect()
+        else:
+            # move the voice client to the correct channel
+            await client.voice_clients[0].move_to(voice_state.channel)
+
+    @staticmethod
+    async def disconnect(client: commands.Bot):
+        if len(client.voice_clients) != 0:
+            await client.voice_clients[0].disconnect()
+        else:
+            return None

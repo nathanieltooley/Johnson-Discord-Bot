@@ -867,6 +867,14 @@ class MessageHelpers:
 class VoiceClientManager:
 
     @staticmethod
+    def _is_member_in_vc(voice_client, member: discord.Member):
+        for vc_member in voice_client.channel.members:
+            if vc_member.id == member.id:
+                return True
+
+        return False
+
+    @staticmethod
     async def connect_to_member(client: commands.Bot, member: discord.Member):
         voice_state: discord.VoiceState = member.voice
 
@@ -881,12 +889,18 @@ class VoiceClientManager:
             voice_client = client.voice_clients[0]
 
             # if we are already connected with the right member, just return the vc
-            for vc_member in voice_client.channel.members:
-                if vc_member.id == member.id:
-                    return voice_client
+            if VoiceClientManager._is_member_in_vc(voice_client, member):
+                return voice_client
 
             await voice_client.move_to(voice_state.channel)
             return voice_client
+
+    @staticmethod
+    async def get_current_vc(client: commands.Bot):
+        if client.voice_clients is None or len(client.voice_clients) == 0:
+            return None
+
+        return client.voice_clients[0]
 
     @staticmethod
     async def disconnect(client: commands.Bot):

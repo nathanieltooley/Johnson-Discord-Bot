@@ -319,10 +319,20 @@ class Music(commands.Cog):
         else:
             await ctx.send("Disconnected!", hidden=True)
 
-    @commands.command()
-    async def skip(self, ctx):
-        if ctx.voice_client:
-            ctx.voice_client.stop()
+    @cog_ext.cog_slash(
+        name="skip",
+        description="Skips the song currently playing",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    @utils.Checks.rude_name_check()
+    async def skip(self, ctx: SlashContext):
+        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
+
+        if voice_client:
+            voice_client.stop()
+            await ctx.send("Skipped!")
+        else:
+            await ctx.send("Couldn't Skip", hidden=True)
 
     @commands.command(aliases=["stop"])
     async def pause(self, ctx):

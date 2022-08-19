@@ -325,7 +325,7 @@ class Music(commands.Cog):
         guild_ids=utils.Level.get_guild_ids()
     )
     @utils.Checks.rude_name_check()
-    async def skip(self, ctx: SlashContext):
+    async def _skip(self, ctx: SlashContext):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client:
@@ -334,14 +334,16 @@ class Music(commands.Cog):
         else:
             await ctx.send("Couldn't Skip", hidden=True)
 
-    @commands.command(aliases=["stop"])
-    async def pause(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
+    @cog_ext.cog_slash(
+        name="pause",
+        description="Pauses the song currently playing",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def _pause(self, ctx: SlashContext):
+        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
-        if ctx.voice_client:
-            ctx.voice_client.pause()
+        if voice_client:
+            voice_client.pause()
             self.paused = True
 
     @commands.command()

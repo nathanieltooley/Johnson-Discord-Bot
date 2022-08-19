@@ -411,14 +411,16 @@ class Music(commands.Cog):
 
         self.queue_message = await ctx.send(embed=embed)
 
-    @commands.command()
-    async def shuffle(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
-
+    @cog_ext.cog_slash(
+        name="shuffle",
+        description="Shuffles songs in the queue",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def _shuffle(self, ctx: SlashContext):
         if self.queue is not None:
+            currently_playing = self.queue.pop(0)
             random.shuffle(self.queue)
+            self.queue.insert(0, currently_playing)
             await utils.EmbedHelpers.send_message_embed(ctx, message="Shuffling List")
 
     @commands.command(aliases=["clear"])

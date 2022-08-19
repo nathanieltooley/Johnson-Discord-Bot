@@ -423,14 +423,15 @@ class Music(commands.Cog):
             self.queue.insert(0, currently_playing)
             await utils.EmbedHelpers.send_message_embed(ctx, message="Shuffling List")
 
-    @commands.command(aliases=["clear"])
-    async def clear_queue(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
-
+    @cog_ext.cog_slash(
+        name="clear_queue",
+        description="Clears the queue.",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def _clear_queue(self, ctx):
         if not self.queue == []:
             self.queue = []
+            await ctx.send("Cleared.")
 
     @commands.command(aliases=["help_music"])
     async def music_help(self, ctx):

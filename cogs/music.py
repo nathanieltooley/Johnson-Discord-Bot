@@ -433,29 +433,6 @@ class Music(commands.Cog):
             self.queue = []
             await ctx.send("Cleared.")
 
-    @commands.command(aliases=["help_music"])
-    async def music_help(self, ctx):
-        help_message = ".play [song_url(Spotify, Youtube, Soundcloud)] [next]\n" \
-                       "   - Play a song, type next after the url if you want to \n" \
-                       "     play the song next\n" \
-                       ".pause or .stop\n" \
-                       "   - Pause what is playing, can be resumed with .resume or \n" \
-                       "     .play\n" \
-                       ".queue [index]\n" \
-                       "   - View up to 10 songs that are queued\n" \
-                       ".skip\n" \
-                       "   - Skip\n" \
-                       ".shuffle\n" \
-                       "   - Shuffle\n" \
-                       ".clear or .clear_queue\n" \
-                       "   - Clear the queue\n" \
-                       ".resume\n" \
-                       "   - Resume\n" \
-                       ".disconnect\n" \
-                       "   - Kick Johnson Bot from the VC."
-
-        await utils.EmbedHelpers.send_message_embed(ctx, title="Commands", code_block=help_message)
-
     async def join(self, ctx: SlashContext):
         if ctx.author.voice is None:
             await utils.EmbedHelpers.send_message_embed(ctx, message="You need to be in a voice channel.")

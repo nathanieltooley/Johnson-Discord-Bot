@@ -329,6 +329,9 @@ class Music(commands.Cog):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client:
+            if self.paused:
+                self.paused = False
+
             voice_client.stop()
             await ctx.send("Skipped!")
         else:
@@ -342,9 +345,15 @@ class Music(commands.Cog):
     async def _pause(self, ctx: SlashContext):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
-        if voice_client:
+        if voice_client and not self.paused:
             voice_client.pause()
             self.paused = True
+
+            await ctx.send("Pausing!")
+        elif voice_client and self.paused:
+            await ctx.send("Song is already paused!", hidden=True)
+        else:
+            await ctx.send("Johnson Bot is not playing anything.", hidden=True)
 
     @cog_ext.cog_slash(
         name="resume",
@@ -354,9 +363,15 @@ class Music(commands.Cog):
     async def resume(self, ctx: SlashContext):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
-        if voice_client:
+        if voice_client and self.paused:
             voice_client.resume()
             self.paused = False
+
+            await ctx.send("Resuming!")
+        elif voice_client and not self.paused:
+            await ctx.send("Song is already resumed!", hidden=True)
+        else:
+            await ctx.send("Johnson Bot is not playing anything.", hidden=True)
 
     @commands.command()
     async def queue(self, ctx, index=0):

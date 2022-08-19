@@ -346,14 +346,16 @@ class Music(commands.Cog):
             voice_client.pause()
             self.paused = True
 
-    @commands.command()
-    async def resume(self, ctx):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
+    @cog_ext.cog_slash(
+        name="resume",
+        description="Resumes a paused song",
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def resume(self, ctx: SlashContext):
+        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
-        if ctx.voice_client:
-            ctx.voice_client.resume()
+        if voice_client:
+            voice_client.resume()
             self.paused = False
 
     @commands.command()

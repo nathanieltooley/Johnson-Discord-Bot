@@ -360,7 +360,7 @@ class Music(commands.Cog):
         description="Resumes a paused song",
         guild_ids=utils.Level.get_guild_ids()
     )
-    async def resume(self, ctx: SlashContext):
+    async def _resume(self, ctx: SlashContext):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client and self.paused:
@@ -373,14 +373,22 @@ class Music(commands.Cog):
         else:
             await ctx.send("Johnson Bot is not playing anything.", hidden=True)
 
-    @commands.command()
-    async def queue(self, ctx, index=0):
-        if self.johnson_broke:
-            await ctx.send("Johnson's Audio functions are broken right now.")
-            return
-
+    @cog_ext.cog_slash(
+        name="queue",
+        description="Show what songs are currently queued",
+        options=[
+            create_option(
+                name="index",
+                description="Shows the song at this index plus the next nine.",
+                option_type=discord_enums.OPTION_TYPE_INT.value,
+                required=False
+            )
+        ],
+        guild_ids=utils.Level.get_guild_ids()
+    )
+    async def _queue(self, ctx: SlashContext, index=0):
         if self.queue is None or len(self.queue) == 0:
-            await ctx.send("There is nothing queued")
+            await ctx.send("There is nothing queued", hidden=True)
             return
 
         if abs(index) >= len(self.queue):
@@ -395,7 +403,7 @@ class Music(commands.Cog):
             description=self.create_embed_description(),
         )
 
-        embed.set_footer(text="FUCK YOU")
+        embed.set_footer(text="Le Epic Queue")
         embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
 
         if self.queue_message is not None:

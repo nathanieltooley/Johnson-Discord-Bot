@@ -793,6 +793,28 @@ class Level:
             return [600162735975694356]
 
     @staticmethod
+    def get_guild_objects():
+        level = Level.get_bot_level()
+        guild_ids = Level.get_guild_ids()
+
+        guilds = []
+
+        for guild_id in guild_ids:
+            guilds.append(discord.Object(id=guild_id))
+
+        return guilds
+
+    @staticmethod
+    def get_application_id():
+        level = Level.get_bot_level()
+
+        if level == "DEBUG":
+            return 617964031801819166
+        elif level == "PROD":
+            return 840363188427161640
+
+
+    @staticmethod
     def get_poll_channel(client):
         level = Level.get_bot_level()
 
@@ -850,6 +872,26 @@ class EmbedHelpers:
     async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.blurple()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
         return await ctx.send(embed=embed)
+
+    @staticmethod
+    async def send_message_embed_interaction(interaction: discord.Interaction, title="", message="", code_block=None, color=discord.Color.brand_red()):
+        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
+        await interaction.response.send_message(embed=embed)
+
+    @staticmethod
+    async def send_message_embed_channel(channel, title="", message="", code_block=None, color=discord.Color.dark_gold()):
+        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
+        await channel.send(embed=embed)
+
+    @staticmethod
+    async def send_message_embed_followup(interaction: discord.Interaction, title="", message="", code_block=None, color=discord.Color.random()):
+        await EmbedHelpers.send_embed(lambda x: interaction.followup.send(embed=x), title, message, code_block, color)
+
+    @staticmethod
+    async def send_embed(send_function, title="", message="", code_block=None, color=discord.Color.random()):
+        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
+        await send_function(embed)
+
 
 class MessageHelpers:
 

@@ -825,6 +825,7 @@ class Level:
             guild = client.get_guild(600162735975694356)
             return guild.get_channel(758528118209904671)
 
+
 class YoutubeHelpers:
 
     @staticmethod
@@ -853,6 +854,7 @@ class YoutubeHelpers:
                 if f['acodec'] == "opus":
                     return f["url"]
 
+
 class EmbedHelpers:
 
     @staticmethod
@@ -869,28 +871,9 @@ class EmbedHelpers:
         return embed
 
     @staticmethod
-    async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.blurple()):
+    async def respond_embed(interaction, title="", message="", code_block=None, color=discord.Color.random()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        return await ctx.send(embed=embed)
-
-    @staticmethod
-    async def send_message_embed_interaction(interaction: discord.Interaction, title="", message="", code_block=None, color=discord.Color.brand_red()):
-        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        await interaction.response.send_message(embed=embed)
-
-    @staticmethod
-    async def send_message_embed_channel(channel, title="", message="", code_block=None, color=discord.Color.dark_gold()):
-        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        await channel.send(embed=embed)
-
-    @staticmethod
-    async def send_message_embed_followup(interaction: discord.Interaction, title="", message="", code_block=None, color=discord.Color.random()):
-        await EmbedHelpers.send_embed(lambda x: interaction.followup.send(embed=x), title, message, code_block, color)
-
-    @staticmethod
-    async def send_embed(send_function, title="", message="", code_block=None, color=discord.Color.random()):
-        embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        await send_function(embed)
+        await MessageHelpers.respond(interaction, "", embed)
 
 
 class MessageHelpers:
@@ -905,6 +888,14 @@ class MessageHelpers:
             return None
         except discord.NotFound or discord.HTTPException:
             Logging.error("message_deletion", f"Error occurred when trying to delete message {message.id}")
+
+    @staticmethod
+    async def respond(interaction: discord.Interaction, message: str, embed: discord.Embed = None):
+        if "responded" in interaction.extras.keys() and interaction.extras["responded"]:
+            await interaction.followup.send(message, embed=embed)
+        else:
+            await interaction.response.send_message(message, embed=embed)
+            interaction.extras.update({"responded": True})
 
 class VoiceClientManager:
 

@@ -897,6 +897,12 @@ class MessageHelpers:
             await interaction.response.send_message(message, embed=embed)
             interaction.extras.update({"responded": True})
 
+    @staticmethod
+    async def defer(interaction: discord.Interaction):
+        await interaction.response.defer()
+        interaction.extras.update({"responded": True})
+
+
 class VoiceClientManager:
 
     @staticmethod

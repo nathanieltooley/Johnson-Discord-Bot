@@ -873,7 +873,7 @@ class EmbedHelpers:
     @staticmethod
     async def respond_embed(interaction, title="", message="", code_block=None, color=discord.Color.random()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        await MessageHelpers.respond(interaction, "", embed)
+        return await MessageHelpers.respond(interaction, "", embed)
 
 
 class MessageHelpers:
@@ -892,10 +892,11 @@ class MessageHelpers:
     @staticmethod
     async def respond(interaction: discord.Interaction, message: str, embed: discord.Embed = None):
         if "responded" in interaction.extras.keys() and interaction.extras["responded"]:
-            await interaction.followup.send(message, embed=embed)
+            return await interaction.followup.send(message, embed=embed)
         else:
             await interaction.response.send_message(message, embed=embed)
             interaction.extras.update({"responded": True})
+            return await interaction.original_response()
 
     @staticmethod
     async def defer(interaction: discord.Interaction):

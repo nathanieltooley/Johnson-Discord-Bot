@@ -1,10 +1,7 @@
-from discord_slash import SlashContext
-
 import svc.utils as svc
 import discord
 
 from discord.ext import commands, tasks
-from discord_slash.error import CheckFailure
 
 from enums.bot_enums import Enums as bot_enums
 
@@ -34,34 +31,22 @@ class Event(commands.Cog):
             await Event.add_to_stats(message)
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, interaction: discord.Interaction, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("You do not have permission to use this command")
+            await svc.MessageHelpers.respond(interaction, "You do not have permission to use this command")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("Please give all required parameters")
+            await svc.MessageHelpers.respond(interaction, "Please give all required parameters")
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send("Command on cooldown. Please wait")
+            await svc.MessageHelpers.respond(interaction, "Command on cooldown. Please wait")
         elif isinstance(error, commands.UserInputError):
-            await ctx.send("You seemed to have messed up, try again")
+            await svc.MessageHelpers.respond(interaction, "You seemed to have messed up, try again")
         else:
             if svc.Level.get_bot_level() == "DEBUG":
                 raise error
             else:
-                await svc.EmbedHelpers.send_message_embed(ctx, title="ERROR", code_block=f"{error}", color=discord.Color.red())
+                await svc.EmbedHelpers.respond_embed(interaction, title="ERROR", code_block=f"{error}", color=discord.Color.red())
 
         svc.Logging.error("command_error", error)
-
-    @commands.Cog.listener()
-    async def on_slash_command_error(self, ctx: SlashContext, ex):
-        if isinstance(ex, CheckFailure):
-            await ctx.send("You cannot use this command. Try changing your name")
-        else:
-            if svc.Level.get_bot_level() == "DEBUG":
-                raise ex
-            else:
-                await svc.EmbedHelpers.send_message_embed(ctx, title="ERROR", code_block=f"{ex}", color=discord.Color.red())
-
-            print(ex)
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):
@@ -257,5 +242,5 @@ class Event(commands.Cog):
         await message.channel.send("Message received. Forwarding to Johnson HQ.")
 
 
-def setup(client):
-    client.add_cog(Event(client))
+async def setup(client):
+    await client.add_cog(Event(client), guilds=svc.Level.get_guild_objects())

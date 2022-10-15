@@ -25,17 +25,13 @@ class JohnsonBot(commands.Bot):
         )
 
     async def setup_hook(self):
-        enabled_cogs = ["setup.py"]
+        enabled_cogs = ["setup.py", "music.py", "gamer.py", "gamble.py", "event.py"]
         utils.Logging.log(__name__, "Johnson Bot is Loading!")
 
         for filename in os.listdir("./cogs"):
             if filename.endswith(".py") and filename in enabled_cogs:
                 await self.load_extension(f'cogs.{filename[:-3]}')  # Cut off .py
                 utils.Logging.log("coggers", f"{filename} loaded")
-
-                # We should only need to sync once to the guild we need
-                guild_objects = utils.Level.get_guild_objects()
-                await self.tree.sync(guild=guild_objects[0])
 
         environ_vars = ["DISCORD_HOST", "LEVEL", "SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
                         "SPOTIPY_REDIRECT_URI", "TOKEN"]
@@ -54,7 +50,7 @@ class JohnsonBot(commands.Bot):
 
         def create_command_string(client: commands.Bot):
             command_string = ""
-            for command in client.tree.get_commands():
+            for command in client.tree.get_commands(guild=utils.Level.get_guild_objects()[0]):
                 command_string = command_string + f"{command.name}, "
 
             return command_string

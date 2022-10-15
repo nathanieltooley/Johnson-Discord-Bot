@@ -1,153 +1,132 @@
 import asyncio
 
-from discord_slash import cog_ext, SlashContext
-from discord_slash.utils.manage_commands import create_option
-
 import svc.utils as utils
 import discord
 import os
 import random
 
 from discord.ext import commands, tasks
+from discord import app_commands
 
 from enums.bot_enums import Enums
 
 
 class Gamble(commands.Cog):
-    
+
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="roll",
-        description="Roll a random sized die",
-        options=[
-            create_option(
-                name="sides",
-                description="Number of sides on the die",
-                option_type=4,
-                required=True
-            ),
-        ],
-        guild_ids=utils.Level.get_guild_ids()
+        description="Roll a random sized die"
+    )
+    @app_commands.describe(
+        sides="Number of sides on the die"
     )
     @utils.Checks.rude_name_check()
-    async def roll(self, ctx: SlashContext, sides):
-        await ctx.send(f'{ctx.author.mention} rolled a {random.randrange(1, sides)}')
+    async def roll(self, interaction: discord.Interaction, sides: int):
+        await utils.MessageHelpers.respond(interaction,
+                                           f'{interaction.user.mention} rolled a {random.randrange(1, sides)}')
 
     # might be reworked, probably won't
     # could possibly use enums or something
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="rock_paper_scissors",
-        description="Fight somebody in a game of rock paper scissors",
-        options=[
-            create_option(
-                name="opponent",
-                description="User to fight",
-                option_type=6,
-                required=True
-            ),
-        ],
-        guild_ids=utils.Level.get_guild_ids()
+        description="Fight somebody in a brutal game of rock paper scissors"
+    )
+    @app_commands.describe(
+        opponent="User to fight"
     )
     @utils.Checks.rude_name_check()
-    async def rps(self, ctx, opponent: discord.member.Member):
+    async def rps(self, interaction: discord.Interaction, opponent: discord.member.Member):
 
         rps_member1 = utils.Games.pickrps()
         rps_member2 = utils.Games.pickrps()
         rpstotal = rps_member1 + ' ' + rps_member2
-        
+
         rpsdict = {
-            "rock scissors": ctx.author,
-            "paper rock": ctx.author,
-            "scissors paper": ctx.author,
+            "rock scissors": interaction.user,
+            "paper rock": interaction.user,
+            "scissors paper": interaction.user,
             "scissors rock": opponent,
             "rock paper": opponent,
             "paper scissors": opponent
         }
 
-        await utils.EmbedHelpers.send_message_embed(ctx, title="SHOOT!",
-                                                    message=f'{ctx.author.mention} got **{rps_member1}**, '
-                                                            f'and {opponent.mention} got **{rps_member2}**',
-                                                    )
+        await utils.EmbedHelpers.respond_embed(interaction, title="SHOOT!",
+                                               message=f'{interaction.user.mention} got **{rps_member1}**, '
+                                                       f'and {opponent.mention} got **{rps_member2}**',
+                                               )
 
         if rps_member1 != rps_member2:
             winner = rpsdict[rpstotal]
             loser = None
 
-            if winner == ctx.author:  # find the loser using the winner
+            if winner == interaction.user:  # find the loser using the winner
                 loser = opponent
             else:
-                loser = ctx.author
+                loser = interaction.user
 
-            winner_user = utils.Mongo.create_user(winner, ctx.guild)  # Create the user if there isn't one
-            loser_user = utils.Mongo.create_user(loser, ctx.guild)
+            winner_user = utils.Mongo.create_user(winner, interaction.guild)  # Create the user if there isn't one
+            loser_user = utils.Mongo.create_user(loser, interaction.guild)
 
-            winner_user = utils.Mongo.get_user(winner, ctx.guild)
-            loser_user = utils.Mongo.get_user(loser, ctx.guild)
+            winner_user = utils.Mongo.get_user(winner, interaction.guild)
+            loser_user = utils.Mongo.get_user(loser, interaction.guild)
 
-            vbuck_reward = int(loser_user.vbucks * (random.randrange(1, 10) / 100))  # Get between 0% and 10% of the loser's vbucks
+            vbuck_reward = int(
+                loser_user.vbucks * (random.randrange(1, 10) / 100))  # Get between 0% and 10% of the loser's vbucks
 
             vbuck_limit = 1500
             if vbuck_reward > vbuck_limit:
                 vbuck_reward = vbuck_limit
 
-            utils.Mongo.income(winner, ctx.guild, vbuck_reward)
-            utils.Mongo.income(loser, ctx.guild, (-vbuck_reward))
+            utils.Mongo.income(winner, interaction.guild, vbuck_reward)
+            utils.Mongo.income(loser, interaction.guild, (-vbuck_reward))
 
-            server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
-            await utils.EmbedHelpers.send_message_embed(ctx, title=f"{winner.nick} Wins!",
+            server_currency = utils.Mongo.get_server_currency_name(interaction.guild.id)
+            await utils.EmbedHelpers.respond_embed(interaction, title=f"{winner.nick} Wins!",
                                                         message=f"{winner.mention} won and got **{vbuck_reward}** "
                                                                 f"{server_currency} from {loser.mention}")
         else:
-            await utils.EmbedHelpers.send_message_embed(ctx, message='Its a tie!')
+            await utils.EmbedHelpers.respond_embed(interaction, message='Its a tie!')
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="gamble",
-        description="Gamble away your money. There is no strategy, only luck.",
-        options=[
-            create_option(
-                name="amount",
-                description="Money to Gamble",
-                option_type=4,
-                required=True
-            ),
-        ],
-        guild_ids=utils.Level.get_guild_ids()
+        description="Gamble away your money. There is no strategy, only luck"
     )
     @utils.Checks.rude_name_check()
-    async def gamble(self, ctx, amount: int):
-        user = utils.Mongo.get_user(ctx.author, ctx.guild)
+    async def gamble(self, interaction: discord.Interaction, amount: int):
+        user = utils.Mongo.get_user(interaction.user, interaction.guild)
 
-        server_currency = utils.Mongo.get_server_currency_name(ctx.guild.id)
+        server_currency = utils.Mongo.get_server_currency_name(interaction.guild.id)
 
         rand_selection = random.random()
         if (.1 <= rand_selection <= .7) and (amount < user.vbucks):
             new_amount = amount * ((random.randrange(1, 20)) / 10)
             new_amount = int(new_amount)
-            utils.Mongo.income(ctx.author, ctx.guild, new_amount)
+            utils.Mongo.income(interaction.user, interaction.guild, new_amount)
             print_vbucks = new_amount + user.vbucks
-            await utils.EmbedHelpers.send_message_embed(ctx, title="You Win!",
+            await utils.EmbedHelpers.respond_embed(interaction, title="You Win!",
                                                         message=f"You gained {new_amount} {server_currency}. "
                                                                 f"You now have {print_vbucks} {server_currency}.",
                                                         color=discord.Color.green())
         elif (rand_selection >= .7) and (amount < user.vbucks):
             new_amount = (-amount)
-            utils.Mongo.income(ctx.author, ctx.guild, new_amount)
+            utils.Mongo.income(interaction.user, interaction.guild, new_amount)
             print_vbucks = user.vbucks - amount
 
-            await utils.EmbedHelpers.send_message_embed(ctx, title="You Lose.",
+            await utils.EmbedHelpers.respond_embed(interaction, title="You Lose.",
                                                         message=f"You lost _{amount}_ {server_currency}. "
                                                                 f"You have **{print_vbucks}** {server_currency} left.",
                                                         color=discord.Color.red())
         else:
-            await utils.EmbedHelpers.send_message_embed(ctx, code_block="You can't gamble for more than you own, "
+            await utils.EmbedHelpers.respond_embed(interaction, code_block="You can't gamble for more than you own, "
                                                                         "I can't program loans. Not yet at least.",
                                                         color=discord.Color.red())
 
-    @commands.command()
+    # @commands.command()
     @utils.Checks.rude_name_check()
-    @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
+    # @commands.cooldown(1, 10, discord.ext.commands.BucketType.member)
     async def _blackjack(self, ctx, amount: int):
         user = utils.Mongo.get_user(ctx.author, ctx.guild)
 
@@ -166,7 +145,8 @@ class Gamble(commands.Cog):
         # Dealer Starting Cards
         self.draw_cards(dealer_cards, 1)
 
-        await ctx.send(ctx.author.mention, embed=utils.Games.create_card_view(self.client.user, dealer_cards, dealer_color))
+        await ctx.send(ctx.author.mention,
+                       embed=utils.Games.create_card_view(self.client.user, dealer_cards, dealer_color))
 
         """
         # Dealer Natural
@@ -192,7 +172,8 @@ class Gamble(commands.Cog):
 
             try:
                 response = await self.client.wait_for("message", timeout=90.0,
-                                             check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+                                                      check=lambda
+                                                          m: m.author == ctx.author and m.channel == ctx.channel)
             except asyncio.TimeoutError:
                 await ctx.send("You failed to respond. Game was forfeited")
                 return
@@ -202,7 +183,8 @@ class Gamble(commands.Cog):
 
                     self.draw_cards(player_cards, 1)
 
-                    await ctx.send(ctx.author.mention, embed=utils.Games.create_card_view(ctx.author, player_cards, player_color))
+                    await ctx.send(ctx.author.mention,
+                                   embed=utils.Games.create_card_view(ctx.author, player_cards, player_color))
 
                     if self.busted(player_cards):
                         await ctx.send(f"{ctx.author.mention} You Busted! You lose {amount}!")
@@ -266,7 +248,6 @@ class Gamble(commands.Cog):
                 player_max += 10
             else:
                 player_max += min(card[0], 10)
-
 
         dealer_compare_value = 0
         player_compare_value = 0
@@ -343,5 +324,5 @@ class Gamble(commands.Cog):
         return False
 
 
-def setup(client):
-    client.add_cog(Gamble(client))
+async def setup(client):
+    await client.add_cog(Gamble(client), guilds=utils.Level.get_guild_objects())

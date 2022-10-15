@@ -793,6 +793,28 @@ class Level:
             return [600162735975694356]
 
     @staticmethod
+    def get_guild_objects():
+        level = Level.get_bot_level()
+        guild_ids = Level.get_guild_ids()
+
+        guilds = []
+
+        for guild_id in guild_ids:
+            guilds.append(discord.Object(id=guild_id))
+
+        return guilds
+
+    @staticmethod
+    def get_application_id():
+        level = Level.get_bot_level()
+
+        if level == "DEBUG":
+            return 617964031801819166
+        elif level == "PROD":
+            return 840363188427161640
+
+
+    @staticmethod
     def get_poll_channel(client):
         level = Level.get_bot_level()
 
@@ -802,6 +824,7 @@ class Level:
         elif level == "PROD":
             guild = client.get_guild(600162735975694356)
             return guild.get_channel(758528118209904671)
+
 
 class YoutubeHelpers:
 
@@ -831,6 +854,7 @@ class YoutubeHelpers:
                 if f['acodec'] == "opus":
                     return f["url"]
 
+
 class EmbedHelpers:
 
     @staticmethod
@@ -847,9 +871,10 @@ class EmbedHelpers:
         return embed
 
     @staticmethod
-    async def send_message_embed(ctx, title="", message="", code_block=None, color=discord.Color.blurple()):
+    async def respond_embed(interaction, title="", message="", code_block=None, color=discord.Color.random()):
         embed = EmbedHelpers.create_message_embed(title, message, code_block, color)
-        return await ctx.send(embed=embed)
+        return await MessageHelpers.respond(interaction, "", embed)
+
 
 class MessageHelpers:
 
@@ -863,6 +888,21 @@ class MessageHelpers:
             return None
         except discord.NotFound or discord.HTTPException:
             Logging.error("message_deletion", f"Error occurred when trying to delete message {message.id}")
+
+    @staticmethod
+    async def respond(interaction: discord.Interaction, message: str, embed: discord.Embed = None):
+        if "responded" in interaction.extras.keys() and interaction.extras["responded"]:
+            return await interaction.followup.send(message, embed=embed)
+        else:
+            await interaction.response.send_message(message, embed=embed)
+            interaction.extras.update({"responded": True})
+            return await interaction.original_response()
+
+    @staticmethod
+    async def defer(interaction: discord.Interaction):
+        await interaction.response.defer()
+        interaction.extras.update({"responded": True})
+
 
 class VoiceClientManager:
 

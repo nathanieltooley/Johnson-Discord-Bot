@@ -1,15 +1,12 @@
+import asyncio
 import datetime
 
 import svc.utils as utils
 import discord
-import os
-import itertools
-import random
 
 from itertools import cycle
-from svc.mongo_setup import global_init
 from discord.ext import commands, tasks
-from discord_slash import cog_ext, SlashContext
+from discord import app_commands
 from enums.bot_enums import Enums as bot_enums
 
 status = cycle(["Now Using Slash Commands!",
@@ -26,38 +23,40 @@ class Setup(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.change_status.start()
-        self.check_playlist_changes.start()
+        # self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
 
-    # Events
-    @commands.Cog.listener()
-    async def on_ready(self):
-        global_init()
-        utils.Logging.log(__name__, "Johnson is spittin straight cog!")
-        await self.client.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
-        utils.Logging.log(__name__, f"Johnson Level: {utils.Level.get_bot_level()}")
-        utils.Logging.log(__name__,
-                          f"test server c_name: {utils.Mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}")
-
     # Commands
-    @cog_ext.cog_slash(name="ping", description="Tests Bot Latency", guild_ids=utils.Level.get_guild_ids())
-    @utils.Checks.rude_name_check()
-    async def _ping(self, ctx: SlashContext):
-        self.count += 1
-        await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"Pong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
 
+    @commands.has_permissions(administrator=True)
     @commands.command()
-    async def shutdown(self, ctx):
-        if ctx.message.author.id == 139374003365216256:
-            print("Shutdown")
-        try:
-            await self.client.logout()
-        except:
-            print("EnvironmentError")
-            self.client.clear()
-        else:
-            await ctx.send("You do not own this bot!")
+    async def sync(self, ctx):
+        await ctx.send("Syncing!")
+        await self.client.tree.sync(guild=utils.Level.get_guild_objects()[0])
+        await ctx.send("Synced!")
+
+    @app_commands.command(
+        description="Pings the bot."
+    )
+    async def ping(self, interaction: discord.Interaction):
+        self.count += 1
+
+        await utils.MessageHelpers.respond(interaction, f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
+
+    @app_commands.command(
+        name="test_defer",
+        description="fuck off"
+    )
+    async def test_defer(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        print("fuck")
+        await asyncio.sleep(3)
+        print("you")
+
+        await interaction.followup.send("fuck yeah")
+        await interaction.followup.send("oh nyo")
 
     @tasks.loop(seconds=45)
     async def change_status(self):
@@ -168,7 +167,7 @@ class Setup(commands.Cog):
         utils.Logging.log(__name__, "Waiting start status change...")
         await self.client.wait_until_ready()
 
-    @check_playlist_changes.before_loop
+    # @check_playlist_changes.before_loop
     async def before_check(self):
         utils.Logging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()
@@ -179,5 +178,5 @@ class Setup(commands.Cog):
         await self.client.wait_until_ready()
 
 
-def setup(client):
-    client.add_cog(Setup(client))
+async def setup(client):
+    await client.add_cog(Setup(client), guilds=utils.Level.get_guild_objects())

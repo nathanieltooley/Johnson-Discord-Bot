@@ -2,10 +2,7 @@ import discord
 import svc.utils as utils
 import enums.bot_enums as enums
 
-
-from discord_slash import cog_ext, SlashContext
 from discord.ext import commands, tasks
-from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
 
 from cogs.event import Event
 

@@ -1,21 +1,17 @@
 import asyncio
-import pprint
 import random
 
 import discord
-import youtube_dl
 
 from yt_dlp import YoutubeDL
 
 import svc.utils as utils
 
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord import app_commands
 
 from data_models.bot_dataclasses import QueuedSong
 from enums.bot_enums import Enums as bot_enums
-from enums.bot_enums import DiscordEnums as discord_enums
 from enums.bot_enums import ReturnTypes as return_types
 
 
@@ -208,37 +204,24 @@ class Music(commands.Cog):
         poll.delete()
         await message.delete()"""
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="play",
-        description="Play a song!",
-        options=[
-            create_option(
-                name="url",
-                description="Valid URLS include Youtube URLS, Spotify Song URLs and Spotify Playlist URLs.",
-                option_type=discord_enums.OPTION_TYPE_STRING.value,
-                required=True,
-            ),
-            create_option(
-                name="playnext",
-                description="Play this song(s) after the current song is done.",
-                option_type=discord_enums.OPTION_TYPE_BOOL.value,
-                required=False
-            )
-        ],
-        guild_ids=utils.Level.get_guild_ids()
+        description="Play a song!"
     )
-    @utils.Checks.rude_name_check()
-    async def _play(self, ctx: SlashContext, url, playnext=False):
-        await ctx.defer()
+    @app_commands.describe(url="Valid URLS include Youtube URLS, Spotify Song URLs and Spotify Playlist URLs.")
+    @app_commands.describe(playnext="Play this song(s) after the current song is done.")
+    async def _play(self, interaction: discord.Interaction, url: str, playnext: bool = False):
 
         url_type = Music.determine_url_type(url)
         if url_type == return_types.RETURN_TYPE_INVALID_URL:
-            await utils.EmbedHelpers.send_message_embed(ctx, title="ERROR",
+            await utils.EmbedHelpers.respond_embed(interaction, title="ERROR",
                                                         code_block="Invalid URL!",
                                                         color=discord.Color.red())
             return
 
-        voice_client = await utils.VoiceClientManager.connect_to_member(self.client, ctx.author)
+        await utils.MessageHelpers.defer(interaction)
+
+        voice_client = await utils.VoiceClientManager.connect_to_member(self.client, interaction.user)
 
         # If we didn't connect, stop command
         if voice_client is None:
@@ -266,66 +249,60 @@ class Music(commands.Cog):
                     index=insert_index
                 )
 
-            await ctx.send(f"Queueing {len(playlist_tracks)} song(s).")
+            await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
             try:
                 utils.YoutubeHelpers.get_video_info(url)
                 self.add_to_queue(url, index=insert_index)
             except Exception as e:
-                await utils.EmbedHelpers.send_message_embed(ctx,
+                await utils.EmbedHelpers.respond_embed(interaction,
                                                             code_block=f"COULD NOT GET INFO. "
                                                                        f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
                                                             color=discord.Color.red())
                 return
 
         if voice_client.is_playing():
-            await utils.EmbedHelpers.send_message_embed(ctx, message="Song currently playing. Will queue next song.")
+            await utils.MessageHelpers.respond(interaction, message="Song currently playing. Will queue next song.")
             return
 
         try:
-            await self.play_song(ctx, voice_client, self.queue[0])
+            await self.play_song(interaction, voice_client, self.queue[0])
         except Exception as e:
-            await utils.EmbedHelpers.send_message_embed(ctx,
+            await utils.EmbedHelpers.respond_embed(interaction,
                                                         code_block=f"COULD NOT GET INFO. "
                                                                    f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
                                                         color=discord.Color.red())
-            await self.check_queue(ctx, voice_client)
+            await self.check_queue(interaction, voice_client)
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="connect",
-        description="Have Johnson Bot connect to your voice channel. (Done automatically by /play!)",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Have Johnson Bot connect to your voice channel. (Done automatically by /play!)"
     )
-    @utils.Checks.rude_name_check()
-    async def _connect(self, ctx: SlashContext):
-        result = await self.join(ctx)
+    async def _connect(self, interaction: discord.Interaction):
+        result = await self.join(interaction)
 
         if result == return_types.RETURN_TYPE_SUCCESSFUL_CONNECT:
-            await ctx.send("Connected!", hidden=True)
+            await interaction.response.send_message("Connected!", ephemeral=True)
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="disconnect",
-        description="Disconnect the bot from a voice channel.",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Disconnect the bot from a voice channel."
     )
-    @utils.Checks.rude_name_check()
-    async def _disconnect(self, ctx: SlashContext):
+    async def _disconnect(self, interaction: discord.Interaction):
         result = await utils.VoiceClientManager.disconnect(self.client)
 
         if result is None:
-            await utils.EmbedHelpers.send_message_embed(ctx=ctx,
+            await utils.EmbedHelpers.respond_embed(interaction,
                                                         code_block="ERROR: Johnson Bot is not in a voice channel!",
                                                         color=discord.Color.red())
         else:
-            await ctx.send("Disconnected!", hidden=True)
+            await utils.MessageHelpers.respond(interaction, "Disconnected!")
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="skip",
-        description="Skips the song currently playing",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Skips the song currently playing"
     )
-    @utils.Checks.rude_name_check()
-    async def _skip(self, ctx: SlashContext):
+    async def _skip(self, interaction: discord.Interaction):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client:
@@ -333,62 +310,62 @@ class Music(commands.Cog):
                 self.paused = False
 
             voice_client.stop()
-            await ctx.send("Skipped!")
+            await interaction.response.send_message("Skipped!")
         else:
-            await ctx.send("Couldn't Skip", hidden=True)
+            await interaction.response.send_message("Couldn't Skip", ephemeral=True)
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="pause",
-        description="Pauses the song currently playing",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Pauses the song currently playing"
     )
-    async def _pause(self, ctx: SlashContext):
+    async def _pause(self, interaction: discord.Interaction):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client and not self.paused:
             voice_client.pause()
             self.paused = True
 
-            await ctx.send("Pausing!")
+            await interaction.response.send_message("Pausing!")
         elif voice_client and self.paused:
-            await ctx.send("Song is already paused!", hidden=True)
+            await interaction.response.send_message("Song is already paused!", ephemeral=True)
         else:
-            await ctx.send("Johnson Bot is not playing anything.", hidden=True)
+            await interaction.response.send_message("Johnson Bot is not playing anything.", ephemeral=True)
 
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="resume",
-        description="Resumes a paused song",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Resumes a paused song"
     )
-    async def _resume(self, ctx: SlashContext):
+    async def _resume(self, interaction: discord.Interaction):
         voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
 
         if voice_client and self.paused:
             voice_client.resume()
             self.paused = False
 
-            await ctx.send("Resuming!")
+            await interaction.response.send_message("Resuming!")
         elif voice_client and not self.paused:
-            await ctx.send("Song is already resumed!", hidden=True)
+            await interaction.response.send_message("Song is already resumed!", ephemeral=True)
         else:
-            await ctx.send("Johnson Bot is not playing anything.", hidden=True)
+            await interaction.response.send_message("Johnson Bot is not playing anything.", ephemeral=True)
 
-    @cog_ext.cog_slash(
-        name="queue",
-        description="Show what songs are currently queued",
-        options=[
-            create_option(
-                name="index",
-                description="Shows the song at this index plus the next nine.",
-                option_type=discord_enums.OPTION_TYPE_INT.value,
-                required=False
-            )
-        ],
-        guild_ids=utils.Level.get_guild_ids()
+    @app_commands.command(
+        name="shuffle",
+        description="Shuffles songs in the queue"
     )
-    async def _queue(self, ctx: SlashContext, index=0):
+    async def _shuffle(self, interaction: discord.Interaction):
+        if self.queue is not None:
+            currently_playing = self.queue.pop(0)
+            random.shuffle(self.queue)
+            self.queue.insert(0, currently_playing)
+            await utils.MessageHelpers.respond(interaction, message="Shuffling List")
+
+    @app_commands.command(
+        name="queue",
+        description="Show what songs are currently queued"
+    )
+    async def _queue(self, interaction: discord.Interaction, index: int = 0):
         if self.queue is None or len(self.queue) == 0:
-            await ctx.send("There is nothing queued", hidden=True)
+            await interaction.response.send_message("There is nothing queued", ephemeral=True)
             return
 
         if abs(index) >= len(self.queue):
@@ -409,39 +386,44 @@ class Music(commands.Cog):
         if self.queue_message is not None:
             self.queue_message = await utils.MessageHelpers.safe_message_delete(self.queue_message)
 
-        self.queue_message = await ctx.send(embed=embed)
+        self.queue_message = await interaction.followup.send(embed=embed, wait=True)
 
-    @cog_ext.cog_slash(
-        name="shuffle",
-        description="Shuffles songs in the queue",
-        guild_ids=utils.Level.get_guild_ids()
-    )
-    async def _shuffle(self, ctx: SlashContext):
-        if self.queue is not None:
-            currently_playing = self.queue.pop(0)
-            random.shuffle(self.queue)
-            self.queue.insert(0, currently_playing)
-            await utils.EmbedHelpers.send_message_embed(ctx, message="Shuffling List")
-
-    @cog_ext.cog_slash(
+    @app_commands.command(
         name="clear_queue",
-        description="Clears the queue.",
-        guild_ids=utils.Level.get_guild_ids()
+        description="Clears the queue."
     )
-    async def _clear_queue(self, ctx):
+    async def _clear_queue(self, interaction: discord.Interaction):
         if not self.queue == []:
             self.queue = []
-            await ctx.send("Cleared.")
+            await interaction.response.send_message("Cleared.")
 
-    async def join(self, ctx: SlashContext):
-        if ctx.author.voice is None:
-            await utils.EmbedHelpers.send_message_embed(ctx, message="You need to be in a voice channel.")
+    @app_commands.command(
+        name="jump",
+        description="Jumps to a song in the queue."
+    )
+    async def _jump(self, interaction: discord.Interaction, index: int, skip: bool = True):
+        if index == 0:
+            return
+
+        if index > len(self.queue):
+            index = len(self.queue) - 1
+
+        for i in range(index):
+            self.queue.pop(i)
+
+        vc = await utils.VoiceClientManager.get_current_vc(self.client)
+
+        vc.stop()
+
+    async def join(self, interaction: discord.Interaction):
+        if interaction.user.voice is None:
+            await utils.MessageHelpers.respond(interaction, message="You need to be in a voice channel.")
             return None
 
-        await utils.VoiceClientManager.connect_to_member(self.client, ctx.author)
+        await utils.VoiceClientManager.connect_to_member(self.client, interaction.user)
         return return_types.RETURN_TYPE_SUCCESSFUL_CONNECT
 
-    async def play_song(self, ctx: SlashContext, voice_client, queued_song: QueuedSong):
+    async def play_song(self, interaction: discord.Interaction, voice_client, queued_song: QueuedSong):
         song_url = queued_song.url
         url_type = queued_song.url_type
 
@@ -460,9 +442,9 @@ class Music(commands.Cog):
 
                     # let try searching with only the title?
                     if tries <= 0:
-                        await utils.EmbedHelpers.send_message_embed(ctx,
+                        await utils.EmbedHelpers.respond_embed(interaction,
                                                                     code_block="Could not find song on youtube . . . SKIPPING")
-                        await self.check_queue(ctx, voice_client)
+                        await self.check_queue(interaction, voice_client)
                         return
                     else:
                         continue
@@ -517,14 +499,14 @@ class Music(commands.Cog):
                         break
 
             if source is None:
-                await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",
+                await utils.EmbedHelpers.respond_embed(interaction, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",
                                                             color=discord.Color.red())
-                await self.check_queue(ctx, voice_client)
+                await self.check_queue(interaction, voice_client)
                 return
 
             # we use asyncio because we can't use await in lambda
             voice_client.play(source,
-                    after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(ctx, voice_client), self.client.loop))
+                    after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(interaction, voice_client), self.client.loop))
 
             if self.np_message is not None:
                 self.np_message = await utils.MessageHelpers.safe_message_delete(self.np_message)
@@ -536,7 +518,7 @@ class Music(commands.Cog):
             else:
                 color = discord.Color.dark_red()
 
-            self.np_message = await utils.EmbedHelpers.send_message_embed(ctx, "Now Playing",
+            self.np_message = await utils.EmbedHelpers.respond_embed(interaction, "Now Playing",
                                                                           message=f"**{queued_song.title}** - "
                                                                                   f"_{utils.SpotifyHelpers.create_artist_string(queued_song.authors)}_",
                                                                           color=color
@@ -582,17 +564,17 @@ class Music(commands.Cog):
         else:
             self.queue.insert(index, q_song)
 
-    async def check_queue(self, ctx, voice_client):
+    async def check_queue(self, interaction: discord.Interaction, voice_client):
         self.queue.pop(0)
         if len(self.queue) > 0:
-            await self.play_song(ctx, voice_client, self.queue[0])
+            await self.play_song(interaction, voice_client, self.queue[0])
         else:
             if self.np_message is not None:
                 self.np_message = await utils.MessageHelpers.safe_message_delete(self.np_message)
             if self.queue_message is not None:
                 self.queue_message = await utils.MessageHelpers.safe_message_delete(self.queue_message)
 
-            dp_message = await utils.EmbedHelpers.send_message_embed(ctx, message="Done Playing Songs.")
+            dp_message = await utils.MessageHelpers.respond(interaction, message="Done Playing Songs.")
             await dp_message.delete(delay=10)
 
     def create_embed_description(self):
@@ -625,5 +607,5 @@ class Music(commands.Cog):
         return description_full
 
 
-def setup(client):
-    client.add_cog(Music(client))
+async def setup(client):
+    await client.add_cog(Music(client), guilds=utils.Level.get_guild_objects())

@@ -4,8 +4,6 @@ import enums.bot_enums as enums
 import svc.utils as utils
 
 from discord.ext import commands
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils.manage_commands import create_option
 
 from dialogue.dialogue_handler import DialogueHandler
 

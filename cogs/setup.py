@@ -9,14 +9,10 @@ from discord.ext import commands, tasks
 from discord import app_commands
 from enums.bot_enums import Enums as bot_enums
 
-status = cycle(["Now Using Slash Commands!",
-                "Minecraft",
-                "Who uses this bot anyways?",
+status = cycle(["Fortnite",
+                "Omori. And you should too!"
                 "Made by Nathaniel",
-                "Build: Different",
-                "Team Fortress 2",
-                "your mom"])
-
+                ])
 
 class Setup(commands.Cog):
 
@@ -61,7 +57,7 @@ class Setup(commands.Cog):
     @tasks.loop(seconds=45)
     async def change_status(self):
         new_stat = next(status)
-        await self.client.change_presence(activity=discord.Game(new_stat))
+        await self.client.change_presence(activity=discord.Game(name=new_stat))
 
     def create_change_embeds(self, changes):
         embeds = []

@@ -8,7 +8,7 @@ from discord_slash import cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from enums.bot_enums import Enums
-from svc import utils as utils
+from utils import utils as utils
 from enums.bot_enums import Enums as bot_enums
 
 

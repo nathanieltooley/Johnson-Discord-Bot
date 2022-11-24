@@ -16,11 +16,11 @@ from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
 from data_models.spotify_check import SpotifyCheck, Song
-from data_models.spotify_poll import SongPoll
-from enums.bot_enums import Enums as bot_enums
+from data_models.spotify_poll import songpoll
+from enums.bot_enums import enums as bot_enums
 from discord.ext import commands
-from youtube_search import YoutubeSearch
-from yt_dlp import YoutubeDL
+from youtube_search import youtubesearch
+from yt_dlp import youtubedl
 
 colorama.init()
 

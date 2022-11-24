@@ -1,5 +1,5 @@
 import discord
-import svc.utils as utils
+import utils.utils as utils
 import enums.bot_enums as enums
 
 from discord.ext import commands, tasks

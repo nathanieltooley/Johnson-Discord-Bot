@@ -3,7 +3,7 @@ from asyncio import sleep
 
 from discord.ext import commands
 
-import svc.utils as utils
+import utils.utils as utils
 
 
 class Moderation(commands.Cog):

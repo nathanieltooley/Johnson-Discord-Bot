@@ -1,12 +1,12 @@
 import os
 
-import svc.utils as utils
+import utils.utils as utils
 import discord
 
 from discord.ext import commands, tasks
 
 from enums.bot_enums import Enums as bot_enums
-from svc.mongo_setup import global_init
+from utils.mongo_setup import global_init
 
 
 class JohnsonBot(commands.Bot):

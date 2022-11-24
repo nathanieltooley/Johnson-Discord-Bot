@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 
-import svc.utils as utils
+import utils.utils as utils
 import discord
 
 from itertools import cycle

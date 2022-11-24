@@ -1,4 +1,4 @@
-import svc.utils as utils
+import utils.utils as utils
 import discord
 import math
 from enums import bot_enums

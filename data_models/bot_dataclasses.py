@@ -1,4 +1,4 @@
-import svc.utils as utils
+import utils.utils as utils
 
 from enums.bot_enums import ReturnTypes as return_types
 

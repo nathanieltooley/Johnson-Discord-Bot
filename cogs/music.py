@@ -5,7 +5,7 @@ import discord
 
 from yt_dlp import YoutubeDL
 
-import svc.utils as utils
+import utils.utils as utils
 
 from discord.ext import commands
 from discord import app_commands

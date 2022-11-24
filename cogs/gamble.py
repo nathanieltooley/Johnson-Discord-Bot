@@ -1,6 +1,6 @@
 import asyncio
 
-import svc.utils as utils
+import utils.utils as utils
 import discord
 import os
 import random

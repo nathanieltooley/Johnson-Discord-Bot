@@ -1,7 +1,7 @@
 import discord
 import asyncio
 import enums.bot_enums as enums
-import svc.utils as utils
+import utils.utils as utils
 
 from discord.ext import commands
 

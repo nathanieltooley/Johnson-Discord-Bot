@@ -5,7 +5,6 @@ import utils.utils as svc
 
 host = os.environ.get('DISCORD_HOST')
 
-
 def global_init():
     try:
         mongoengine.register_connection(alias="default", name="Johnson", host=host)

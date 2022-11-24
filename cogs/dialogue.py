@@ -118,7 +118,7 @@ class Dialogue(commands.Cog):
 
         embed = discord.Embed(title="Dialogue Start!",
                               description="What would you like to talk about?",
-                              color=utils.Color.random_color())
+                              color=discord.Color.random())
 
         d_list = enumerate(self.dialogues, 1)
 

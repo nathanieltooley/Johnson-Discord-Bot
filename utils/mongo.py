@@ -1,15 +1,20 @@
 import discord
 import mongoengine
+import datetime
+import math
+import utils.jspotify as jspotify
 
+from random import randrange, choice
 from mongoengine.queryset import QuerySet
+from enums import bot_enums
 
 from data_models.users import Users
 from data_models.servers import Servers
 from data_models.items import Item, BaseItem
 from data_models.spotify_check import SpotifyCheck, Song
-from data_models.spotify_poll import songpoll
 
 def get_user(member: discord.Member, server: discord.Guild, opp=None):
+    
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
 
@@ -232,18 +237,18 @@ def get_saved_spotify_change():
         return None
 
 def check_for_spotify_change():
-    count = SpotifyHelpers.get_length_of_playlist()
+    count = jspotify.get_length_of_playlist()
 
     sc = get_saved_spotify_change()
 
     if sc is None:
-        tracks = SpotifyHelpers.get_all_playlist_tracks()
+        tracks = jspotify.get_all_playlist_tracks()
         sc = create_spotify_check(tracks)
         sc.save()
 
     if count != sc.count:
-        tracks = SpotifyHelpers.get_all_playlist_tracks()
-        diff = SpotifyHelpers.determine_diff(tracks, sc.songs, sc.last_updated)
+        tracks = jspotify.get_all_playlist_tracks()
+        diff = jspotify.determine_diff(tracks, sc.songs, sc.last_updated)
         update_spotify_check(tracks)
 
         return diff
@@ -260,7 +265,7 @@ def create_spotify_check(tracks):
             artist_names.append(artist['name'])
 
         # date format: YYYY-MM-DDTHH-MM-SSZ
-        added_at = SpotifyHelpers.parse_date(track['added_at'])
+        added_at = jspotify.parse_date(track['added_at'])
 
         album_url = None
 
@@ -275,8 +280,6 @@ def create_spotify_check(tracks):
                     album=track['track']['album']['name'],
                     album_url=album_url,
                     added_at=added_at)
-
-
 
         # sc.songs.append(song)
 
@@ -316,59 +319,59 @@ def get_server_currency_name(server_id):
     else:
         return c_name
 
-def create_spotify_poll(song_url, poll_creator: discord.Member, required_votes):
-    poll = SongPoll(
-        creator=poll_creator.id,
-        song_url=song_url,
-        required_votes=required_votes
-    )
+# def create_spotify_poll(song_url, poll_creator: discord.Member, required_votes):
+#     poll = SongPoll(
+#         creator=poll_creator.id,
+#         song_url=song_url,
+#         required_votes=required_votes
+#     )
 
-    check = SongPoll.objects(creator=poll_creator.id).first()
+#     check = SongPoll.objects(creator=poll_creator.id).first()
 
-    if check:
-        return False
+#     if check:
+#         return False
 
-    poll.voters.append(poll_creator.id)
-    poll.save()
+#     poll.voters.append(poll_creator.id)
+#     poll.save()
 
-    return True
+#     return True
 
-def get_spotify_poll(poll_creator: discord.Member):
-    return SongPoll.objects(creator=poll_creator.id).first()
+# def get_spotify_poll(poll_creator: discord.Member):
+#     return SongPoll.objects(creator=poll_creator.id).first()
 
-def check_for_poll(poll_creator: discord.Member):
-    check = SongPoll.objects(creator=poll_creator.id).first()
+# def check_for_poll(poll_creator: discord.Member):
+#     check = SongPoll.objects(creator=poll_creator.id).first()
 
-    if check:
-        return True
-    else:
-        return False
+#     if check:
+#         return True
+#     else:
+#         return False
 
-def set_poll_id(poll_creator: discord.Member, message_id):
-    poll = SongPoll.objects(creator=poll_creator.id).first()
+# def set_poll_id(poll_creator: discord.Member, message_id):
+#     poll = SongPoll.objects(creator=poll_creator.id).first()
 
-    if not poll:
-        return False
+#     if not poll:
+#         return False
 
-    poll.poll_id = message_id
-    poll.save()
+#     poll.poll_id = message_id
+#     poll.save()
 
-def add_vote_to_poll(poll_creator: discord.Member, voter: discord.Member):
-    poll = SongPoll.objects(creator=poll_creator.id).first()
+# def add_vote_to_poll(poll_creator: discord.Member, voter: discord.Member):
+#     poll = SongPoll.objects(creator=poll_creator.id).first()
 
-    if not poll:
-        return None
+#     if not poll:
+#         return None
 
-    poll.current_votes += 1
-    poll.voters.append(voter.id)
+#     poll.current_votes += 1
+#     poll.voters.append(voter.id)
 
-    if poll.current_votes >= poll.required_votes:
-        poll.save()
-        return True
-    else:
-        poll.save()
-        return False
+#     if poll.current_votes >= poll.required_votes:
+#         poll.save()
+#         return True
+#     else:
+#         poll.save()
+#         return False
 
-def get_all_polls():
-    polls = SongPoll.objects()
-    return polls
+# def get_all_polls():
+#     polls = SongPoll.objects()
+#     return polls

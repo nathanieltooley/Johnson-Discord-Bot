@@ -1,13 +1,14 @@
 import asyncio
 import datetime
 
-import utils.utils as utils
 import discord
 
 from itertools import cycle
 from discord.ext import commands, tasks
 from discord import app_commands
 from enums.bot_enums import Enums as bot_enums
+
+from utils import level, messaging, jspotify, mongo, jlogging
 
 status = cycle(["Fortnite",
                 "Omori. And you should too!"
@@ -29,7 +30,7 @@ class Setup(commands.Cog):
     @commands.command()
     async def sync(self, ctx):
         await ctx.send("Syncing!")
-        await self.client.tree.sync(guild=utils.Level.get_guild_objects()[0])
+        await self.client.tree.sync(guild=level.get_guild_objects()[0])
         await ctx.send("Synced!")
 
     @app_commands.command(
@@ -38,7 +39,7 @@ class Setup(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         self.count += 1
 
-        await utils.MessageHelpers.respond(interaction, f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
+        await messaging.respond(interaction, f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
 
     @app_commands.command(
         name="test_defer",
@@ -65,10 +66,10 @@ class Setup(commands.Cog):
         # removals
         if changes[0]:
             for song_id in changes[0]:
-                track = utils.SpotifyHelpers.get_track(song_id)
+                track = jspotify.get_track(song_id)
 
                 artists_names = [artist['name'] for artist in track['artists']]
-                artist_string = utils.SpotifyHelpers.create_artist_string(artists_names)
+                artist_string = jspotify.create_artist_string(artists_names)
 
                 removed_embed = discord.Embed(title=track['name'],
                                               description="This song has been removed from the playlist.",
@@ -92,7 +93,7 @@ class Setup(commands.Cog):
         if changes[1]:
             for song_id in changes[1]:
                 artists_names = [artist['name'] for artist in song_id['track']['artists']]
-                artist_string = utils.SpotifyHelpers.create_artist_string(artists_names)
+                artist_string = jspotify.create_artist_string(artists_names)
 
                 added_embed = discord.Embed(title=song_id['track']['name'],
                                             description="This song has been added to the playlist.",
@@ -122,7 +123,7 @@ class Setup(commands.Cog):
         channel = self.client.get_channel(channel_id)
 
         try:
-            diff = utils.Mongo.check_for_spotify_change()
+            diff = mongo.check_for_spotify_change()
 
             if diff:
                 embeds = self.create_change_embeds(diff)
@@ -130,28 +131,28 @@ class Setup(commands.Cog):
                 for embed in embeds:
                     await channel.send(embed=embed)
 
-            utils.Logging.log("Spotify Check", f"Check successful; took: {datetime.datetime.now() - start}")
+            jlogging.log("Spotify Check", f"Check successful; took: {datetime.datetime.now() - start}")
         except Exception as e:
-            utils.Logging.error("Spotify Check", f"Check unsuccessful: {e}")
+            jlogging.error("Spotify Check", f"Check unsuccessful: {e}")
 
     # @tasks.loop(hours=1)
     async def check_for_dead_polls(self):
-        polls = utils.Mongo.get_all_polls()
+        polls = mongo.get_all_polls()
 
         for poll in polls:
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(tzinfo=datetime.timezone.utc)
 
-            utils.Logging.log("spotify_prune", f"Time delta: {td}")
+            jlogging.log("spotify_prune", f"Time delta: {td}")
 
             # limit is a day
             if td.total_seconds() >= 86400:
-                channel = utils.Level.get_poll_channel(self.client)
+                channel = level.get_poll_channel(self.client)
                 message = await channel.fetch_message(poll.poll_id)
 
                 await message.delete()
 
-                embed = utils.EmbedHelpers.create_message_embed("Poll Closed!",
+                embed = messaging.create_message_embed("Poll Closed!",
                                                                 f"{self.client.get_user(poll.creator).mention}'s poll "
                                                                 f"has been closed. opened at "
                                                                 f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})")
@@ -160,19 +161,19 @@ class Setup(commands.Cog):
 
     @change_status.before_loop
     async def before_status(self):
-        utils.Logging.log(__name__, "Waiting start status change...")
+        jlogging.log(__name__, "Waiting start status change...")
         await self.client.wait_until_ready()
 
     # @check_playlist_changes.before_loop
     async def before_check(self):
-        utils.Logging.log(__name__, "Waiting to start spotify polling...")
+        jlogging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()
 
     # @check_for_dead_polls.before_loop
     async def before_polls(self):
-        utils.Logging.log(__name__, "Waiting to start poll prune...")
+        jlogging.log(__name__, "Waiting to start poll prune...")
         await self.client.wait_until_ready()
 
 
 async def setup(client):
-    await client.add_cog(Setup(client), guilds=utils.Level.get_guild_objects())
+    await client.add_cog(Setup(client), guilds=level.get_guild_objects())

@@ -1,5 +1,5 @@
 import discord
-from enums import bot_enums
+from enums.bot_enums import Enums as bot_enums
 
 from utils import jlogging
 

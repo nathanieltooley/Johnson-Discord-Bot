@@ -1,9 +1,8 @@
 import discord
-import svc.utils as utils
 import enums.bot_enums as enums
 
 from discord.ext import commands, tasks
-
+from utils import level, messaging, checks, mongo
 from cogs.event import Event
 
 
@@ -29,12 +28,12 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def update_vbucks(self, ctx, member: discord.Member, money: int):
-        utils.Mongo.update_vbucks(member, ctx.guild, money)
-        await utils.EmbedHelpers.send_message_embed(ctx, "", f"{member.mention}'s V-Buck amount has been updated to **{money}**")
+        mongo.update_vbucks(member, ctx.guild, money)
+        await messaging.send_message_embed(ctx, "", f"{member.mention}'s V-Buck amount has been updated to **{money}**")
 
     @cog_ext.cog_slash(
         name="update_xp",
@@ -53,15 +52,15 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
-        check = utils.Mongo.update_exp(member, ctx.guild, exp)
+        check = mongo.update_exp(member, ctx.guild, exp)
         if check is None:
-            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to {exp}")
+            await messaging.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to {exp}")
         else:
-            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to **{exp}** and their level has changed to **{check}**")
+            await messaging.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to **{exp}** and their level has changed to **{check}**")
 
     @cog_ext.cog_slash(
         name="set_user_level",
@@ -80,15 +79,15 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def set_user_level(self, ctx, member: discord.Member, level: int):
 
         required_exp = pow(level, 4)
-        utils.Mongo.update_exp(member, ctx.guild, required_exp)
+        mongo.update_exp(member, ctx.guild, required_exp)
 
-        await utils.EmbedHelpers.send_message_embed(ctx, message=f"{member.mention}'s level is now **{level}**. XP is **{required_exp}**")
+        await messaging.send_message_embed(ctx, message=f"{member.mention}'s level is now **{level}**. XP is **{required_exp}**")
 
     @cog_ext.cog_slash(
         name="create_account",
@@ -101,12 +100,12 @@ class Admin(commands.Cog):
                 required=True
             ),
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def create_account(self, ctx, member: discord.Member):
-        utils.Mongo.create_user(member, ctx.guild)
-        await utils.EmbedHelpers.send_message_embed(ctx, message=f"{member.display_name}'s account was created.")
+        mongo.create_user(member, ctx.guild)
+        await messaging.send_message_embed(ctx, message=f"{member.display_name}'s account was created.")
 
     @cog_ext.cog_slash(
         name="talk",
@@ -125,7 +124,7 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
     async def talk_ch(self, ctx: SlashContext, message, channel: discord.abc.GuildChannel):
         # im gonna keep this in cuz i think the message is funny
@@ -150,12 +149,12 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def change_currency_name(self, ctx: SlashContext, c_name):
-        utils.Mongo.set_server_currency_name(ctx.guild.id, c_name)
-        await utils.EmbedHelpers.send_message_embed(ctx, code_block=f"Name has changed to: {c_name}")
+        mongo.set_server_currency_name(ctx.guild.id, c_name)
+        await messaging.send_message_embed(ctx, code_block=f"Name has changed to: {c_name}")
 
 
 def setup(client):

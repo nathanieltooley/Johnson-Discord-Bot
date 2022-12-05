@@ -5,8 +5,6 @@ import discord
 
 from yt_dlp import YoutubeDL
 
-import svc.utils as utils
-
 from discord.ext import commands
 from discord import app_commands
 
@@ -14,6 +12,7 @@ from data_models.bot_dataclasses import QueuedSong
 from enums.bot_enums import Enums as bot_enums
 from enums.bot_enums import ReturnTypes as return_types
 
+from utils import messaging, vcm, jspotify, youtube, jlogging, level
 
 class Music(commands.Cog):
 
@@ -214,14 +213,14 @@ class Music(commands.Cog):
 
         url_type = Music.determine_url_type(url)
         if url_type == return_types.RETURN_TYPE_INVALID_URL:
-            await utils.EmbedHelpers.respond_embed(interaction, title="ERROR",
+            await messaging.respond_embed(interaction, title="ERROR",
                                                         code_block="Invalid URL!",
                                                         color=discord.Color.red())
             return
 
-        await utils.MessageHelpers.defer(interaction)
+        await messaging.defer(interaction)
 
-        voice_client = await utils.VoiceClientManager.connect_to_member(self.client, interaction.user)
+        voice_client = await vcm.connect_to_member(self.client, interaction.user)
 
         # If we didn't connect, stop command
         if voice_client is None:
@@ -232,8 +231,8 @@ class Music(commands.Cog):
             insert_index = 1
 
         if url_type == return_types.RETURN_TYPE_SPOTPLAYLIST_URL:
-            playlist_tracks = utils.SpotifyHelpers.get_all_playlist_tracks(
-                utils.SpotifyHelpers.parse_id_out_of_url(url))
+            playlist_tracks = jspotify.get_all_playlist_tracks(
+                jspotify.parse_id_out_of_url(url))
 
             for top_track in playlist_tracks:
                 track = top_track["track"]
@@ -245,30 +244,30 @@ class Music(commands.Cog):
                 self.add_to_queue(
                     song_url=track["external_urls"]["spotify"],
                     title=track["name"],
-                    authors=utils.SpotifyHelpers.get_artist_names(track),
+                    authors=jspotify.get_artist_names(track),
                     index=insert_index
                 )
 
             await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
             try:
-                utils.YoutubeHelpers.get_video_info(url)
+                youtube.get_video_info(url)
                 self.add_to_queue(url, index=insert_index)
             except Exception as e:
-                await utils.EmbedHelpers.respond_embed(interaction,
+                await messaging.respond_embed(interaction,
                                                             code_block=f"COULD NOT GET INFO. "
                                                                        f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
                                                             color=discord.Color.red())
                 return
 
         if voice_client.is_playing():
-            await utils.MessageHelpers.respond(interaction, message="Song currently playing. Will queue next song.")
+            await messaging.respond(interaction, message="Song currently playing. Will queue next song.")
             return
 
         try:
             await self.play_song(interaction, voice_client, self.queue[0])
         except Exception as e:
-            await utils.EmbedHelpers.respond_embed(interaction,
+            await messaging.respond_embed(interaction,
                                                         code_block=f"COULD NOT GET INFO. "
                                                                    f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
                                                         color=discord.Color.red())
@@ -289,21 +288,21 @@ class Music(commands.Cog):
         description="Disconnect the bot from a voice channel."
     )
     async def _disconnect(self, interaction: discord.Interaction):
-        result = await utils.VoiceClientManager.disconnect(self.client)
+        result = await vcm.disconnect(self.client)
 
         if result is None:
-            await utils.EmbedHelpers.respond_embed(interaction,
+            await messaging.respond_embed(interaction,
                                                         code_block="ERROR: Johnson Bot is not in a voice channel!",
                                                         color=discord.Color.red())
         else:
-            await utils.MessageHelpers.respond(interaction, "Disconnected!")
+            await messaging.respond(interaction, "Disconnected!")
 
     @app_commands.command(
         name="skip",
         description="Skips the song currently playing"
     )
     async def _skip(self, interaction: discord.Interaction):
-        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
+        voice_client = await vcm.get_current_vc(self.client)
 
         if voice_client:
             if self.paused:
@@ -319,7 +318,7 @@ class Music(commands.Cog):
         description="Pauses the song currently playing"
     )
     async def _pause(self, interaction: discord.Interaction):
-        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
+        voice_client = await vcm.get_current_vc(self.client)
 
         if voice_client and not self.paused:
             voice_client.pause()
@@ -336,7 +335,7 @@ class Music(commands.Cog):
         description="Resumes a paused song"
     )
     async def _resume(self, interaction: discord.Interaction):
-        voice_client = await utils.VoiceClientManager.get_current_vc(self.client)
+        voice_client = await vcm.get_current_vc(self.client)
 
         if voice_client and self.paused:
             voice_client.resume()
@@ -357,7 +356,7 @@ class Music(commands.Cog):
             currently_playing = self.queue.pop(0)
             random.shuffle(self.queue)
             self.queue.insert(0, currently_playing)
-            await utils.MessageHelpers.respond(interaction, message="Shuffling List")
+            await messaging.respond(interaction, message="Shuffling List")
 
     @app_commands.command(
         name="queue",
@@ -384,7 +383,7 @@ class Music(commands.Cog):
         embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
 
         if self.queue_message is not None:
-            self.queue_message = await utils.MessageHelpers.safe_message_delete(self.queue_message)
+            self.queue_message = await messaging.safe_message_delete(self.queue_message)
 
         self.queue_message = await interaction.followup.send(embed=embed, wait=True)
 
@@ -411,16 +410,16 @@ class Music(commands.Cog):
         for i in range(index):
             self.queue.pop(i)
 
-        vc = await utils.VoiceClientManager.get_current_vc(self.client)
+        vc = await vcm.get_current_vc(self.client)
 
         vc.stop()
 
     async def join(self, interaction: discord.Interaction):
         if interaction.user.voice is None:
-            await utils.MessageHelpers.respond(interaction, message="You need to be in a voice channel.")
+            await messaging.respond(interaction, message="You need to be in a voice channel.")
             return None
 
-        await utils.VoiceClientManager.connect_to_member(self.client, interaction.user)
+        await vcm.connect_to_member(self.client, interaction.user)
         return return_types.RETURN_TYPE_SUCCESSFUL_CONNECT
 
     async def play_song(self, interaction: discord.Interaction, voice_client, queued_song: QueuedSong):
@@ -435,27 +434,27 @@ class Music(commands.Cog):
             tries = 5
 
             while True:
-                result = utils.SpotifyHelpers.search_song_on_youtube(song_url)
+                result = jspotify.search_song_on_youtube(song_url)
 
                 if result is None:
                     tries -= 1
 
                     # let try searching with only the title?
                     if tries <= 0:
-                        await utils.EmbedHelpers.respond_embed(interaction,
+                        await messaging.respond_embed(interaction,
                                                                     code_block="Could not find song on youtube . . . SKIPPING")
                         await self.check_queue(interaction, voice_client)
                         return
                     else:
                         continue
                 else:
-                    utils.Logging.log("music_bot",
+                    jlogging.log("music_bot",
                                       f"Youtube search took {5 - tries} tries for {queued_song.title} - {queued_song.authors}")
                     break
 
             suffix = result["url_suffix"]
 
-            song_url = utils.YoutubeHelpers.construct_url_from_suffix(suffix)
+            song_url = youtube.construct_url_from_suffix(suffix)
 
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': "-vn"}
@@ -463,17 +462,17 @@ class Music(commands.Cog):
 
         retries = 5
 
-        utils.Logging.log("music_bot", f"Starting playback; url: {song_url}")
+        jlogging.log("music_bot", f"Starting playback; url: {song_url}")
         with YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(song_url, download=False)
 
             # opus acodec
             # high quality
 
-            audio_url = utils.YoutubeHelpers.find_best_audio_link(info['formats'], queued_song.url_type)
+            audio_url = youtube.find_best_audio_link(info['formats'], queued_song.url_type)
 
-            if utils.Level.get_bot_level() == "DEBUG":
-                utils.Logging.log("music_bot", f"Best Audio Link: {audio_url}")
+            if level.get_bot_level() == "DEBUG":
+                jlogging.log("music_bot", f"Best Audio Link: {audio_url}")
 
             # url2 = info['formats'][0]['url']
 
@@ -499,7 +498,7 @@ class Music(commands.Cog):
                         break
 
             if source is None:
-                await utils.EmbedHelpers.respond_embed(interaction, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",
+                await messaging.respond_embed(interaction, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",
                                                             color=discord.Color.red())
                 await self.check_queue(interaction, voice_client)
                 return
@@ -509,7 +508,7 @@ class Music(commands.Cog):
                     after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(interaction, voice_client), self.client.loop))
 
             if self.np_message is not None:
-                self.np_message = await utils.MessageHelpers.safe_message_delete(self.np_message)
+                self.np_message = await messaging.safe_message_delete(self.np_message)
 
             if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
                 color = discord.Color.green()
@@ -518,15 +517,15 @@ class Music(commands.Cog):
             else:
                 color = discord.Color.dark_red()
 
-            self.np_message = await utils.EmbedHelpers.respond_embed(interaction, "Now Playing",
+            self.np_message = await messaging.respond_embed(interaction, "Now Playing",
                                                                           message=f"**{queued_song.title}** - "
-                                                                                  f"_{utils.SpotifyHelpers.create_artist_string(queued_song.authors)}_",
+                                                                                  f"_{jspotify.create_artist_string(queued_song.authors)}_",
                                                                           color=color
                                                                           )
 
     @staticmethod
     def add_song_to_playlist(song_url):
-        utils.SpotifyHelpers.add_song_to_playlist(bot_enums.OUR_PLAYLIST_ID.value, song_url)
+        jspotify.add_song_to_playlist(bot_enums.OUR_PLAYLIST_ID.value, song_url)
 
     @staticmethod
     def determine_url_type(song_url):
@@ -570,11 +569,11 @@ class Music(commands.Cog):
             await self.play_song(interaction, voice_client, self.queue[0])
         else:
             if self.np_message is not None:
-                self.np_message = await utils.MessageHelpers.safe_message_delete(self.np_message)
+                self.np_message = await messaging.safe_message_delete(self.np_message)
             if self.queue_message is not None:
-                self.queue_message = await utils.MessageHelpers.safe_message_delete(self.queue_message)
+                self.queue_message = await messaging.safe_message_delete(self.queue_message)
 
-            dp_message = await utils.MessageHelpers.respond(interaction, message="Done Playing Songs.")
+            dp_message = await messaging.respond(interaction, message="Done Playing Songs.")
             await dp_message.delete(delay=10)
 
     def create_embed_description(self):
@@ -597,7 +596,7 @@ class Music(commands.Cog):
                 song.cache_properties()
 
             description_inner += f"{i + 1 + self.view_index}. " \
-                                 f"{song.title} - {utils.SpotifyHelpers.create_artist_string(song.authors)} " \
+                                 f"{song.title} - {jspotify.create_artist_string(song.authors)} " \
                                  f"{'(NOW PLAYING)' if (i + self.view_index) == 0 else ''}\n"
 
             i += 1
@@ -608,4 +607,4 @@ class Music(commands.Cog):
 
 
 async def setup(client):
-    await client.add_cog(Music(client), guilds=utils.Level.get_guild_objects())
+    await client.add_cog(Music(client), guilds=level.get_guild_objects())

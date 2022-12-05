@@ -1,10 +1,9 @@
 import mongoengine
 import os
 import pymongo
-import svc.utils as svc
+import utils.utils as svc
 
 host = os.environ.get('DISCORD_HOST')
-
 
 def global_init():
     try:

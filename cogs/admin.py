@@ -52,15 +52,15 @@ class Admin(commands.Cog):
                 required=True
             )
         ],
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.check_is_owner()
+    @checks.check_is_owner()
     async def update_exp(self, ctx, member: discord.Member, exp: int):
-        check = utils.Mongo.update_exp(member, ctx.guild, exp)
+        check = mongo.update_exp(member, ctx.guild, exp)
         if check is None:
-            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to {exp}")
+            await messaging.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to {exp}")
         else:
-            await utils.EmbedHelpers.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to **{exp}** and their level has changed to **{check}**")
+            await messaging.send_message_embed(ctx, "Update EXP", f"{member.mention}'s XP has been set to **{exp}** and their level has changed to **{check}**")
 
     @cog_ext.cog_slash(
         name="set_user_level",

@@ -1,9 +1,8 @@
-import utils.utils as svc
 import discord
 
 from discord.ext import commands, tasks
-
 from enums.bot_enums import Enums as bot_enums
+from utils import messaging, level, jlogging, checks, mongo
 
 
 class Event(commands.Cog):
@@ -33,20 +32,20 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, interaction: discord.Interaction, error):
         if isinstance(error, commands.MissingPermissions):
-            await svc.MessageHelpers.respond(interaction, "You do not have permission to use this command")
+            await messaging.respond(interaction, "You do not have permission to use this command")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await svc.MessageHelpers.respond(interaction, "Please give all required parameters")
+            await messaging.respond(interaction, "Please give all required parameters")
         elif isinstance(error, commands.CommandOnCooldown):
-            await svc.MessageHelpers.respond(interaction, "Command on cooldown. Please wait")
+            await messaging.respond(interaction, "Command on cooldown. Please wait")
         elif isinstance(error, commands.UserInputError):
-            await svc.MessageHelpers.respond(interaction, "You seemed to have messed up, try again")
+            await messaging.respond(interaction, "You seemed to have messed up, try again")
         else:
-            if svc.Level.get_bot_level() == "DEBUG":
+            if level.get_bot_level() == "DEBUG":
                 raise error
             else:
-                await svc.EmbedHelpers.respond_embed(interaction, title="ERROR", code_block=f"{error}", color=discord.Color.red())
+                await messaging.respond_embed(interaction, title="ERROR", code_block=f"{error}", color=discord.Color.red())
 
-        svc.Logging.error("command_error", error)
+        jlogging.error("command_error", error)
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):
@@ -64,7 +63,7 @@ class Event(commands.Cog):
             return
 
         if spotify.artist == "The Strokes":
-            svc.Mongo.add_to_stroke_count(member, member.guild, 1)
+            mongo.add_to_stroke_count(member, member.guild, 1)
 
             """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",
                                      description=f"{spotify.title} - {spotify.album}",
@@ -91,7 +90,7 @@ class Event(commands.Cog):
     async def bot_checks(message):
         c_message = Event.create_check_message(message)
 
-        for adl in svc.Checks.slur_list:
+        for adl in checks.slur_list:
             if adl in c_message:
                 await message.delete()
                 break
@@ -100,7 +99,7 @@ class Event(commands.Cog):
     def slur_checks(message):
         c_message = Event.create_check_message(message)
 
-        for slur in svc.Checks.slur_list:
+        for slur in checks.slur_list:
             if slur in c_message and not c_message.startswith("https://tenor.com/"):  # Ignore gif links
                 return slur
 
@@ -108,8 +107,8 @@ class Event(commands.Cog):
 
     @staticmethod
     def record_said_slur(message, slur):
-        svc.Mongo.add_to_slur_count(message.author, message.guild, 1, slur)
-        svc.Logging.log(__name__, f"{message.author.name} said slur: {slur}")
+        mongo.add_to_slur_count(message.author, message.guild, 1, slur)
+        jlogging.log(__name__, f"{message.author.name} said slur: {slur}")
 
     @staticmethod
     async def respond_to_slur(message):
@@ -119,7 +118,7 @@ class Event(commands.Cog):
         await message.channel.send(
             f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:")
         await message.delete()
-        svc.Logging.log(__name__, f"Message deleted, from {message_author}:{message_content}")
+        jlogging.log(__name__, f"Message deleted, from {message_author}:{message_content}")
 
     @staticmethod
     async def determine_response(said_slur, message):
@@ -215,9 +214,9 @@ class Event(commands.Cog):
 
     @staticmethod
     async def add_to_stats(message):
-        svc.Mongo.create_user(message.author, message.guild)
-        svc.Mongo.income(message.author, message.guild, 50)
-        level_up = svc.Mongo.exp_check(message.author, message.guild, 1, 10)
+        mongo.create_user(message.author, message.guild)
+        mongo.income(message.author, message.guild, 50)
+        level_up = mongo.exp_check(message.author, message.guild, 1, 10)
 
         if level_up:
             await message.channel.send(level_up)
@@ -226,7 +225,7 @@ class Event(commands.Cog):
         target_guild = None
         target_channel = None
 
-        if svc.Level.get_bot_level() == "DEBUG":
+        if level.get_bot_level() == "DEBUG":
             target_guild = self.client.get_guild(bot_enums.TEST_SERVER_ID.value)
             target_channel = target_guild.get_channel(842246555205763092)
         else:
@@ -243,4 +242,4 @@ class Event(commands.Cog):
 
 
 async def setup(client):
-    await client.add_cog(Event(client), guilds=svc.Level.get_guild_objects())
+    await client.add_cog(Event(client), guilds=level.get_guild_objects())

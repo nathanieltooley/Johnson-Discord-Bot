@@ -1,10 +1,9 @@
 import discord
 import asyncio
 import enums.bot_enums as enums
-import utils.utils as utils
 
 from discord.ext import commands
-
+from utils import level, checks
 from dialogue.dialogue_handler import DialogueHandler
 
 class DialogueTree:
@@ -109,9 +108,9 @@ class Dialogue(commands.Cog):
     @cog_ext.cog_slash(
         name="start_dialogue",
         description="Start up a conversation with Johnson Bot",
-        guild_ids=utils.Level.get_guild_ids()
+        guild_ids=level.get_guild_ids()
     )
-    @utils.Checks.rude_name_check()
+    @checks.rude_name_check()
     async def start_dialogue(self, ctx):
 
         DialogueHandler.get_json_files()

@@ -75,6 +75,26 @@ class Event(commands.Cog):
             await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
 
     @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        id_check = 249997264553115648
+
+        if member.id == id_check and after.channel is not None:
+            self.remind_wyatt.start()
+            jlogging.time_log(__name__, "Sending reminders to wyatt!")
+        
+        if member.id == id_check and after.channel is None:
+            self.remind_wyatt.stop() 
+            jlogging.time_log(__name__, "Ending reminders to wyatt!")
+
+    @tasks.loop(minutes=7)
+    async def remind_wyatt(self):
+        wyatt_id = 249997264553115648
+
+        wyatt_user = self.client.get_user(wyatt_id)
+
+        await wyatt_user.send("Wyatt! Uncross your legs and sit up straight!")
+
+    @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         user_slur = self.slur_checks(after)
         await Event.determine_response(user_slur, after)

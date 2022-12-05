@@ -1,6 +1,5 @@
-import utils.utils as utils
-
 from enums.bot_enums import ReturnTypes as return_types
+from utils import jspotify, youtube
 
 
 class QueuedSong:
@@ -18,14 +17,14 @@ class QueuedSong:
 
     def cache_properties(self):
         if self.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
-            track_info = utils.SpotifyHelpers.get_track(utils.SpotifyHelpers.parse_id_out_of_url(self.url))
+            track_info = jspotify.get_track(jspotify.parse_id_out_of_url(self.url))
 
             self.title = track_info["name"]
-            self.authors = utils.SpotifyHelpers.get_artist_names(track_info)
+            self.authors = jspotify.get_artist_names(track_info)
 
             self.props_set = True
         else:
-            info = utils.YoutubeHelpers.get_video_info(self.url)
+            info = youtube.get_video_info(self.url)
 
             self.title = info["title"]
 

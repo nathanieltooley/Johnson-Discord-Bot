@@ -1,14 +1,15 @@
 import mongoengine
 import os
 import pymongo
-import utils.utils as svc
+
+from utils import jlogging
 
 host = os.environ.get('DISCORD_HOST')
 
 def global_init():
     try:
         mongoengine.register_connection(alias="default", name="Johnson", host=host)
-        svc.Logging.log(__name__, "Connected!")
+        jlogging.log(__name__, "Connected!")
     except pymongo.errors.ConfigurationError or pymongo.errors.ConnectionFailure:
-        svc.Logging.warning("global_init", "Could not connect; Retrying...")
+        jlogging.warning("global_init", "Could not connect; Retrying...")
         global_init()

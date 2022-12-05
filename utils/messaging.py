@@ -1,6 +1,7 @@
 import discord
-import jlogging
 from enums import bot_enums
+
+from utils import jlogging
 
 def create_message_embed(title="", message="", code_block=None, color=discord.Color.blurple()):
     embed = discord.Embed(

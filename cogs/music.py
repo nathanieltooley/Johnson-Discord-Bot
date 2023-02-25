@@ -8,7 +8,7 @@ from yt_dlp import YoutubeDL
 from discord.ext import commands
 from discord import app_commands
 
-from data_models.music import QueuedSong
+from data_models.music import BaseSong, YDLSong, SpotifySong, SoundcloudSong
 from enums.bot_enums import Enums as bot_enums
 from enums.bot_enums import ReturnTypes as return_types
 
@@ -211,8 +211,9 @@ class Music(commands.Cog):
     @app_commands.describe(playnext="Play this song(s) after the current song is done.")
     async def _play(self, interaction: discord.Interaction, url: str, playnext: bool = False):
 
-        url_type = Music.determine_url_type(url)
-        if url_type == return_types.RETURN_TYPE_INVALID_URL:
+        song_type = Music.determine_song_type(url)
+
+        if song_type == return_types.RETURN_TYPE_INVALID_URL:
             await messaging.respond_embed(interaction, title="ERROR",
                                                         code_block="Invalid URL!",
                                                         color=discord.Color.red())
@@ -230,7 +231,7 @@ class Music(commands.Cog):
         if playnext:
             insert_index = 1
 
-        if url_type == return_types.RETURN_TYPE_SPOTPLAYLIST_URL:
+        if Music.is_playlist_url(url):
             playlist_tracks = jspotify.get_all_playlist_tracks(
                 jspotify.parse_id_out_of_url(url))
 
@@ -250,15 +251,7 @@ class Music(commands.Cog):
 
             await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
-            try:
-                youtube.get_video_info(url)
-                self.add_to_queue(url, index=insert_index)
-            except Exception as e:
-                await messaging.respond_embed(interaction,
-                                                            code_block=f"COULD NOT GET INFO. "
-                                                                       f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
-                                                            color=discord.Color.red())
-                return
+            self.add_to_queue(song_type, index=insert_index)
 
         if voice_client.is_playing():
             await messaging.respond(interaction, message="Song currently playing. Will queue next song.")
@@ -267,6 +260,7 @@ class Music(commands.Cog):
         try:
             await self.play_song(interaction, voice_client, self.queue[0])
         except Exception as e:
+            jlogging.error("__music__", e)
             await messaging.respond_embed(interaction,
                                                         code_block=f"COULD NOT GET INFO. "
                                                                    f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
@@ -422,33 +416,16 @@ class Music(commands.Cog):
         await vcm.connect_to_member(self.client, interaction.user)
         return return_types.RETURN_TYPE_SUCCESSFUL_CONNECT
 
-    async def play_song(self, interaction: discord.Interaction, voice_client, queued_song: QueuedSong):
+    async def play_song(self, interaction: discord.Interaction, voice_client, queued_song: BaseSong):
 
-        if not queued_song.props_set:
-            queued_song.cache_properties()
-
-        if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
-            tries = 5
-
-            for i in range(0, tries):
-                search_result = jspotify.search_song_on_youtube(queued_song.url)
-
-                if search_result is not None:
-                    suffix = search_result["url_suffix"]
-                    queued_song.url = youtube.construct_url_from_suffix(suffix)
-                    jlogging.log("music_bot", f"Youtube search took {i} tries for {queued_song.title} - {queued_song.authors}")
-                    break
-
-                if i == (tries - 1):
-                    await messaging.respond_embed(interaction, code_block="Could not find song on youtube . . . SKIPPING")
-                    await self.check_queue(interaction, voice_client)
-                    return      
-
+        if queued_song.flagged:
+            await messaging.respond_embed(interaction, code_block="Could not find song on youtube . . . SKIPPING")
+            await self.check_queue(interaction, voice_client)
+            return   
+               
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': "-vn"}
         ydl_options = {'format': 'bestaudio'}
-
-        retries = 5
 
         jlogging.log("music_bot", f"Starting playback; url: {queued_song.url}")
         with YoutubeDL(ydl_options) as ydl:
@@ -457,24 +434,15 @@ class Music(commands.Cog):
             # opus acodec
             # high quality
 
-            audio_url = youtube.find_best_audio_link(info['formats'], queued_song.url_type)
+            audio_url = youtube.find_best_audio_link(info['formats'], queued_song.url)
 
             if level.get_bot_level() == "DEBUG":
                 jlogging.log("music_bot", f"Best Audio Link: {audio_url}")
 
-            # url2 = info['formats'][0]['url']
-
-            """if url2 is None:
-                await ctx.send("COULD NOT PLAY MEDIA . . . SKIPPING")
-                await self.check_queue(ctx)
-                return
-
-            if utils.Level.get_bot_level() == "DEBUG":
-                utils.Logging.log("music_bot", f"Probe Url: {url2}")"""
-
             source = None
 
             # lots of 403 errors, don't know why
+            retries = 5
             while True:
                 try:
                     source = await discord.FFmpegOpusAudio.from_probe(audio_url, method='fallback', **ffmpeg_options)
@@ -498,17 +466,10 @@ class Music(commands.Cog):
             if self.np_message is not None:
                 self.np_message = await messaging.safe_message_delete(self.np_message)
 
-            if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
-                color = discord.Color.green()
-            elif queued_song.url_type == return_types.RETURN_TYPE_SOUNDCLOUD_URL:
-                color = discord.Color.orange()
-            else:
-                color = discord.Color.dark_red()
-
             self.np_message = await messaging.respond_embed(interaction, "Now Playing",
                                                                           message=f"**{queued_song.title}** - "
                                                                                   f"_{jspotify.create_artist_string(queued_song.authors)}_",
-                                                                          color=color
+                                                                          color=queued_song.color()
                                                                           )
 
     @staticmethod
@@ -516,7 +477,7 @@ class Music(commands.Cog):
         jspotify.add_song_to_playlist(bot_enums.OUR_PLAYLIST_ID.value, song_url)
 
     @staticmethod
-    def determine_url_type(song_url):
+    def determine_song_type(song_url):
         # https://www.youtube.com/watch?v=_arqbQqq88M
         # https://youtu.be/U9qdhF7m80M
         # https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
@@ -528,28 +489,40 @@ class Music(commands.Cog):
 
         try:
             if segments[1] == "www.youtube.com" or segments[1] == "youtu.be":
-                return return_types.RETURN_TYPE_YOUTUBE_URL
+                return YDLSong(song_url)
             elif segments[2] == "open.spotify.com":
                 if segments[1] == "track":
-                    return return_types.RETURN_TYPE_SPOTIFY_URL
-                elif segments[1] == "playlist":
-                    return return_types.RETURN_TYPE_SPOTPLAYLIST_URL
+                    return SpotifySong(song_url)
                 else:
                     return return_types.RETURN_TYPE_INVALID_URL
             elif segments[2] == "soundcloud.com" or segments[3] == "soundcloud.com":
-                return return_types.RETURN_TYPE_SOUNDCLOUD_URL
+                return SoundcloudSong(song_url)
             else:
                 return return_types.RETURN_TYPE_INVALID_URL
         except IndexError as e:
             return return_types.RETURN_TYPE_INVALID_URL
+        
+    @staticmethod
+    def is_playlist_url(url):
+        segments = url.split("/")
+        segments.reverse()
 
-    def add_to_queue(self, song_url, title="", authors=None, index=0):
-        q_song = QueuedSong(url=song_url, url_type=Music.determine_url_type(song_url), title=title, authors=authors)
+        try:
+            if segments[2] == "open.spotify.com":
+                if segments[1] == "playlist":
+                    return True
+        except IndexError as e:
+            return False
+        
+        return False
+
+    def add_to_queue(self, song: BaseSong, index):
+        song.get_song_properties()
 
         if index == 0:
-            self.queue.append(q_song)
+            self.queue.append(song)
         else:
-            self.queue.insert(index, q_song)
+            self.queue.insert(index, song)
 
     async def check_queue(self, interaction: discord.Interaction, voice_client):
         self.queue.pop(0)

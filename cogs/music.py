@@ -423,38 +423,26 @@ class Music(commands.Cog):
         return return_types.RETURN_TYPE_SUCCESSFUL_CONNECT
 
     async def play_song(self, interaction: discord.Interaction, voice_client, queued_song: QueuedSong):
-        song_url = queued_song.url
-        url_type = queued_song.url_type
 
         if not queued_song.props_set:
             queued_song.cache_properties()
 
-        if url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
-            result = None
+        if queued_song.url_type == return_types.RETURN_TYPE_SPOTIFY_URL:
             tries = 5
 
-            while True:
-                result = jspotify.search_song_on_youtube(song_url)
+            for i in range(0, tries):
+                search_result = jspotify.search_song_on_youtube(queued_song.url)
 
-                if result is None:
-                    tries -= 1
-
-                    # let try searching with only the title?
-                    if tries <= 0:
-                        await messaging.respond_embed(interaction,
-                                                                    code_block="Could not find song on youtube . . . SKIPPING")
-                        await self.check_queue(interaction, voice_client)
-                        return
-                    else:
-                        continue
-                else:
-                    jlogging.log("music_bot",
-                                      f"Youtube search took {5 - tries} tries for {queued_song.title} - {queued_song.authors}")
+                if search_result is not None:
+                    suffix = search_result["url_suffix"]
+                    queued_song.url = youtube.construct_url_from_suffix(suffix)
+                    jlogging.log("music_bot", f"Youtube search took {i} tries for {queued_song.title} - {queued_song.authors}")
                     break
 
-            suffix = result["url_suffix"]
-
-            song_url = youtube.construct_url_from_suffix(suffix)
+                if i == (tries - 1):
+                    await messaging.respond_embed(interaction, code_block="Could not find song on youtube . . . SKIPPING")
+                    await self.check_queue(interaction, voice_client)
+                    return      
 
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': "-vn"}
@@ -462,9 +450,9 @@ class Music(commands.Cog):
 
         retries = 5
 
-        jlogging.log("music_bot", f"Starting playback; url: {song_url}")
+        jlogging.log("music_bot", f"Starting playback; url: {queued_song.url}")
         with YoutubeDL(ydl_options) as ydl:
-            info = ydl.extract_info(song_url, download=False)
+            info = ydl.extract_info(queued_song.url, download=False)
 
             # opus acodec
             # high quality

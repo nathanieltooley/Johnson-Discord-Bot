@@ -262,9 +262,7 @@ class Music(commands.Cog):
         except Exception as e:
             jlogging.error("__music__", e)
             await messaging.respond_embed(interaction,
-                                                        code_block=f"COULD NOT GET INFO. "
-                                                                   f"PROBABLY AGE-RESTRICTED . . . SKIPPING",
-                                                        color=discord.Color.red())
+                                                        code_block=f"UNABLE TO PLAY SONG. MAY OR MAY NOT BE MY FAULT.", color=discord.Color.red())
             await self.check_queue(interaction, voice_client)
 
     @app_commands.command(

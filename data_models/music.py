@@ -1,6 +1,6 @@
 from enums.bot_enums import ReturnTypes as return_types
 from utils import jspotify, youtube
-
+from abc import ABC, abstractmethod
 
 class QueuedSong:
 
@@ -41,4 +41,3 @@ class QueuedSong:
         self.title = ""
         self.authors = None
         self.props_set = False
-

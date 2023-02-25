@@ -8,7 +8,7 @@ from yt_dlp import YoutubeDL
 from discord.ext import commands
 from discord import app_commands
 
-from data_models.bot_dataclasses import QueuedSong
+from data_models.music import QueuedSong
 from enums.bot_enums import Enums as bot_enums
 from enums.bot_enums import ReturnTypes as return_types
 

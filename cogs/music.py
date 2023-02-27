@@ -232,11 +232,10 @@ class Music(commands.Cog):
             insert_index = 1
 
         if Music.is_playlist_url(url):
-            playlist_tracks = jspotify.get_all_playlist_tracks(
-                jspotify.parse_id_out_of_url(url))
+            playlist_tracks = jspotify.get_all_playlist_tracks(jspotify.parse_id_out_of_url(url))
 
-            for top_track in playlist_tracks:
-                track = top_track["track"]
+            for upper_level_track in playlist_tracks:
+                track = upper_level_track["track"]
 
                 # fuck them
                 if track["is_local"]:
@@ -244,8 +243,6 @@ class Music(commands.Cog):
 
                 self.add_to_queue(
                     song_url=track["external_urls"]["spotify"],
-                    title=track["name"],
-                    authors=jspotify.get_artist_names(track),
                     index=insert_index
                 )
 
@@ -421,8 +418,7 @@ class Music(commands.Cog):
             await self.check_queue(interaction, voice_client)
             return   
                
-        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                          'options': "-vn"}
+        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': "-vn"}
         ydl_options = {'format': 'bestaudio'}
 
         jlogging.log("music_bot", f"Starting playback; url: {queued_song.url}")
@@ -454,7 +450,7 @@ class Music(commands.Cog):
                 await self.check_queue(interaction, voice_client)
                 return
 
-            # we use asyncio because we can't use await in lambda
+            # we use asyncio.run_coroutine_threadsafe because we can't use await in lambda
             voice_client.play(source,
                     after=lambda error: asyncio.run_coroutine_threadsafe(self.check_queue(interaction, voice_client), self.client.loop))
 
@@ -473,11 +469,14 @@ class Music(commands.Cog):
 
     @staticmethod
     def determine_song_type(song_url):
-        # https://www.youtube.com/watch?v=_arqbQqq88M
-        # https://youtu.be/U9qdhF7m80M
-        # https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
-        # https://soundcloud.com/beanbubger/apoapsis/s-zoij7masq5J?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing
-        # https://soundcloud.com/beanbubger/supersubset-v3
+
+        # Example URLs:
+
+        # Youtube:                https://www.youtube.com/watch?v=_arqbQqq88M
+        # Youtube Shortened Link: https://youtu.be/U9qdhF7m80M
+        # Spotify Track:          https://open.spotify.com/track/74wtYmeZuNS59vcNyQhLY5?si=3e55a2bd614d4e29
+        # Soundcloud:             https://soundcloud.com/beanbubger/apoapsis/s-zoij7masq5J?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing
+        # Soundcloud:             https://soundcloud.com/beanbubger/supersubset-v3
 
         segments = song_url.split("/")
         segments.reverse()

@@ -439,17 +439,14 @@ class Music(commands.Cog):
 
             source = None
 
-            # lots of 403 errors, don't know why
             retries = 5
-            while True:
+            for i in range(0, retries):
                 try:
                     source = await discord.FFmpegOpusAudio.from_probe(audio_url, method='fallback', **ffmpeg_options)
                     break
                 except Exception as e:
-                    retries -= 1
-
-                    if retries <= 0:
-                        break
+                    jlogging.error("__music_bot__", f"Audio probe failed, trys left: {retries - (i + 1)}")
+            
 
             if source is None:
                 await messaging.respond_embed(interaction, code_block=f"COULD NOT PLAY {queued_song.title} . . . SKIPPING",

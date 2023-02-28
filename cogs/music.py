@@ -366,18 +366,10 @@ class Music(commands.Cog):
 
         self.view_index = index
 
-        embed = discord.Embed(
-            title=F"Current Queue (Length: {len(self.queue)})",
-            description=self.create_embed_description(),
-        )
-
-        embed.set_footer(text="Le Epic Queue")
-        embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
-
         if self.queue_message is not None:
             self.queue_message = await messaging.safe_message_delete(self.queue_message)
 
-        self.queue_message = await interaction.followup.send(embed=embed, wait=True)
+        self.queue_message = await interaction.followup.send(embed=self.create_queue_embed(), wait=True)
 
     @app_commands.command(
         name="clear_queue",
@@ -537,7 +529,7 @@ class Music(commands.Cog):
             dp_message = await messaging.respond(interaction, message="Done Playing Songs.")
             await dp_message.delete(delay=10)
 
-    def create_embed_description(self):
+    def create_queue_embed_description(self):
         max_songs = 10
 
         start = self.view_index
@@ -566,6 +558,16 @@ class Music(commands.Cog):
 
         return description_full
 
+    def create_queue_embed(self):
+        embed = discord.Embed(
+            title=F"Current Queue (Length: {len(self.queue)})",
+            description=self.create_queue_embed_description(),
+        )
+
+        embed.set_footer(text="Le Epic Queue")
+        embed.set_thumbnail(url=bot_enums.BOT_AVATAR_URL.value)
+
+        return embed
 
 async def setup(client):
     await client.add_cog(Music(client), guilds=level.get_guild_objects())

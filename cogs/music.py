@@ -22,7 +22,6 @@ class Music(commands.Cog):
         self.view_index = 0
         self.queue_message = None
         self.np_message = None
-        self.johnson_broke = False
         self.paused = False
 
     """@cog_ext.cog_slash(name="start_playlist_vote",

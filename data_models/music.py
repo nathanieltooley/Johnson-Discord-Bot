@@ -43,7 +43,14 @@ class SoundcloudSong(YDLSong):
     
 class SpotifySong(BaseSong):
 
-    def _convert_to_youtube_url(self) -> None:
+    def __init__(self, url: str, cached_track_info, is_playlist_track: bool) -> None:
+        super().__init__(url)
+
+        self.cached_track_info = cached_track_info
+        self.is_playlist_track = is_playlist_track
+        self.url_converted = False
+
+    def convert_to_youtube_url(self) -> None:
         tries = 5
 
         for i in range(0, tries):
@@ -53,6 +60,7 @@ class SpotifySong(BaseSong):
                 suffix = search_result["url_suffix"]
                 self.url = youtube.construct_url_from_suffix(suffix)
                 jlogging.log("music_bot", f"Youtube search took {i} tries for {self.title} - {self.authors}")
+                self.url_converted = True
                 break
 
             if i == (tries - 1):
@@ -60,12 +68,11 @@ class SpotifySong(BaseSong):
                 
     
     def get_song_properties(self) -> None:
-        track_info = jspotify.get_track(jspotify.parse_id_out_of_url(self.url))
+        self.title = self.cached_track_info["name"]
+        self.authors = jspotify.get_artist_names(self.cached_track_info)
 
-        self.title = track_info["name"]
-        self.authors = jspotify.get_artist_names(track_info)
-
-        self._convert_to_youtube_url()
+        if not self.is_playlist_track:
+            self.convert_to_youtube_url()
 
     def color(self) -> discord.Color:
         return discord.Color.green()

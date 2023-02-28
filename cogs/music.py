@@ -211,14 +211,6 @@ class Music(commands.Cog):
     @app_commands.describe(playnext="Play this song(s) after the current song is done.")
     async def _play(self, interaction: discord.Interaction, url: str, playnext: bool = False):
 
-        song_type = Music.determine_song_type(url)
-
-        if song_type == return_types.RETURN_TYPE_INVALID_URL:
-            await messaging.respond_embed(interaction, title="ERROR",
-                                                        code_block="Invalid URL!",
-                                                        color=discord.Color.red())
-            return
-
         await messaging.defer(interaction)
 
         voice_client = await vcm.connect_to_member(self.client, interaction.user)
@@ -231,6 +223,7 @@ class Music(commands.Cog):
         if playnext:
             insert_index = 1
 
+        i = 0
         if Music.is_playlist_url(url):
             playlist_tracks = jspotify.get_all_playlist_tracks(jspotify.parse_id_out_of_url(url))
 
@@ -241,13 +234,26 @@ class Music(commands.Cog):
                 if track["is_local"]:
                     continue
 
+                print(f"add to queue {i}")
                 self.add_to_queue(
-                    song_url=track["external_urls"]["spotify"],
+                    song=SpotifySong(track["external_urls"]["spotify"], track, True),
                     index=insert_index
                 )
 
+                i += 1
+
+            
+
             await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:
+            song_type = Music.determine_song_type(url)
+
+            if song_type == return_types.RETURN_TYPE_INVALID_URL:
+                await messaging.respond_embed(interaction, title="ERROR",
+                                                            code_block="Invalid URL!",
+                                                            color=discord.Color.red())
+                return
+
             self.add_to_queue(song_type, index=insert_index)
 
         if voice_client.is_playing():
@@ -416,7 +422,10 @@ class Music(commands.Cog):
         if queued_song.flagged:
             await messaging.respond_embed(interaction, code_block="Could not find song on youtube . . . SKIPPING")
             await self.check_queue(interaction, voice_client)
-            return   
+            return
+
+        if isinstance(queued_song, SpotifySong) and not queued_song.url_converted:
+            queued_song.convert_to_youtube_url()
                
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': "-vn"}
         ydl_options = {'format': 'bestaudio'}
@@ -486,7 +495,7 @@ class Music(commands.Cog):
                 return YDLSong(song_url)
             elif segments[2] == "open.spotify.com":
                 if segments[1] == "track":
-                    return SpotifySong(song_url)
+                    return SpotifySong(song_url, True)
                 else:
                     return return_types.RETURN_TYPE_INVALID_URL
             elif segments[2] == "soundcloud.com" or segments[3] == "soundcloud.com":

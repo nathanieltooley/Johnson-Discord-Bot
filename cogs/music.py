@@ -223,7 +223,6 @@ class Music(commands.Cog):
         if playnext:
             insert_index = 1
 
-        i = 0
         if Music.is_playlist_url(url):
             playlist_tracks = jspotify.get_all_playlist_tracks(jspotify.parse_id_out_of_url(url))
 
@@ -238,8 +237,6 @@ class Music(commands.Cog):
                     song=SpotifySong(track["external_urls"]["spotify"], track, True),
                     index=insert_index
                 )
-
-                i += 1
 
             await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:

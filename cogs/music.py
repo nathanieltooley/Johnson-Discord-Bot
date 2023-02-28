@@ -234,15 +234,12 @@ class Music(commands.Cog):
                 if track["is_local"]:
                     continue
 
-                print(f"add to queue {i}")
                 self.add_to_queue(
                     song=SpotifySong(track["external_urls"]["spotify"], track, True),
                     index=insert_index
                 )
 
                 i += 1
-
-            
 
             await interaction.followup.send(f"Queueing {len(playlist_tracks)} song(s).")
         else:

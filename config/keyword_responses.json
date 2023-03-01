@@ -34,5 +34,10 @@
         "key_words": ["flanksteak"],
         "responses": ["Why did you say that?"],
         "weights": [1]
+    },
+    {
+        "key_words": ["dwarf", "dwarves"],
+        "responses": ["Do you take me for a wazak?"],
+        "weights": [1]
     }
 ]

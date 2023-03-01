@@ -132,17 +132,11 @@ class Event(commands.Cog):
         if said_slur is None:
             await Event.keyword_responses(message)
 
-            if 'im ' in c_message:
-                await Event.dad_check(message, "im ")
+            im_variations = ["im ", "i'm ", "i‘m ", "i’m "]
 
-            if "i'm " in c_message:
-                await Event.dad_check(message, "i'm ")
-
-            if 'i‘m ' in c_message:
-                await Event.dad_check(message, "i‘m ")
-
-            if 'i’m ' in c_message:
-                await Event.dad_check(message, "i’m ")
+            for im in im_variations:
+                if im in c_message:
+                    await Event.dad_check(message, im)
 
     @staticmethod
     async def dad_check(message, check):

@@ -1,8 +1,8 @@
 [
     {
         "key_words": ["fortnite"],
-        "responses": ["We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!"],
-        "weights": [1]
+        "responses": ["We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!", "Where we droppin boys?"],
+        "weights": [1, 1]
     },
     {
         "key_words": ["based"],
@@ -11,8 +11,14 @@
     },
     {
         "key_words": ["poggers", "pogger"],
-        "responses": ["https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524"],
-        "weights": [1]
+        "responses": 
+        [
+            "https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524",
+            "https://tenor.com/view/sound-of-poggers-poggers-anime-anime-poggers-charr-gif-18348699",
+            "https://tenor.com/view/pog-progress-poggers-gif-25714272",
+            "https://tenor.com/view/pepe-poggers-gif-15294615"
+        ],
+        "weights": [5, 5, 5, 1]
     },
     {
         "key_words":["smile"],

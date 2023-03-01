@@ -27,7 +27,7 @@ class KeywordResponse:
             return keywords 
         
     def choose_response(self):
-        return random.choices(self.key_words, weights=self.weights, k=1)[0]
+        return random.choices(self.responses, weights=self.weights, k=1)[0]
     
     def message_trigger_response(self, check_message: str):
         for kw in self.key_words:

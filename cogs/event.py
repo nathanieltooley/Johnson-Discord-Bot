@@ -157,33 +157,6 @@ class Event(commands.Cog):
             join = f"Hi {split[1]}, I'm Johnson!"
             await message.channel.send(join)
 
-    @staticmethod
-    def message_check(message, check):
-        q_message = message.content.lower()
-
-        check_index = q_message.find(check)
-        pre_check_index = check_index - 1
-
-        # Not Found
-        if check_index < 0:
-            return False
-
-        before_space = q_message[pre_check_index].isspace()
-        is_beginning = pre_check_index < 0
-        nothing_after = False
-        after_space = False
-
-        # See if there is anything after the word
-        try:
-            after_space = q_message[check_index + len(check)].isspace()
-        except IndexError:
-            nothing_after = True
-
-        if (before_space or is_beginning) and (nothing_after or after_space):
-            return True
-        else:
-            return False
-
     async def check_keyword_responses(self, message):
         for kw in self.keyword_responses:
             if kw.message_trigger_response(self.create_check_message(message)):

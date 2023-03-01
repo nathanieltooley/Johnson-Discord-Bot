@@ -3,12 +3,13 @@ import discord
 from discord.ext import commands, tasks
 from enums.bot_enums import Enums as bot_enums
 from utils import messaging, level, jlogging, checks, mongo
-
+from data_models.kwr import KeywordResponse
 
 class Event(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.keyword_responses = KeywordResponse.read_keyword_responses()
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -23,7 +24,7 @@ class Event(commands.Cog):
             return
 
         user_slur = self.slur_checks(message)
-        await Event.determine_response(user_slur, message)
+        await self.determine_response(user_slur, message)
 
         # if no slur has been said, reward the user for messaging (gold and xp)
         if user_slur is None:
@@ -78,7 +79,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         user_slur = self.slur_checks(after)
-        await Event.determine_response(user_slur, after)
+        await self.determine_response(user_slur, after)
 
         if user_slur is None:
             await Event.add_to_stats(after)
@@ -121,15 +122,14 @@ class Event(commands.Cog):
         await message.delete()
         jlogging.log(__name__, f"Message deleted, from {message_author}:{message_content}")
 
-    @staticmethod
-    async def determine_response(said_slur, message):
+    async def determine_response(self, said_slur, message):
 
         if said_slur is not None:
             Event.record_said_slur(message, said_slur)
             await Event.respond_to_slur(message)
 
         if said_slur is None:
-            await Event.keyword_responses(message)
+            await self.check_keyword_responses(message)
             await Event.im_responses(message)
 
     @staticmethod
@@ -184,28 +184,10 @@ class Event(commands.Cog):
         else:
             return False
 
-    @staticmethod
-    async def keyword_responses(message):
-        if Event.message_check(message, 'fortnite'):
-            await message.channel.send("We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!")
-
-        if Event.message_check(message, 'based'):
-            await message.channel.send("Based on what?")
-
-        if Event.message_check(message, "poggers"):
-            await message.channel.send(
-                f"{message.author.mention} https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524")
-
-        if Event.message_check(message, "smile"):
-            await message.channel.send(
-                "https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"
-            )
-
-        if Event.message_check(message, "thanks") or Event.message_check(message, "thank you"):
-            await message.channel.send("you're welcome :)")
-
-        if Event.message_check(message, "flanksteak"):
-            await message.channel.send("Why did you say that?")
+    async def check_keyword_responses(self, message):
+        for kw in self.keyword_responses:
+            if kw.message_trigger_response(self.create_check_message(message)):
+                await message.channel.send(kw.choose_response())
 
     @staticmethod
     async def add_to_stats(message):

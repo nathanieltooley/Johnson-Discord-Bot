@@ -26,11 +26,40 @@ class KeywordResponse:
 
             return keywords 
         
+    @staticmethod
+    def message_check(message: str, kw):
+        check_index = message.find(kw)
+        pre_check_index = check_index - 1
+
+        # Not Found
+        if check_index < 0:
+            return False
+
+        before_space = message[pre_check_index].isspace()
+        is_beginning = pre_check_index < 0
+        nothing_after = False
+        after_space = False
+
+        # See if there is anything after the word
+        try:
+            after_space = message[check_index + len(kw)].isspace()
+        except IndexError:
+            nothing_after = True
+
+        if (before_space or is_beginning) and (nothing_after or after_space):
+            return True
+        else:
+            return False
+        
     def choose_response(self):
         return random.choices(self.responses, weights=self.weights, k=1)[0]
     
-    def message_trigger_response(self, check_message: str):
+    def message_trigger_response(self, check_message: str) -> bool:
+
         for kw in self.key_words:
-            if kw in check_message:
+            # seems like a waste but message_check may return false so we make sure to return true only here
+            if KeywordResponse.message_check(check_message, kw):
                 return True
+            
+        return False
     

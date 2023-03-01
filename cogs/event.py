@@ -182,6 +182,7 @@ class Event(commands.Cog):
             join = f"Hi{dad_message}, I'm Johnson!"
             await message.channel.send(join)
         # Split the message in two if there is no space
+        # We check if the previous index is -1 or a space so that we dont respond to words that end in "im" like him
         elif pre_im_index < 0 or lowercase_message[pre_im_index].isspace():
             split = lowercase_message.split(check, 1)
             join = f"Hi {split[1]}, I'm Johnson!"

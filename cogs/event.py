@@ -161,7 +161,7 @@ class Event(commands.Cog):
                 await Event.dad_check(message, "i‘m ")
 
             if 'i’m ' in c_message:
-                await Event.dad_check(message, "i’m")
+                await Event.dad_check(message, "i’m ")
 
     @staticmethod
     async def dad_check(message, check):

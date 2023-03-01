@@ -2,31 +2,31 @@
     {
         "key_words": ["fortnite"],
         "responses": ["We like Fortnite! We like Fortnite! We like Fortnite! We like Fortnite!"],
-        "weights": [100]
+        "weights": [1]
     },
     {
         "key_words": ["based"],
         "responses": ["Based on what?"],
-        "weights": [100]
+        "weights": [1]
     },
     {
         "key_words": ["poggers", "pogger"],
         "responses": ["https://tenor.com/view/anime-poggers-anime-poggers-anime-gif-18290524"],
-        "weights": [100]
+        "weights": [1]
     },
     {
         "key_words":["smile"],
         "responses": ["https://media.discordapp.net/attachments/694702814915723295/798703969803042867/Johnson_Smile.png?width=468&height=468"],
-        "weights": [100]
+        "weights": [1]
     },
     {
         "key_words": ["thanks", "thank you"],
         "responses": ["you're welcome :)", "no problem :)"],
-        "weights": [50, 50]
+        "weights": [1, 1]
     },
     {
         "key_words": ["flanksteak"],
         "responses": ["Why did you say that?"],
-        "weights": [100]
+        "weights": [1]
     }
 ]

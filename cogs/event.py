@@ -53,26 +53,7 @@ class Event(commands.Cog):
         if member.bot:
             return
 
-        spotify = None
-
-        for act in member.activities:
-            if act.name == "Spotify":
-                spotify = act
-
-        if spotify is None:
-            return
-
-        if spotify.artist == "The Strokes":
-            mongo.add_to_stroke_count(member, member.guild, 1)
-
-            """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",
-                                     description=f"{spotify.title} - {spotify.album}",
-                                     color=discord.Color.gold())
-
-            dm_embed.set_thumbnail(url=bot_enums.BotString.BOT_AVATAR_URL.value)
-            dm_embed.set_image(url=spotify.album_cover_url)
-
-            await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
+        Event.stroke_check(member)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -266,6 +247,28 @@ class Event(commands.Cog):
     async def send_admin_req_dm(message):
         await message.channel.send("Message received. Forwarding to Johnson HQ.")
 
+    @staticmethod
+    def stroke_check(member):
+        spotify = None
+
+        for act in member.activities:
+            if act.name == "Spotify":
+                spotify = act
+
+        if spotify is None:
+            return
+
+        if spotify.artist == "The Strokes":
+            mongo.add_to_stroke_count(member, member.guild, 1)
+
+            """dm_embed = discord.Embed(title="Nice Musical Taste Bro!",
+                                     description=f"{spotify.title} - {spotify.album}",
+                                     color=discord.Color.gold())
+
+            dm_embed.set_thumbnail(url=bot_enums.BotString.BOT_AVATAR_URL.value)
+            dm_embed.set_image(url=spotify.album_cover_url)
+
+            await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
 
 async def setup(client):
     await client.add_cog(Event(client), guilds=level.get_guild_objects())

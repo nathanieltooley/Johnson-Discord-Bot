@@ -152,36 +152,38 @@ class Event(commands.Cog):
             await Event.keyword_responses(message)
 
             if 'im ' in c_message:
-                await Event.im_check(message, "im ")
+                await Event.dad_check(message, "im ")
 
             if "i'm " in c_message:
-                await Event.im_check(message, "i'm ")
+                await Event.dad_check(message, "i'm ")
 
             if 'i‘m ' in c_message:
-                await Event.im_check(message, "i‘m ")
+                await Event.dad_check(message, "i‘m ")
 
             if 'i’m ' in c_message:
-                await Event.im_check(message, "i’m")
+                await Event.dad_check(message, "i’m")
 
     @staticmethod
-    async def im_check(message, check):
+    async def dad_check(message, check):
 
-        q_message = message.content.lower()
+        lowercase_message = message.content.lower()
 
-        im_index = q_message.find(check)
+        im_index = lowercase_message.find(check)
         pre_im_index = im_index - 1
 
-        period_index = q_message.find(".")
+        period_index = lowercase_message.find(".")
 
         if period_index < im_index:
             period_index = -1
 
+        # End at the period if there is one
         if period_index > 0:
-            dad_message = q_message[(im_index + 2):period_index]
+            dad_message = lowercase_message[(im_index + 2):period_index]
             join = f"Hi{dad_message}, I'm Johnson!"
             await message.channel.send(join)
-        elif pre_im_index < 0 or q_message[pre_im_index].isspace():
-            split = q_message.split(check, 1)
+        # Split the message in two if there is no space
+        elif pre_im_index < 0 or lowercase_message[pre_im_index].isspace():
+            split = lowercase_message.split(check, 1)
             join = f"Hi {split[1]}, I'm Johnson!"
             await message.channel.send(join)
 

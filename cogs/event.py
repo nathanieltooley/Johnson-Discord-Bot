@@ -123,7 +123,6 @@ class Event(commands.Cog):
 
     @staticmethod
     async def determine_response(said_slur, message):
-        c_message = Event.create_check_message(message)
 
         if said_slur is not None:
             Event.record_said_slur(message, said_slur)
@@ -131,12 +130,7 @@ class Event(commands.Cog):
 
         if said_slur is None:
             await Event.keyword_responses(message)
-
-            im_variations = ["im ", "i'm ", "i‘m ", "i’m "]
-
-            for im in im_variations:
-                if im in c_message:
-                    await Event.dad_check(message, im)
+            await Event.im_responses(message)
 
     @staticmethod
     async def dad_check(message, check):
@@ -263,6 +257,15 @@ class Event(commands.Cog):
             dm_embed.set_image(url=spotify.album_cover_url)
 
             await member.send(f"Nice Taste {member.display_name}", embed=dm_embed)"""
+
+    @staticmethod
+    async def im_responses(message):
+        c_message = Event.create_check_message(message)
+        im_variations = ["im ", "i'm ", "i‘m ", "i’m "]
+
+        for im in im_variations:
+            if im in c_message:
+                await Event.dad_check(message, im)
 
 async def setup(client):
     await client.add_cog(Event(client), guilds=level.get_guild_objects())

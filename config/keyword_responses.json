@@ -39,5 +39,10 @@
         "key_words": ["dwarf", "dwarves"],
         "responses": ["Do you take me for a wazak?"],
         "weights": [1]
+    },
+    {
+        "key_words": ["rock and stone", "rock and stone!", "drg", "deep rock galactic"],
+        "responses": ["For Rock and Stone!", "If you don't Rock and Stone, you ain't comin' home!", "Legally speaking, rocking is more legal than stoning!"],
+        "weights": [1, 1, 1]
     }
 ]

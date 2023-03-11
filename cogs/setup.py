@@ -20,7 +20,7 @@ class Setup(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.change_status.start()
-        # self.check_playlist_changes.start()
+        self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
 

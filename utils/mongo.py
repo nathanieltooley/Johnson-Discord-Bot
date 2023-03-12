@@ -199,7 +199,7 @@ def create_spotify_check(tracks):
         album_url = None
 
         if track['track']['is_local']:
-            album_url = bot_enums.Enums.BOT_AVATAR_URL.value
+            album_url = bot_enums.BOT_AVATAR_URL.value
         else:
             album_url = track['track']['album']['images'][0]['url']
 

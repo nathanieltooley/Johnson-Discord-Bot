@@ -9,8 +9,6 @@ def create_spotify_object():
     scope = "playlist-modify-public"
 
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    jlogging.log(__name__, "Spotify Client Created!")
-
     return sp
 
 

@@ -20,7 +20,7 @@ class Setup(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.change_status.start()
-        # self.check_playlist_changes.start()
+        self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
 
@@ -164,7 +164,7 @@ class Setup(commands.Cog):
         jlogging.log(__name__, "Waiting start status change...")
         await self.client.wait_until_ready()
 
-    # @check_playlist_changes.before_loop
+    @check_playlist_changes.before_loop
     async def before_check(self):
         jlogging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()

@@ -116,6 +116,7 @@ class Setup(commands.Cog):
 
     @tasks.loop(seconds=10)
     async def check_playlist_changes(self):
+        jlogging.log(__name__, "Running Spotify Check!")
         start = datetime.datetime.now()
         # hard coded because fuck it, its my bot and my playlist
         # channel_id = 842246555205763092

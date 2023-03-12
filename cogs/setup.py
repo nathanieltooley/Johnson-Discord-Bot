@@ -6,7 +6,7 @@ import discord
 from itertools import cycle
 from discord.ext import commands, tasks
 from discord import app_commands
-from enums.bot_enums import Enums as bot_enums
+from enums.bot_enums import Enums
 
 from utils import level, messaging, jspotify, mongo, jlogging
 
@@ -83,7 +83,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = track['album']['images'][0]['url']
                 except IndexError:
-                    album_url = bot_enums.BOT_AVATAR_URL.value
+                    album_url = Enums.BOT_AVATAR_URL.value
 
                 removed_embed.set_image(url=album_url)
 
@@ -106,7 +106,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = song_id['track']['album']['images'][0]['url']
                 except IndexError:
-                    album_url = bot_enums.BOT_AVATAR_URL.value
+                    album_url = Enums.BOT_AVATAR_URL.value
 
                 added_embed.set_image(url=album_url)
 

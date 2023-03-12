@@ -6,7 +6,7 @@ import discord
 from itertools import cycle
 from discord.ext import commands, tasks
 from discord import app_commands
-from enums.bot_enums import Enums as bot_enums
+from enums.bot_enums import Enums
 
 from utils import level, messaging, jspotify, mongo, jlogging
 
@@ -20,7 +20,7 @@ class Setup(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.change_status.start()
-        # self.check_playlist_changes.start()
+        self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
 
@@ -83,7 +83,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = track['album']['images'][0]['url']
                 except IndexError:
-                    album_url = bot_enums.BOT_AVATAR_URL.value
+                    album_url = Enums.BOT_AVATAR_URL.value
 
                 removed_embed.set_image(url=album_url)
 
@@ -106,7 +106,7 @@ class Setup(commands.Cog):
                 try:
                     album_url = song_id['track']['album']['images'][0]['url']
                 except IndexError:
-                    album_url = bot_enums.BOT_AVATAR_URL.value
+                    album_url = Enums.BOT_AVATAR_URL.value
 
                 added_embed.set_image(url=album_url)
 
@@ -116,6 +116,7 @@ class Setup(commands.Cog):
 
     @tasks.loop(seconds=10)
     async def check_playlist_changes(self):
+        jlogging.log(__name__, "Running Spotify Check!")
         start = datetime.datetime.now()
         # hard coded because fuck it, its my bot and my playlist
         # channel_id = 842246555205763092
@@ -164,7 +165,7 @@ class Setup(commands.Cog):
         jlogging.log(__name__, "Waiting start status change...")
         await self.client.wait_until_ready()
 
-    # @check_playlist_changes.before_loop
+    @check_playlist_changes.before_loop
     async def before_check(self):
         jlogging.log(__name__, "Waiting to start spotify polling...")
         await self.client.wait_until_ready()

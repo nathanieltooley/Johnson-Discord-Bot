@@ -10,6 +10,7 @@ spotipy = "*"
 yt-dlp = "*"
 mongoengine = "*"
 youtube-search = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

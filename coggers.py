@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv("./env/.env")
+
 import os
 import discord
 
@@ -9,7 +13,6 @@ from utils import jlogging, level, mongo
 
 
 class JohnsonBot(commands.Bot):
-
     def __init__(self, **options):
         intents = discord.Intents.default()
         intents.presences = True
@@ -20,7 +23,7 @@ class JohnsonBot(commands.Bot):
             command_prefix=".",
             intents=intents,
             application_id=level.get_application_id(),
-            **options
+            **options,
         )
 
     async def setup_hook(self):
@@ -29,11 +32,17 @@ class JohnsonBot(commands.Bot):
 
         for filename in os.listdir("./cogs"):
             if filename.endswith(".py") and filename in enabled_cogs:
-                await self.load_extension(f'cogs.{filename[:-3]}')  # Cut off .py
+                await self.load_extension(f"cogs.{filename[:-3]}")  # Cut off .py
                 jlogging.log("coggers", f"{filename} loaded")
 
-        environ_vars = ["DISCORD_HOST", "LEVEL", "SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
-                        "SPOTIPY_REDIRECT_URI", "TOKEN"]
+        environ_vars = [
+            "DISCORD_HOST",
+            "LEVEL",
+            "SPOTIPY_CLIENT_ID",
+            "SPOTIPY_CLIENT_SECRET",
+            "SPOTIPY_REDIRECT_URI",
+            "TOKEN",
+        ]
 
         ev_not_set = False
         for var in environ_vars:
@@ -54,10 +63,14 @@ class JohnsonBot(commands.Bot):
 
             return command_string
 
-        await self.change_presence(activity=discord.Game(name="For more info, use .helpme!"))
+        await self.change_presence(
+            activity=discord.Game(name="For more info, use .helpme!")
+        )
         jlogging.log(__name__, f"Johnson Level: {level.get_bot_level()}")
-        jlogging.log(__name__,
-                          f"Loaded Server Currency Name: {mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}")
+        jlogging.log(
+            __name__,
+            f"Loaded Server Currency Name: {mongo.get_server_currency_name(bot_enums.TEST_SERVER_ID.value)}",
+        )
         jlogging.log("coggers", f"Loaded Commands: {create_command_string(self)}")
 
     async def close(self) -> None:
@@ -69,10 +82,5 @@ def main():
     bot.run(os.getenv("TOKEN"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-
-
-

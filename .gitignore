@@ -127,3 +127,6 @@ dmypy.json
 .vscode/
 /.idea/vcs.xml
 /.idea/
+
+# Can't remove for some reason
+bin/

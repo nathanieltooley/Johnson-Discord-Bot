@@ -10,13 +10,15 @@ from enums.bot_enums import Enums
 
 from utils import level, messaging, jspotify, mongo, jlogging
 
-status = cycle(["Fortnite",
-                "Omori. And you should too!"
-                "Made by Nathaniel",
-                ])
+status = cycle(
+    [
+        "Fortnite",
+        "Omori. And you should too!" "Made by Nathaniel",
+    ]
+)
+
 
 class Setup(commands.Cog):
-
     def __init__(self, client):
         self.client = client
         self.change_status.start()
@@ -33,18 +35,16 @@ class Setup(commands.Cog):
         await self.client.tree.sync(guild=level.get_guild_objects()[0])
         await ctx.send("Synced!")
 
-    @app_commands.command(
-        description="Pings the bot."
-    )
+    @app_commands.command(description="Pings the bot.")
     async def ping(self, interaction: discord.Interaction):
         self.count += 1
 
-        await messaging.respond(interaction, f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}")
+        await messaging.respond(
+            interaction,
+            f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}",
+        )
 
-    @app_commands.command(
-        name="test_defer",
-        description="fuck off"
-    )
+    @app_commands.command(name="test_defer", description="fuck off")
     async def test_defer(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
@@ -68,20 +68,21 @@ class Setup(commands.Cog):
             for song_id in changes[0]:
                 track = jspotify.get_track(song_id)
 
-                artists_names = [artist['name'] for artist in track['artists']]
+                artists_names = [artist["name"] for artist in track["artists"]]
                 artist_string = jspotify.create_artist_string(artists_names)
 
-                removed_embed = discord.Embed(title=track['name'],
-                                              description="This song has been removed from the playlist.",
-                                              color=discord.Color.red(),
-                                              )
+                removed_embed = discord.Embed(
+                    title=track["name"],
+                    description="This song has been removed from the playlist.",
+                    color=discord.Color.red(),
+                )
 
                 removed_embed.set_author(name=artist_string)
 
                 album_url = ""
 
                 try:
-                    album_url = track['album']['images'][0]['url']
+                    album_url = track["album"]["images"][0]["url"]
                 except IndexError:
                     album_url = Enums.BOT_AVATAR_URL.value
 
@@ -92,19 +93,23 @@ class Setup(commands.Cog):
         # additions
         if changes[1]:
             for song_id in changes[1]:
-                artists_names = [artist['name'] for artist in song_id['track']['artists']]
+                artists_names = [
+                    artist["name"] for artist in song_id["track"]["artists"]
+                ]
                 artist_string = jspotify.create_artist_string(artists_names)
 
-                added_embed = discord.Embed(title=song_id['track']['name'],
-                                            description="This song has been added to the playlist.",
-                                            color=discord.Color.blue())
+                added_embed = discord.Embed(
+                    title=song_id["track"]["name"],
+                    description="This song has been added to the playlist.",
+                    color=discord.Color.blue(),
+                )
 
                 added_embed.set_author(name=artist_string)
 
                 album_url = ""
 
                 try:
-                    album_url = song_id['track']['album']['images'][0]['url']
+                    album_url = song_id["track"]["album"]["images"][0]["url"]
                 except IndexError:
                     album_url = Enums.BOT_AVATAR_URL.value
 
@@ -132,7 +137,10 @@ class Setup(commands.Cog):
                 for embed in embeds:
                     await channel.send(embed=embed)
 
-            jlogging.log("Spotify Check", f"Check successful; took: {datetime.datetime.now() - start}")
+            jlogging.log(
+                "Spotify Check",
+                f"Check successful; took: {datetime.datetime.now() - start}",
+            )
         except Exception as e:
             jlogging.error("Spotify Check", f"Check unsuccessful: {e}")
 
@@ -142,7 +150,9 @@ class Setup(commands.Cog):
 
         for poll in polls:
             now = datetime.datetime.now(tz=datetime.timezone.utc)
-            td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(tzinfo=datetime.timezone.utc)
+            td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(
+                tzinfo=datetime.timezone.utc
+            )
 
             jlogging.log("spotify_prune", f"Time delta: {td}")
 
@@ -153,10 +163,12 @@ class Setup(commands.Cog):
 
                 await message.delete()
 
-                embed = messaging.create_message_embed("Poll Closed!",
-                                                                f"{self.client.get_user(poll.creator).mention}'s poll "
-                                                                f"has been closed. opened at "
-                                                                f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})")
+                embed = messaging.create_message_embed(
+                    "Poll Closed!",
+                    f"{self.client.get_user(poll.creator).mention}'s poll "
+                    f"has been closed. opened at "
+                    f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})",
+                )
                 await channel.send(embed=embed)
                 poll.delete()
 

@@ -1,0 +1,12 @@
+version: "3.8"
+services: 
+  main:
+    build: .
+    container_name: johnson
+    environment:
+      - TOKEN
+      - SPOTIPY_CLIENT_ID
+      - SPOTIPY_CLIENT_SECRET
+      - SPOTIPY_REDIRECT_URI
+      - DISCORD_HOST
+      - LEVEL

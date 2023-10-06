@@ -39,7 +39,7 @@ jobs:
         run: docker container rm johnson || true
 
       - name: Run Container
-        run: docker run --env TOKEN=${{ secrets.TOKEN }} --env SPOTIPY_CLIENT_SECRET=${{ secrets.SPOTIPY_CLIENT_SECRET}} --env SPOTIPY_CLIENT_ID=${{ secrets.SPOTIPY_CLIENT_ID }} --env SPOTIPY_REDIRECT_URI=${{ secrets.SPOTIPY_REDIRECT_URI }} --env LEVEL=${{ secrets.LEVEL }} --env DISCORD_HOST=${{ secrets.DISCORD_HOST }} -d --name johnson beanbubger/johnson-bot
+        run: docker run -d --env TOKEN=${{ secrets.TOKEN }} --env SPOTIPY_CLIENT_SECRET=${{ secrets.SPOTIPY_CLIENT_SECRET}} --env SPOTIPY_CLIENT_ID=${{ secrets.SPOTIPY_CLIENT_ID }} --env SPOTIPY_REDIRECT_URI=${{ secrets.SPOTIPY_REDIRECT_URI }} --env LEVEL=${{ secrets.LEVEL }} --env DISCORD_HOST="${{ secrets.DISCORD_HOST }}" --name johnson beanbubger/johnson-bot
 
       - name: Cleanup Unused Images
         run: docker image prune -f

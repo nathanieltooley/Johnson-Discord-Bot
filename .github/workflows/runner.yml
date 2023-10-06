@@ -25,7 +25,6 @@ jobs:
 #           tags: beanbubger/johnson-bot:latest
 
   deploy:
-    # needs: build
     runs-on: self-hosted
     environment: production 
 

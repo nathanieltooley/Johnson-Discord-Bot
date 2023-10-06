@@ -4,6 +4,14 @@ on:
   push:
     branches: [ master ]
 
+env:
+  TOKEN: ${{ secrets.TOKEN }}
+  SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
+  SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
+  SPOTIPY_REDIRECT_URI: ${{ secrets.SPOTIPY_REDIRECT_URI }}
+  LEVEL: ${{ secrets.LEVEL }}
+  DISCORD_HOST: ${{ secrets.DISCORD_HOST }}
+
 jobs:
   run:
     runs-on: self-hosted
@@ -11,16 +19,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
 
-      - name: Run Container
-        run: docker compose up -d --build
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-          SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
-          SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
-          SPOTIPY_REDIRECT_URI: ${{ secrets.SPOTIPY_REDIRECT_URI }}
-          LEVEL: ${{ secrets.LEVEL }}
-          DISCORD_HOST: ${{ secrets.DISCORD_HOST }}
+      - name: Stop Johnson
+        run: pm2 stop johnson
 
-      - name: Cleanup Unused Images
-        run: docker image prune -f
+      - name: Clean PM2
+        run: pm2 delete johnson
+
+      - name: Run Johnson 
+        run: pm2 start coggers.py --name="johnson" --interpreter=python3

@@ -5,22 +5,39 @@ on:
     branches: [ master ]
 
 jobs:
-  run:
-    runs-on: self-hosted
-    environment: production
+  build:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          push: true
+          repository: beanbubger/johnson-bot
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    environment: production 
+
+    steps:
+      - name: Pull Image 
+        run: docker pull beanbubger/johnson-bot
+
       - name: Run Container
-        run: docker compose up -d --build
+        run: docker run --name johnson beanbubger/johnson-bot
         env:
-          TOKEN: ${{ secrets.TOKEN }}
-          SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
-          SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
-          SPOTIPY_REDIRECT_URI: ${{ secrets.SPOTIPY_REDIRECT_URI }}
-          LEVEL: ${{ secrets.LEVEL }}
-          DISCORD_HOST: ${{ secrets.DISCORD_HOST }}
+              TOKEN: ${{ secrets.TOKEN }}
+              SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
+              SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
+              SPOTIPY_REDIRECT_URI: ${{ secrets.SPOTIPY_REDIRECT_URI }}
+              LEVEL: ${{ secrets.LEVEL }}
+              DISCORD_HOST: ${{ secrets.DISCORD_HOST }}
 
       - name: Cleanup Unused Images
         run: docker image prune -f

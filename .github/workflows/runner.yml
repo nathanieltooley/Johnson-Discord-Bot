@@ -33,10 +33,10 @@ jobs:
         run: docker pull beanbubger/johnson-bot
 
       - name: Stop Johnson
-        run: docker stop johnson
+        run: docker stop johnson || true
 
       - name: Remove Johnson
-        run: docker container rm johnson
+        run: docker container rm johnson || true
 
       - name: Run Container
         run: docker run --env TOKEN=${{ secrets.TOKEN }} --env SPOTIPY_CLIENT_SECRET=${{ secrets.SPOTIPY_CLIENT_SECRET}} --env SPOTIPY_CLIENT_ID=${{ secrets.SPOTIPY_CLIENT_ID }} --env SPOTIPY_REDIRECT_URI=${{ secrets.SPOTIPY_REDIRECT_URI }} --env LEVEL=${{ secrets.LEVEL }} --env DISCORD_HOST=${{ secrets.DISCORD_HOST }} -d --name johnson beanbubger/johnson-bot

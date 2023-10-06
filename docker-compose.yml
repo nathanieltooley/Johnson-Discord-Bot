@@ -10,7 +10,3 @@ services:
       - SPOTIPY_REDIRECT_URI
       - DISCORD_HOST
       - LEVEL
-    deploy:
-      resources:
-        limits:
-          memory: 256M

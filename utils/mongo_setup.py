@@ -4,7 +4,8 @@ import pymongo
 
 from utils import jlogging
 
-host = os.environ.get('DISCORD_HOST')
+host = os.environ.get("DISCORD_HOST")
+
 
 def global_init():
     try:

@@ -6,6 +6,7 @@ from discord.ext import commands
 from utils import level, checks
 from dialogue.dialogue_handler import DialogueHandler
 
+
 class DialogueTree:
     def __init__(self, dialogue_nodes, start_node):
         self.dialogue_nodes = dialogue_nodes
@@ -26,15 +27,21 @@ class DialogueTree:
         return DialogueTree(nodes, "start")
 
     async def start_tree(self, ctx, client):
-        pointer = await self.perform_node(self.grab_node(self.start_node), ctx=ctx, client=client)
+        pointer = await self.perform_node(
+            self.grab_node(self.start_node), ctx=ctx, client=client
+        )
 
         while not (pointer is None):
-            pointer = await self.perform_node(self.grab_node(pointer), ctx=ctx, client=client)
+            pointer = await self.perform_node(
+                self.grab_node(pointer), ctx=ctx, client=client
+            )
 
         await ctx.send("~fin~")
 
     async def perform_node(self, node, ctx, client):
-        embed = self.create_dialogue_embed("*Epic Dialogue*", node.dialogue, node.options)
+        embed = self.create_dialogue_embed(
+            "*Epic Dialogue*", node.dialogue, node.options
+        )
 
         await ctx.send(f"{ctx.author.mention}", embed=embed)
 
@@ -42,8 +49,11 @@ class DialogueTree:
             return None
 
         try:
-            response = await client.wait_for("message", timeout=60.0,
-                                       check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+            response = await client.wait_for(
+                "message",
+                timeout=60.0,
+                check=lambda m: m.author == ctx.author and m.channel == ctx.channel,
+            )
 
         except asyncio.TimeoutError:
             await ctx.send("You have to respond")
@@ -59,9 +69,7 @@ class DialogueTree:
 
     def create_dialogue_embed(self, title, dialogue, options):
         embed = discord.Embed(
-            title=title,
-            description=dialogue,
-            color=discord.Color.purple()
+            title=title, description=dialogue, color=discord.Color.purple()
         )
 
         embed.set_thumbnail(url=enums.Enums.BOT_AVATAR_URL.value)
@@ -99,7 +107,6 @@ class DialogueNode:
 
 
 class Dialogue(commands.Cog):
-
     dialogues = DialogueHandler.get_json_files()
 
     def __init__(self, client):
@@ -108,16 +115,17 @@ class Dialogue(commands.Cog):
     @cog_ext.cog_slash(
         name="start_dialogue",
         description="Start up a conversation with Johnson Bot",
-        guild_ids=level.get_guild_ids()
+        guild_ids=level.get_guild_ids(),
     )
     @checks.rude_name_check()
     async def start_dialogue(self, ctx):
-
         DialogueHandler.get_json_files()
 
-        embed = discord.Embed(title="Dialogue Start!",
-                              description="What would you like to talk about?",
-                              color=discord.Color.random())
+        embed = discord.Embed(
+            title="Dialogue Start!",
+            description="What would you like to talk about?",
+            color=discord.Color.random(),
+        )
 
         d_list = enumerate(self.dialogues, 1)
 
@@ -127,8 +135,11 @@ class Dialogue(commands.Cog):
         await ctx.send(embed=embed)
 
         try:
-            response = await self.client.wait_for("message", timeout=25.0,
-                                                  check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+            response = await self.client.wait_for(
+                "message",
+                timeout=25.0,
+                check=lambda m: m.author == ctx.author and m.channel == ctx.channel,
+            )
         except asyncio.TimeoutError:
             await ctx.send("Oh, nevermind then. Guess i'll go play fortnite.")
             return
@@ -150,8 +161,6 @@ class Dialogue(commands.Cog):
 
         await tree.start_tree(ctx=ctx, client=self.client)
 
-
-
         """try:
             msg = await self.client.wait_for("message", timeout=10.0, check=check)
         except asyncio.TimeoutError:
@@ -162,4 +171,3 @@ class Dialogue(commands.Cog):
 
 def setup(client):
     client.add_cog(Dialogue(client))
-

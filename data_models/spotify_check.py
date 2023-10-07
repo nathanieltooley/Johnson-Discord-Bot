@@ -13,9 +13,9 @@ class Song(mongoengine.EmbeddedDocument):
 
 class SpotifyCheck(mongoengine.DynamicDocument):
     count = mongoengine.IntField()
-    last_updated = mongoengine.DateTimeField(default=datetime.datetime.now(datetime.timezone.utc))
+    last_updated = mongoengine.DateTimeField(
+        default=datetime.datetime.now(datetime.timezone.utc)
+    )
 
     # songs = mongoengine.EmbeddedDocumentListField(Song)
     songs = mongoengine.ListField()
-
-

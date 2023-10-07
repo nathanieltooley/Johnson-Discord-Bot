@@ -5,8 +5,8 @@ from utils import jspotify, youtube, jlogging
 from abc import ABC, abstractmethod
 from typing import List
 
-class BaseSong(ABC):
 
+class BaseSong(ABC):
     def __init__(self, url: str) -> None:
         self.url = url
         self.flagged = False
@@ -14,13 +14,13 @@ class BaseSong(ABC):
     @abstractmethod
     def get_song_properties(self) -> None:
         raise NotImplementedError
-    
+
     @abstractmethod
     def color(self) -> discord.Color:
         raise NotImplementedError
-    
-class YDLSong(BaseSong):
 
+
+class YDLSong(BaseSong):
     def get_song_properties(self) -> None:
         info = youtube.get_video_info(self.url)
 
@@ -35,14 +35,14 @@ class YDLSong(BaseSong):
 
     def color(self) -> discord.Color:
         return discord.Color.red()
-    
+
+
 class SoundcloudSong(YDLSong):
-    
     def color(self) -> discord.Color:
         return discord.Color.orange()
-    
-class SpotifySong(BaseSong):
 
+
+class SpotifySong(BaseSong):
     def __init__(self, url: str, cached_track_info, is_playlist_track: bool) -> None:
         super().__init__(url)
 
@@ -59,14 +59,16 @@ class SpotifySong(BaseSong):
             if search_result is not None:
                 suffix = search_result["url_suffix"]
                 self.url = youtube.construct_url_from_suffix(suffix)
-                jlogging.log("music_bot", f"Youtube search took {i} tries for {self.title} - {self.authors}")
+                jlogging.log(
+                    "music_bot",
+                    f"Youtube search took {i} tries for {self.title} - {self.authors}",
+                )
                 self.url_converted = True
                 break
 
             if i == (tries - 1):
                 self.flagged = True
-                
-    
+
     def get_song_properties(self) -> None:
         self.title = self.cached_track_info["name"]
         self.authors = jspotify.get_artist_names(self.cached_track_info)

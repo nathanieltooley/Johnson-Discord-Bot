@@ -3,7 +3,9 @@ import datetime
 
 
 class SongPoll(mongoengine.DynamicDocument):
-    created_at = mongoengine.DateTimeField(default=datetime.datetime.now(tz=datetime.timezone.utc))
+    created_at = mongoengine.DateTimeField(
+        default=datetime.datetime.now(tz=datetime.timezone.utc)
+    )
     creator = mongoengine.LongField(required=True)
 
     song_url = mongoengine.StringField(required=True)

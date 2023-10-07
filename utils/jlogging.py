@@ -1,13 +1,29 @@
 import colorama
 import datetime
 
+
 def log(name, log):
-    print(colorama.Style.RESET_ALL + colorama.Fore.BLUE + f"{name}" + colorama.Fore.MAGENTA + f":{log}" + colorama.Style.RESET_ALL)
+    print(
+        colorama.Style.RESET_ALL
+        + colorama.Fore.BLUE
+        + f"{name}"
+        + colorama.Fore.MAGENTA
+        + f":{log}"
+        + colorama.Style.RESET_ALL
+    )
 
 
 def time_log(name, log):
-    print(colorama.Style.RESET_ALL + colorama.Fore.BLUE + f"{name}" + colorama.Fore.GREEN +
-            f"{datetime.datetime.now()}" + colorama.Fore.MAGENTA + f":{log}" + colorama.Style.RESET_ALL)
+    print(
+        colorama.Style.RESET_ALL
+        + colorama.Fore.BLUE
+        + f"{name}"
+        + colorama.Fore.GREEN
+        + f"{datetime.datetime.now()}"
+        + colorama.Fore.MAGENTA
+        + f":{log}"
+        + colorama.Style.RESET_ALL
+    )
 
 
 def error(name, log):

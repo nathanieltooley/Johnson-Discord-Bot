@@ -5,6 +5,7 @@ import datetime
 from youtube_search import YoutubeSearch
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
+
 def create_spotify_object():
     scope = "playlist-modify-public"
 
@@ -27,24 +28,25 @@ def create_auth_spotify_object():
     jlogging.log(__name__, f"auth: {sp_oauth.get_authorize_url()}")
 
     token = sp_oauth.get_access_token(url)
-    sp = spotipy.Spotify(auth=token['access_token'])
+    sp = spotipy.Spotify(auth=token["access_token"])
 
     return sp
 
-class SpotifyClient:    
-    spotify = create_spotify_object()
-    auth_spotify = None # SpotifyCreator.create_auth_spotify_object()
 
-    
-def get_all_playlist_tracks(playlist_id='6yO77cQ0JTMKuNxLh47oLX'):
+class SpotifyClient:
+    spotify = create_spotify_object()
+    auth_spotify = None  # SpotifyCreator.create_auth_spotify_object()
+
+
+def get_all_playlist_tracks(playlist_id="6yO77cQ0JTMKuNxLh47oLX"):
     my_user_id = "yallmindifiyeet"
 
     results = SpotifyClient.spotify.user_playlist_tracks(my_user_id, playlist_id)
-    tracks = results['items']
+    tracks = results["items"]
 
-    while results['next']:
+    while results["next"]:
         results = SpotifyClient.spotify.next(results)
-        tracks.extend(results['items'])
+        tracks.extend(results["items"])
 
     return tracks
 
@@ -55,10 +57,10 @@ def get_track(id):
 
 def get_length_of_playlist():
     my_user_id = "yallmindifiyeet"
-    playlist_id = '6yO77cQ0JTMKuNxLh47oLX'
+    playlist_id = "6yO77cQ0JTMKuNxLh47oLX"
 
     results = SpotifyClient.spotify.user_playlist_tracks(my_user_id, playlist_id)
-    return results['total']
+    return results["total"]
 
 
 def parse_date(date_string):
@@ -72,7 +74,9 @@ def determine_diff(tracks, songs, check_updated):
     for song in songs:
         found = False
         for track in tracks:
-            if song == track['track']['id']: # song.name == track['track']['name'] and song.artists[0] == track['track']['artists'][0]['name']:
+            if (
+                song == track["track"]["id"]
+            ):  # song.name == track['track']['name'] and song.artists[0] == track['track']['artists'][0]['name']:
                 songs_in_tracks.append(song)
                 found = True
 
@@ -84,7 +88,7 @@ def determine_diff(tracks, songs, check_updated):
     tracks_added = []
 
     for track in tracks:
-        parsed_date = parse_date(track['added_at'])
+        parsed_date = parse_date(track["added_at"])
 
         td = check_updated - parsed_date
 
@@ -110,9 +114,9 @@ def verify_spotify_url(url, desired_type):
     # ex. "https://open.spotify.com/track/33i4H7iDxIes1d8Nd0S3QF?si=aa73a3fc629140c1"
 
     # remove https://
-    pre_split = url[8: len(url)]
+    pre_split = url[8 : len(url)]
 
-    sections = pre_split.split('/')
+    sections = pre_split.split("/")
 
     # three responses: correct form, incorrect type, not a spotify link (in that order)
     try:
@@ -130,29 +134,31 @@ def verify_spotify_url(url, desired_type):
 
 def parse_id_out_of_url(song_url):
     # https://open.spotify.com/track/1bt443XPmX5ZG5DjhMJ8Rh?si=f6f953ba6c594500
-    sections = song_url.split('/')
+    sections = song_url.split("/")
     end = sections[-1]
 
     if "?" in end:
         q_pos = end.find("?")
-        return end[0: q_pos]
+        return end[0:q_pos]
     else:
         return end
 
 
 def get_album_art_url(track):
-    return track['album']['images'][0]['url']
+    return track["album"]["images"][0]["url"]
 
 
 def add_song_to_playlist(playlist_id, song_url):
-    SpotifyClient.auth_spotify.user_playlist_add_tracks("yallmindifiyeet", playlist_id, [SpotifyClient.parse_id_out_of_url(song_url)])
+    SpotifyClient.auth_spotify.user_playlist_add_tracks(
+        "yallmindifiyeet", playlist_id, [SpotifyClient.parse_id_out_of_url(song_url)]
+    )
 
 
 def is_song_in_playlist(playlist_id, song_url):
     tracks = SpotifyClient.get_all_playlist_tracks(playlist_id)
 
     for track in tracks:
-        if SpotifyClient.parse_id_out_of_url(song_url) == track['track']['id']:
+        if SpotifyClient.parse_id_out_of_url(song_url) == track["track"]["id"]:
             return True
 
     return False
@@ -161,8 +167,8 @@ def is_song_in_playlist(playlist_id, song_url):
 def get_artist_names(track_info):
     artist_names = []
 
-    for artist in track_info['artists']:
-        artist_names.append(artist['name'])
+    for artist in track_info["artists"]:
+        artist_names.append(artist["name"])
 
     return artist_names
 
@@ -193,8 +199,8 @@ def determine_best_search_result(search_results: dict):
 
 def get_all_album_tracks(album_id):
     album_page = SpotifyClient.spotify.album_tracks(album_id)
-    tracks = album_page['items']
+    tracks = album_page["items"]
 
-    while album_page['next']:
+    while album_page["next"]:
         t = SpotifyClient.spotify.next(album_page)
         tracks.extend(t)

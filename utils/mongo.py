@@ -13,8 +13,8 @@ from data_models.servers import Servers
 from data_models.items import Item, BaseItem
 from data_models.spotify_check import SpotifyCheck, Song
 
+
 def get_user(member: discord.Member, server: discord.Guild, opp=None):
-    
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
 
@@ -25,9 +25,11 @@ def get_user(member: discord.Member, server: discord.Guild, opp=None):
         response = server_objects
     return response
 
+
 def get_server(server_id):
     response = Servers.objects().filter(discord_id=server_id).first()
     return response
+
 
 def create_server(server_id):
     server = Servers()
@@ -37,6 +39,7 @@ def create_server(server_id):
         server.save()
     else:
         return False
+
 
 def create_user(discord_user: discord.Member, server):
     user = Users()
@@ -55,6 +58,7 @@ def create_user(discord_user: discord.Member, server):
     else:
         return False
 
+
 def income(member, server, money):
     discord_id = member.id
     user = get_user(member, server)
@@ -67,6 +71,7 @@ def income(member, server, money):
     user.save()
 
     # Users.objects(discord_id=discord_id, server_id=server.id).update_one(vbucks=new_money)
+
 
 def exp_check(member, server, min_exp, max_exp):
     discord_id = member.id
@@ -95,17 +100,20 @@ def exp_check(member, server, min_exp, max_exp):
         # Users.objects(discord_id=discord_id).update_one(exp=new_exp)
         return None
 
+
 def get_leaderboard_results(field, server):
     server_group = Users.switch_collection(Users(), f"{server.id}")
     server_objects = QuerySet(Users, server_group._get_collection())
     responses = server_objects[:10]().order_by(f"-{field}")
     return responses
 
+
 def update_vbucks(member, server, money: int):
     user = get_user(member, server)
     user.switch_collection(f"{server.id}")
     user.vbucks = money
     user.save()
+
 
 def update_exp(member, server, exp):
     user = get_user(member, server)
@@ -124,7 +132,10 @@ def update_exp(member, server, exp):
         user.save()
         return new_level
 
-def add_to_slur_count(member: discord.Member, server: discord.Guild, number: int, slur: str):
+
+def add_to_slur_count(
+    member: discord.Member, server: discord.Guild, number: int, slur: str
+):
     user = get_user(member, server)
     user.switch_collection(f"{server.id}")
 
@@ -139,12 +150,14 @@ def add_to_slur_count(member: discord.Member, server: discord.Guild, number: int
 
     user.save()
 
+
 def add_to_stroke_count(member, server, number):
     user = get_user(member, server)
     user.switch_collection(f"{server.id}")
     old_count = user.stroke_count
     user.stroke_count = old_count + number
     user.save()
+
 
 def transact(giver, receiver, server, money):
     giver_user = get_user(giver, server)
@@ -158,12 +171,14 @@ def transact(giver, receiver, server, money):
         income(receiver, server, money)
         return True
 
+
 def get_saved_spotify_change():
     try:
         checks = SpotifyCheck.objects.get()
         return SpotifyCheck.objects.first()
     except mongoengine.DoesNotExist:
         return None
+
 
 def check_for_spotify_change():
     count = jspotify.get_length_of_playlist()
@@ -184,49 +199,55 @@ def check_for_spotify_change():
     else:
         return None
 
+
 def create_spotify_check(tracks):
-    sc = SpotifyCheck(count=len(tracks), last_updated=datetime.datetime.now(datetime.timezone.utc))
+    sc = SpotifyCheck(
+        count=len(tracks), last_updated=datetime.datetime.now(datetime.timezone.utc)
+    )
 
     for track in tracks:
         artist_names = []
 
-        for artist in track['track']['artists']:
-            artist_names.append(artist['name'])
+        for artist in track["track"]["artists"]:
+            artist_names.append(artist["name"])
 
         # date format: YYYY-MM-DDTHH-MM-SSZ
-        added_at = jspotify.parse_date(track['added_at'])
+        added_at = jspotify.parse_date(track["added_at"])
 
         album_url = None
 
-        if track['track']['is_local']:
+        if track["track"]["is_local"]:
             album_url = bot_enums.Enums.BOT_AVATAR_URL.value
         else:
-            album_url = track['track']['album']['images'][0]['url']
+            album_url = track["track"]["album"]["images"][0]["url"]
 
-
-        song = Song(name=track['track']['name'],
-                    artists=artist_names,
-                    album=track['track']['album']['name'],
-                    album_url=album_url,
-                    added_at=added_at)
+        song = Song(
+            name=track["track"]["name"],
+            artists=artist_names,
+            album=track["track"]["album"]["name"],
+            album_url=album_url,
+            added_at=added_at,
+        )
 
         # sc.songs.append(song)
 
-        sc.songs.append(track['track']['id'])
+        sc.songs.append(track["track"]["id"])
 
     return sc
+
 
 def update_spotify_check(tracks):
     sc = create_spotify_check(tracks)
 
     update_dict = {
-        'set__count': sc.count,
-        'set__last_updated': sc.last_updated,
-        'set__songs': sc.songs
+        "set__count": sc.count,
+        "set__last_updated": sc.last_updated,
+        "set__songs": sc.songs,
     }
 
     SpotifyCheck.objects.update_one(upsert=True, **update_dict)
     return sc
+
 
 def set_server_currency_name(server_id, currency_name):
     server = get_server(server_id)
@@ -238,6 +259,7 @@ def set_server_currency_name(server_id, currency_name):
     server.currency_name = currency_name
     server.save()
 
+
 def get_server_currency_name(server_id):
     server = get_server(server_id)
 
@@ -247,6 +269,7 @@ def get_server_currency_name(server_id):
         return "V-Bucks"
     else:
         return c_name
+
 
 # def create_spotify_poll(song_url, poll_creator: discord.Member, required_votes):
 #     poll = SongPoll(

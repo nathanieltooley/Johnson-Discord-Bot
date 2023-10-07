@@ -1,8 +1,18 @@
 from discord.ext import commands
 from enums import bot_enums
 
-slur_list = ["nigger", 'nigga', 'negro', 'chink', 'niglet', 'nigtard', 'gook', 'kike',
-                 'faggot', 'beaner']
+slur_list = [
+    "nigger",
+    "nigga",
+    "negro",
+    "chink",
+    "niglet",
+    "nigtard",
+    "gook",
+    "kike",
+    "faggot",
+    "beaner",
+]
 
 
 def rude_name_check():

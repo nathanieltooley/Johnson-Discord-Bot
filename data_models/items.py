@@ -11,14 +11,10 @@ class BaseItem(mongoengine.Document):
     value = mongoengine.IntField(required=True)
     rarity = mongoengine.StringField(default="Common", choices=choices)
 
-    meta: {
-        "db_alias": "default",
-        "collection": "Items"
-    }
+    meta: {"db_alias": "default", "collection": "Items"}
 
 
 class Item(mongoengine.EmbeddedDocument):
     ref_id = mongoengine.StringField(required=True)
     last_owner = mongoengine.LongField()
     owner = mongoengine.LongField(required=True)
-

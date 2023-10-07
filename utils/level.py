@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 def get_bot_level():
     return os.getenv("LEVEL")
 

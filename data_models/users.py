@@ -14,7 +14,5 @@ class Users(mongoengine.DynamicDocument):
     stroke_count = mongoengine.IntField(default=0)
 
     inventory = mongoengine.EmbeddedDocumentListField(Item)
-    
-    meta = {
-        "db_alias": "default"
-    }
+
+    meta = {"db_alias": "default"}

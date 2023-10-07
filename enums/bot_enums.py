@@ -4,7 +4,9 @@ import enum
 
 class Enums(Enum):
     BOT_AVATAR_URL = "https://media.discordapp.net/attachments/649780106885070868/852369616226353234/New_Johnson.png?width=486&height=468"
-    ASTAR_AVATAR_URL = "https://i1.sndcdn.com/avatars-INf0AAl2F1SEzJx8-Uya6IA-t200x200.jpg"
+    ASTAR_AVATAR_URL = (
+        "https://i1.sndcdn.com/avatars-INf0AAl2F1SEzJx8-Uya6IA-t200x200.jpg"
+    )
     OWNER_ID = 139374003365216256
     TEST_SERVER_ID = 427299383474782208
     JOHNSON_ID = 600162735975694356
@@ -35,4 +37,3 @@ class ReturnTypes(Enum):
     RETURN_TYPE_SPOTALBUM_URL = 6
     RETURN_TYPE_SUCCESSFUL_DISCONNECT = 7
     RETURN_TYPE_SUCCESSFUL_CONNECT = 8
-

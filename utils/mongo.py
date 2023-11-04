@@ -4,13 +4,12 @@ import datetime
 import math
 import utils.jspotify as jspotify
 
-from random import randrange, choice
+from random import randrange
 from mongoengine.queryset import QuerySet
 from enums import bot_enums
 
 from data_models.users import Users
 from data_models.servers import Servers
-from data_models.items import Item, BaseItem
 from data_models.spotify_check import SpotifyCheck, Song
 
 

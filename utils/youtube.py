@@ -1,5 +1,6 @@
 from enums import bot_enums
 from yt_dlp import YoutubeDL
+from typing import List, Dict
 
 
 def construct_url_from_suffix(suffix):
@@ -17,12 +18,12 @@ def get_video_info(url):
         return info
 
 
-def find_best_audio_link(formats, url_type):
+def find_best_audio_link(formats: List["Dict"], url_type):
     if url_type == bot_enums.ReturnTypes.RETURN_TYPE_SOUNDCLOUD_URL:
         for f in formats:
-            if f["audio_ext"] == "opus":
+            if f.get("audio_ext") == "opus":
                 return f["url"]
     else:
         for f in formats:
-            if f["acodec"] == "opus":
+            if f.get("acodec") == "opus":
                 return f["url"]

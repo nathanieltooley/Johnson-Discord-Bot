@@ -21,10 +21,12 @@ status = cycle(
 
 class Setup(commands.Cog):
     logger = jlogging.get_logger(__name__, level.get_bot_level())
+    h_logger = jlogging.get_logger("heartbeat", level.get_bot_level())
 
     def __init__(self, client):
         self.client = client
         self.change_status.start()
+        self.heartbeat.start()
         # self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
@@ -52,8 +54,7 @@ class Setup(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def heartbeat(self):
-        h_logger = jlogging.get_logger("heartbeat", level.get_bot_level())
-        h_logger.info("Heartbeat!")
+        Setup.h_logger.info("Heartbeat!")
 
     def create_change_embeds(self, changes):
         embeds = []

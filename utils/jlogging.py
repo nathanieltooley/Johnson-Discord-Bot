@@ -11,6 +11,18 @@ class JohnsonFormatter(logging.Formatter):
         tzinfo = pytz.timezone("US/Central")
         return tzinfo.localize(dt)
 
+    def formatTime(self, record, datefmt=None):
+        dt = self.converter(record.created)
+        if datefmt:
+            s = dt.strftime(datefmt)
+        else:
+            try:
+                s = dt.isoformat(timespec="milliseconds")
+            except TypeError:
+                s = dt.isoformat()
+
+        return s
+
 
 def log(name, log):
     print(

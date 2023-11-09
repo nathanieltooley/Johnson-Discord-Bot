@@ -16,6 +16,8 @@ from utils import messaging, vcm, jspotify, youtube, jlogging, level
 
 
 class Music(commands.Cog):
+    logger = jlogging.get_logger(__name__, level.get_bot_level())
+
     def __init__(self, client):
         self.client = client
         self.queue = []
@@ -438,8 +440,7 @@ class Music(commands.Cog):
 
             audio_url = youtube.find_best_audio_link(info["formats"], queued_song.url)
 
-            if level.get_bot_level() == "DEBUG":
-                jlogging.log("music_bot", f"Best Audio Link: {audio_url}")
+            Music.logger.debug("Best Audio Link: %s", audio_url)
 
             source = None
 
@@ -451,9 +452,8 @@ class Music(commands.Cog):
                     )
                     break
                 except Exception as e:
-                    jlogging.error(
-                        "__music_bot__",
-                        f"Audio probe failed, trys left: {retries - (i + 1)}",
+                    Music.logger.warning(
+                        "Audio probe failed, trys left: %d", retries - (i + 1)
                     )
 
             if source is None:

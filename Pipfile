@@ -11,6 +11,7 @@ yt-dlp = "*"
 mongoengine = "*"
 youtube-search = "*"
 python-dotenv = "*"
+pytz = "*"
 
 [dev-packages]
 

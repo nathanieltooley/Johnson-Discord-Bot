@@ -7,6 +7,8 @@ from data_models.kwr import KeywordResponse
 
 
 class Event(commands.Cog):
+    logger = jlogging.get_logger(__name__, level.get_bot_level())
+
     def __init__(self, client):
         self.client = client
         self.keyword_responses = KeywordResponse.read_keyword_responses()
@@ -58,7 +60,7 @@ class Event(commands.Cog):
                     color=discord.Color.red(),
                 )
 
-        jlogging.error("command_error", error)
+        Event.logger.error("command_error", error, exc_info=True)
 
     @commands.Cog.listener()
     async def on_member_update(self, ctx, member):
@@ -73,11 +75,11 @@ class Event(commands.Cog):
 
         if member.id == id_check and after.channel is not None:
             self.remind_wyatt.start()
-            jlogging.time_log(__name__, "Sending reminders to wyatt!")
+            Event.logger.info("Sending reminders to wyatt!")
 
         if member.id == id_check and after.channel is None:
             self.remind_wyatt.stop()
-            jlogging.time_log(__name__, "Ending reminders to wyatt!")
+            Event.logger.info("Ending reminders to wyatt!")
 
     @tasks.loop(minutes=7)
     async def remind_wyatt(self):
@@ -123,7 +125,7 @@ class Event(commands.Cog):
     @staticmethod
     def record_said_slur(message, slur):
         mongo.add_to_slur_count(message.author, message.guild, 1, slur)
-        jlogging.log(__name__, f"{message.author.name} said slur: {slur}")
+        Event.logger.info("%s said slur: %s", message.author.name, slur)
 
     @staticmethod
     async def respond_to_slur(message):
@@ -134,9 +136,7 @@ class Event(commands.Cog):
             f"Hey {message.author.mention}! That's racist, and racism is no good :disappointed:"
         )
         await message.delete()
-        jlogging.log(
-            __name__, f"Message deleted, from {message_author}:{message_content}"
-        )
+        Event.logger.info("Message delete from %s: %s", message_author, message_content)
 
     async def determine_response(self, said_slur, message):
         if said_slur is not None:

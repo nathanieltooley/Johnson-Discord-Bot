@@ -13,20 +13,21 @@ from utils import level, messaging, jspotify, mongo, jlogging
 status = cycle(
     [
         "Fortnite",
-        "Omori. And you should too!" "Made by Nathaniel",
+        "Omori. And you should too!",
+        "Made by Nathaniel",
     ]
 )
 
 
 class Setup(commands.Cog):
+    logger = jlogging.get_logger(__name__, level.get_bot_level())
+
     def __init__(self, client):
         self.client = client
         self.change_status.start()
         # self.check_playlist_changes.start()
         # self.check_for_dead_polls.start()
         self.count = 0
-
-    # Commands
 
     @commands.has_permissions(administrator=True)
     @commands.command()
@@ -44,21 +45,15 @@ class Setup(commands.Cog):
             f"Bong! {round(self.client.latency * 1000)}ms; Times Pinged: {self.count}",
         )
 
-    @app_commands.command(name="test_defer", description="fuck off")
-    async def test_defer(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-
-        print("fuck")
-        await asyncio.sleep(3)
-        print("you")
-
-        await interaction.followup.send("fuck yeah")
-        await interaction.followup.send("oh nyo")
-
     @tasks.loop(seconds=45)
     async def change_status(self):
         new_stat = next(status)
         await self.client.change_presence(activity=discord.Game(name=new_stat))
+
+    @tasks.loop(minutes=1)
+    async def heartbeat(self):
+        h_logger = jlogging.get_logger("heartbeat", level.get_bot_level())
+        h_logger.info("Heartbeat!")
 
     def create_change_embeds(self, changes):
         embeds = []
@@ -119,73 +114,79 @@ class Setup(commands.Cog):
 
         return embeds
 
-    @tasks.loop(seconds=10)
-    async def check_playlist_changes(self):
-        jlogging.log(__name__, "Running Spotify Check!")
-        start = datetime.datetime.now()
-        # hard coded because fuck it, its my bot and my playlist
-        # channel_id = 842246555205763092
-        channel_id = 649781215808978946
-        channel = self.client.get_channel(channel_id)
-
-        try:
-            diff = mongo.check_for_spotify_change()
-
-            if diff:
-                embeds = self.create_change_embeds(diff)
-
-                for embed in embeds:
-                    await channel.send(embed=embed)
-
-            jlogging.log(
-                "Spotify Check",
-                f"Check successful; took: {datetime.datetime.now() - start}",
-            )
-        except Exception as e:
-            jlogging.error("Spotify Check", f"Check unsuccessful: {e}")
+    # @tasks.loop(seconds=10)
+    # async def check_playlist_changes(self):
+    #     # jlogging.log(__name__, "Running Spotify Check!")
+    #     start = datetime.datetime.now()
+    #     # hard coded because fuck it, its my bot and my playlist
+    #     # channel_id = 842246555205763092
+    #     channel_id = 649781215808978946
+    #     channel = self.client.get_channel(channel_id)
+    #
+    #     try:
+    #         diff = mongo.check_for_spotify_change()
+    #
+    #         if diff:
+    #             embeds = self.create_change_embeds(diff)
+    #
+    #             for embed in embeds:
+    #                 await channel.send(embed=embed)
+    #
+    #         # jlogging.log(
+    #         #     "Spotify Check",
+    #         #     f"Check successful; took: {datetime.datetime.now() - start}",
+    #         # )
+    #     except Exception as e:
+    #         pass
+    #         # jlogging.error("Spotify Check", f"Check unsuccessful: {e}")
 
     # @tasks.loop(hours=1)
-    async def check_for_dead_polls(self):
-        polls = mongo.get_all_polls()
-
-        for poll in polls:
-            now = datetime.datetime.now(tz=datetime.timezone.utc)
-            td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(
-                tzinfo=datetime.timezone.utc
-            )
-
-            jlogging.log("spotify_prune", f"Time delta: {td}")
-
-            # limit is a day
-            if td.total_seconds() >= 86400:
-                channel = level.get_poll_channel(self.client)
-                message = await channel.fetch_message(poll.poll_id)
-
-                await message.delete()
-
-                embed = messaging.create_message_embed(
-                    "Poll Closed!",
-                    f"{self.client.get_user(poll.creator).mention}'s poll "
-                    f"has been closed. opened at "
-                    f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})",
-                )
-                await channel.send(embed=embed)
-                poll.delete()
+    # async def check_for_dead_polls(self):
+    #     polls = mongo.get_all_polls()
+    #
+    #     for poll in polls:
+    #         now = datetime.datetime.now(tz=datetime.timezone.utc)
+    #         td = now.replace(tzinfo=datetime.timezone.utc) - poll.created_at.replace(
+    #             tzinfo=datetime.timezone.utc
+    #         )
+    #
+    #         jlogging.log("spotify_prune", f"Time delta: {td}")
+    #
+    #         # limit is a day
+    #         if td.total_seconds() >= 86400:
+    #             channel = level.get_poll_channel(self.client)
+    #             message = await channel.fetch_message(poll.poll_id)
+    #
+    #             await message.delete()
+    #
+    #             embed = messaging.create_message_embed(
+    #                 "Poll Closed!",
+    #                 f"{self.client.get_user(poll.creator).mention}'s poll "
+    #                 f"has been closed. opened at "
+    #                 f"{poll.created_at}. td: {td}. sec: ({td.total_seconds()})",
+    #             )
+    #             await channel.send(embed=embed)
+    #             poll.delete()
 
     @change_status.before_loop
     async def before_status(self):
-        jlogging.log(__name__, "Waiting start status change...")
+        Setup.logger.info("Waiting to start status change...")
         await self.client.wait_until_ready()
 
-    # @check_playlist_changes.before_loop
-    async def before_check(self):
-        jlogging.log(__name__, "Waiting to start spotify polling...")
+    @heartbeat.before_loop
+    async def before_hb(self):
+        Setup.logger.info("Waiting to start Heartbeat ...")
         await self.client.wait_until_ready()
 
-    # @check_for_dead_polls.before_loop
-    async def before_polls(self):
-        jlogging.log(__name__, "Waiting to start poll prune...")
-        await self.client.wait_until_ready()
+    # # @check_playlist_changes.before_loop
+    # async def before_check(self):
+    #     jlogging.log(__name__, "Waiting to start spotify polling...")
+    #     await self.client.wait_until_ready()
+    #
+    # # @check_for_dead_polls.before_loop
+    # async def before_polls(self):
+    #     jlogging.log(__name__, "Waiting to start poll prune...")
+    #     await self.client.wait_until_ready()
 
 
 async def setup(client):

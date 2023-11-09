@@ -60,4 +60,4 @@ def get_logger(name, bot_level) -> logging.Logger:
 
 
 def get_formatter() -> logging.Formatter:
-    return JohnsonFormatter("%(acstime)s - %(levelname)s - %(message)s")
+    return JohnsonFormatter("%(asctime)s - %(levelname)s - %(message)s")

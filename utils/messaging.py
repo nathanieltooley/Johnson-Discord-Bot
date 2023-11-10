@@ -1,7 +1,9 @@
 import discord
 from enums.bot_enums import Enums as bot_enums
 
-from utils import jlogging
+from utils import jlogging, level
+
+logger = jlogging.get_logger(__name__, level.get_bot_level)
 
 
 def create_message_embed(
@@ -36,16 +38,13 @@ async def respond_embed(
 
 async def safe_message_delete(message: discord.Message):
     try:
-        jlogging.log("message_deletion", f"Deleting message {message.id}")
+        logger.info("Deleting message %d", message.id)
         await message.delete()
 
         # we return None here so that the stored message gets replaced with None
         return None
     except discord.NotFound or discord.HTTPException:
-        jlogging.error(
-            "message_deletion",
-            f"Error occurred when trying to delete message {message.id}",
-        )
+        logger.error("Error occurred when trying to delete message %d", message.id)
 
 
 async def respond(

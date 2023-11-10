@@ -45,18 +45,19 @@ class ColorFormatter(logging.Formatter):
         validate: bool = True,
     ) -> None:
         self._level_colors = {
-            logging.DEBUG: colorama.Style.DIM + colorama.Fore.BLUE,
+            logging.DEBUG: colorama.Fore.GREEN,
             logging.INFO: colorama.Fore.BLUE,
             logging.WARN: colorama.Fore.YELLOW,
-            logging.ERROR: colorama.Style.BRIGHT + colorama.Fore.RED,
-            logging.CRITICAL: colorama.Style.BRIGHT + colorama.Fore.RED,
+            logging.ERROR: colorama.Fore.RED,
+            logging.CRITICAL: colorama.Fore.RED,
         }
         super().__init__(fmt, datefmt, style, validate)
 
     def format(self, record: logging.LogRecord) -> str:
         f = (
             colorama.Style.RESET_ALL
-            + f"%(asctime)s - {self._level_colors.get(record.levelno)}%(levelname)s - %(message)s"
+            + f"%(name)s:%(asctime)s - {colorama.Style.DIM}{self._level_colors.get(record.levelno)}%(levelname)s"
+            + f"- {colorama.Style.BRIGHT}%(message)s"
             + colorama.Style.RESET_ALL
         )
 
@@ -81,4 +82,4 @@ def get_logger(name, bot_level) -> logging.Logger:
 
 
 def get_formatter() -> logging.Formatter:
-    return ColorFormatter(datefmt="%Y/%m/%d - %H:%M:%S")
+    return ColorFormatter(datefmt="%Y/%m/%d - %H:%M:%S:%Z")

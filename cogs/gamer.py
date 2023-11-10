@@ -10,6 +10,8 @@ from utils import mongo, messaging, level, checks, jlogging
 
 
 class Gamer(commands.Cog):
+    logger = jlogging.get_logger(__name__, level.get_bot_level())
+
     def __init__(self, client):
         self.client = client
 

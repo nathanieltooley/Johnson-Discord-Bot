@@ -1,18 +1,17 @@
 import asyncio
 
 import discord
-import os
 import random
 
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord import app_commands
 
-from enums.bot_enums import Enums
-
-from utils import checks, messaging, games, mongo, level
+from utils import checks, jlogging, messaging, games, mongo, level
 
 
 class Gamble(commands.Cog):
+    logger = jlogging.get_logger(__name__, level.get_bot_level())
+
     def __init__(self, client):
         self.client = client
 

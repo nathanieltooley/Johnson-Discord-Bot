@@ -5,12 +5,16 @@ import datetime
 from youtube_search import YoutubeSearch
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
+from utils.level import get_bot_level
+
+logger = jlogging.get_logger(__name__, get_bot_level())
+
 
 def create_spotify_object():
     scope = "playlist-modify-public"
 
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    jlogging.log(__name__, "Spotify Client Created!")
+    logger.info("Spotify Client Created!")
 
     return sp
 
@@ -23,9 +27,9 @@ def create_auth_spotify_object():
     url = sp_oauth.get_authorize_url()
     # code = sp_oauth.parse_response_code(url)
 
-    jlogging.log(__name__, f"url: {url}")
+    logger.info("url: %s", url)
     # Logging.log(__name__, f"code: {code}")
-    jlogging.log(__name__, f"auth: {sp_oauth.get_authorize_url()}")
+    logger.info("auth: %s", sp_oauth.get_authorize_url())
 
     token = sp_oauth.get_access_token(url)
     sp = spotipy.Spotify(auth=token["access_token"])

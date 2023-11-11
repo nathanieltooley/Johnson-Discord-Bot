@@ -57,7 +57,7 @@ class ColorFormatter(logging.Formatter):
         f = (
             colorama.Style.RESET_ALL
             + f"%(name)s:%(asctime)s - {colorama.Style.DIM}{self._level_colors.get(record.levelno)}%(levelname)s"
-            + f"- {colorama.Style.BRIGHT}%(message)s"
+            + f" - {colorama.Style.BRIGHT}%(message)s"
             + colorama.Style.RESET_ALL
         )
 

@@ -431,7 +431,7 @@ class Music(commands.Cog):
         }
         ydl_options = {"format": "bestaudio"}
 
-        jlogging.log("music_bot", f"Starting playback; url: {queued_song.url}")
+        Music.logger.info("Starting playback; url: {queued_song.url}")
         with YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(queued_song.url, download=False)
 

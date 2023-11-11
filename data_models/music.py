@@ -59,10 +59,6 @@ class SpotifySong(BaseSong):
             if search_result is not None:
                 suffix = search_result["url_suffix"]
                 self.url = youtube.construct_url_from_suffix(suffix)
-                jlogging.log(
-                    "music_bot",
-                    f"Youtube search took {i} tries for {self.title} - {self.authors}",
-                )
                 self.url_converted = True
                 break
 

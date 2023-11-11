@@ -14,9 +14,9 @@ class CentralTimeFormatter(logging.Formatter):
     """Formats the current time in US/Central to an ISO format"""
 
     def converter(self, timestamp):
-        dt = datetime.datetime.fromtimestamp(timestamp)
-        tzinfo = pytz.timezone("US/Central")
-        return tzinfo.localize(dt)
+        # dt = datetime.datetime.fromtimestamp(timestamp)
+        dt = datetime.datetime.now(tz=pytz.UTC)
+        return dt.astimezone(pytz.timezone("US/Central"))
 
     def formatTime(self, record, datefmt=None):
         dt = self.converter(record.created)

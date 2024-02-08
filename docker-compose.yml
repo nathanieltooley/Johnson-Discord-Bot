@@ -1,8 +1,9 @@
 version: "3.8"
-services: 
+services:
   main:
     build: .
     container_name: johnson
+    restart: always
     environment:
       - TOKEN
       - SPOTIPY_CLIENT_ID
